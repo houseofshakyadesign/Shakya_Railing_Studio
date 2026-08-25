@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Download, Lock, LogOut, Plus, RefreshCw, ShieldCheck, Trash2, User, X } from "lucide-react";
-import { useEffect, useState } from "react";
+import { Download, Image as ImageIcon, Lock, LogOut, Plus, RefreshCw, ShieldCheck, Trash2, Upload, User, X } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
@@ -435,19 +435,74 @@ function ProductEditor({
 }) {
   const [draft, setDraft] = useState<Product | null>(product);
   const [saving, setSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setDraft(product), [product]);
+  useEffect(() => {
+    setDraft(product);
+    setSelectedFile(null);
+    setPreviewUrl(product?.image || "");
+  }, [product]);
+
   if (!product || !draft) return null;
 
   const set = <K extends keyof Product>(k: K, v: Product[K]) =>
     setDraft((d) => (d ? { ...d, [k]: v } : d));
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select a valid image file (JPEG, PNG, WebP, AVIF).");
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("Image file size must be less than 10MB.");
+      return;
+    }
+
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    toast.success("Image selected for upload");
+  };
+
   const handleFormSave = async () => {
     setSaving(true);
+    let finalImageUrl = draft.image;
+
     try {
+      if (selectedFile && supabase && isSupabaseConfigured) {
+        const fileExt = selectedFile.name.split(".").pop() || "jpg";
+        const cleanCode = (draft.code || "product").toLowerCase().replace(/[^a-z0-9]/g, "-");
+        const fileName = `${cleanCode}-${Date.now()}.${fileExt}`;
+
+        const { error: uploadErr } = await supabase.storage
+          .from("product-images")
+          .upload(fileName, selectedFile, {
+            cacheControl: "3600",
+            upsert: true,
+          });
+
+        if (!uploadErr) {
+          const {
+            data: { publicUrl },
+          } = supabase.storage.from("product-images").getPublicUrl(fileName);
+          finalImageUrl = publicUrl;
+        } else {
+          console.error("Storage upload error:", uploadErr);
+          toast.error("Could not upload to cloud storage, saving local preview.");
+          finalImageUrl = previewUrl;
+        }
+      }
+
       await onSave({
         ...draft,
-        gallery: draft.gallery.length ? draft.gallery : [draft.image],
+        image: finalImageUrl,
+        gallery: [finalImageUrl],
       });
     } finally {
       setSaving(false);
@@ -509,11 +564,63 @@ function ProductEditor({
                 onChange={(e) => set("pricePerSqft", Number(e.target.value) || 0)}
               />
             </Field>
+
+            {/* Direct Image Upload & Live Preview Section */}
             <div className="sm:col-span-2">
-              <Field id="p-img" label="Image path" hint="e.g. /images/railings/r04.jpg">
-                <input className={inputClass} value={draft.image} onChange={(e) => set("image", e.target.value)} />
-              </Field>
+              <label className="mb-2 block text-[0.68rem] tracking-[0.16em] uppercase text-muted-foreground">
+                Product Image
+              </label>
+              <div className="flex flex-col sm:flex-row gap-5 items-start border border-hairline bg-card p-4">
+                <div className="relative w-full sm:w-44 h-36 shrink-0 bg-background border border-hairline overflow-hidden">
+                  {previewUrl ? (
+                    <img
+                      src={previewUrl}
+                      alt={draft.name || "Product preview"}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-3 text-center">
+                      <ImageIcon className="h-6 w-6 text-bronze/60 mb-1" />
+                      <span className="text-[0.62rem] uppercase tracking-wider">No photo</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex-1 w-full flex flex-col justify-between min-h-[144px]">
+                  <div>
+                    <p className="text-xs font-medium">Direct Photo Upload</p>
+                    <p className="text-[0.7rem] text-muted-foreground mt-1 leading-relaxed">
+                      Upload high-resolution railing photos directly from your device. Supported formats: JPEG, PNG, WebP, AVIF.
+                    </p>
+                  </div>
+
+                  <div className="mt-4 flex flex-wrap items-center gap-3">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleFileChange}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      className="flex items-center gap-2 border border-bronze/60 bg-bronze/10 text-bronze px-4 py-2 text-[0.68rem] tracking-[0.16em] uppercase hover:bg-bronze hover:text-ivory transition-colors"
+                    >
+                      <Upload className="h-3.5 w-3.5" />
+                      {selectedFile ? "Replace Selected Photo" : "Upload / Change Photo"}
+                    </button>
+
+                    {selectedFile ? (
+                      <span className="text-[0.68rem] text-muted-foreground truncate max-w-[180px]">
+                        {selectedFile.name} ({(selectedFile.size / 1024).toFixed(0)} KB)
+                      </span>
+                    ) : null}
+                  </div>
+                </div>
+              </div>
             </div>
+
             <div className="sm:col-span-2">
               <Field id="p-feat" label="Features" hint="One per line">
                 <textarea
@@ -559,7 +666,7 @@ function ProductEditor({
               onClick={handleFormSave}
               className="bg-charcoal px-7 py-3.5 text-[0.7rem] tracking-[0.2em] text-ivory uppercase hover:bg-bronze disabled:opacity-50"
             >
-              {saving ? "Saving to Supabase..." : "Save"}
+              {saving ? "Saving to Supabase..." : "Save Product"}
             </button>
             <button
               type="button"
