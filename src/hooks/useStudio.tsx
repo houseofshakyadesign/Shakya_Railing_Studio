@@ -215,19 +215,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
     return [];
   });
-  const [selectedId, setSelectedId] = useState<string | null>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const saved = readJSON<string | null>(STORAGE_KEYS.selected, null);
-        if (saved) return saved;
-      } catch {
-        /* ignore */
-      }
-    }
-    return null;
-  });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // 1. Initial hydration from local cache
+  // 1. Initial hydration from local cache (resets selection on full page refresh)
   useEffect(() => {
     const ok = isStorageAvailable();
     setStorageOk(ok);
@@ -248,9 +238,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       setSettings({ ...DEFAULT_SETTINGS, ...loadedSettings });
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
-      const savedSelected = readJSON<string | null>(STORAGE_KEYS.selected, null);
-      if (savedSelected) {
-        setSelectedId(savedSelected);
+      try {
+        localStorage.removeItem(STORAGE_KEYS.selected);
+      } catch {
+        /* ignore */
       }
     }
     setReady(true);
