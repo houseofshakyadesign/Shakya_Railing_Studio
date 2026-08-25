@@ -117,6 +117,20 @@ function AdminPage() {
           <h1 className="mt-4 text-3xl tracking-tight md:text-4xl">Railing Studio dashboard</h1>
         </div>
         <div className="flex items-center gap-3">
+          <span
+            className={`inline-flex items-center gap-1.5 border px-3 py-1 text-[0.62rem] font-medium tracking-[0.16em] uppercase ${
+              studio.isCloudConnected
+                ? "border-success/40 bg-success/10 text-success"
+                : "border-hairline bg-sand/60 text-muted-foreground"
+            }`}
+          >
+            <span
+              className={`h-1.5 w-1.5 rounded-full ${
+                studio.isCloudConnected ? "bg-success animate-pulse" : "bg-muted-foreground"
+              }`}
+            />
+            {studio.isCloudConnected ? "Supabase Connected" : "Local Mode"}
+          </span>
           <button
             type="button"
             onClick={handleLogout}
