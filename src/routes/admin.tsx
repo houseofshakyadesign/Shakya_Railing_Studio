@@ -45,34 +45,37 @@ function AdminPage() {
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    if (isSupabaseConfigured && supabase) {
-      void supabase.auth.getSession().then(({ data: { session } }) => {
-        if (session?.user) {
-          setCurrentUserEmail(session.user.email ?? "admin@houseofshakya.com");
-          setUnlocked(true);
-        }
-      });
-
-      const {
-        data: { subscription },
-      } = supabase.auth.onAuthStateChange((_event, session) => {
-        if (session?.user) {
-          setCurrentUserEmail(session.user.email ?? "admin@houseofshakya.com");
-          setUnlocked(true);
-        } else {
-          setCurrentUserEmail(null);
-          setUnlocked(false);
-        }
-      });
-
-      return () => subscription.unsubscribe();
-    } else {
+    if (!isSupabaseConfigured || !supabase) {
       try {
         if (sessionStorage.getItem(STORAGE_KEYS.admin) === "1") setUnlocked(true);
       } catch {
         /* ignore */
       }
+      return;
     }
+
+    void supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setCurrentUserEmail(session.user.email ?? "admin@houseofshakya.com");
+        setUnlocked(true);
+      }
+    });
+
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setCurrentUserEmail(session.user.email ?? "admin@houseofshakya.com");
+        setUnlocked(true);
+      } else {
+        setCurrentUserEmail(null);
+        setUnlocked(false);
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
