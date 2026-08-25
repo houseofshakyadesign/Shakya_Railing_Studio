@@ -1,63 +1,45 @@
-# Supabase Database Setup Guide — House of Shakya Railing Studio
+# Supabase Database & Auth Setup Guide — House of Shakya Railing Studio
 
-This guide explains how to connect your **Supabase PostgreSQL database** to the House of Shakya Railing Studio in ~3 minutes.
-
----
-
-## 📋 Step 1: Create a Free Project in Supabase
-
-1. Go to **[https://supabase.com](https://supabase.com)** and sign in / sign up (free).
-2. Click **New project**.
-3. Fill in:
-   - **Name**: `Shakya-Railing-Studio`
-   - **Database Password**: *(Create a secure password or generate one)*
-   - **Region**: Select a region close to Nepal (e.g., `Singapore` or `Mumbai`).
-4. Click **Create new project**.
+This guide explains how your **Supabase PostgreSQL database** and **Supabase Authentication** are configured and how to manage admin access.
 
 ---
 
-## 🗄️ Step 2: Run the SQL Schema Setup Script
+## 🔐 Admin Authentication Credentials
 
-1. In your Supabase project dashboard, click **SQL Editor** on the left menu.
-2. Click **New query**.
-3. Open the file [`supabase/schema.sql`](./supabase/schema.sql) in this repository and copy all the SQL.
-4. Paste it into the Supabase SQL editor and click **Run** (green button).
+The studio administrator account is managed securely via **Supabase Auth**:
 
-✅ This will automatically:
-- Create the `products`, `enquiries`, and `settings` tables.
-- Configure Row Level Security (RLS) policies.
-- Insert all 13 factory railing designs with photos, specs, rates, and initial studio settings.
+- **Admin Login URL**: [`/admin`](https://shakya-railing-studio.vercel.app/admin)
+- **Admin Email**: `admin@houseofshakya.com`
+- **Default Password**: `ShakyaAdmin2026!`
+
+*(You can change the password or invite additional studio team members at any time in your **Supabase Dashboard ➔ Authentication ➔ Users**).*
 
 ---
 
-## 🔑 Step 3: Add Credentials to Local Environment
+## 🗄️ Database Tables & Schema
 
-1. In Supabase, go to **Project Settings** (gear icon) ➔ **API**.
-2. Find:
-   - **Project URL** (e.g. `https://xyzprojectid.supabase.co`)
-   - **Project API Keys** ➔ `anon` `public` key (long string starting with `eyJ...`)
-3. Create a `.env` file in the root of your project:
-   ```env
-   VITE_SUPABASE_URL="https://your-project-id.supabase.co"
-   VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-   ```
+The following tables are live in your PostgreSQL database:
+
+1. **`products`**: All railing catalogue models, materials, rates per sq.ft., photos, specs, and display ordering.
+2. **`enquiries`**: Central quotation feed recording incoming customer estimates, quantities, square footage, rates, calculated totals, and lead statuses (`NEW`, `CONTACTED`, `QUOTATION SENT`, `CONFIRMED`, `COMPLETED`, `CANCELLED`).
+3. **`settings`**: Studio metadata (`Imadole, Mahalaxmi, Nepal`, `+977 984-3935689`, `NPR`).
 
 ---
 
-## 🚀 Step 4: Add Credentials to Vercel (For Production)
+## ⚙️ Environment Variables
 
-To connect Supabase to your live Vercel website:
+The project connects to Supabase using these environment variables in `.env` (and configured in Vercel):
 
-1. Go to your **[Vercel Dashboard](https://vercel.com/houseofshakya/shakya-railing-studio/settings/environment-variables)** ➔ `shakya-railing-studio` ➔ **Settings** ➔ **Environment Variables**.
-2. Add these two variables:
-   - `VITE_SUPABASE_URL` = your Supabase URL
-   - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key
-3. Click **Save** and trigger a redeploy (`git push` or click **Redeploy** on Vercel).
+```env
+VITE_SUPABASE_URL="https://duwvqfiledszzxlinroj.supabase.co"
+VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+```
 
 ---
 
-## 🎯 How It Works
+## 🎯 Admin Dashboard Features
 
-- **Public Visitors**: When customers visit `/collection` or `/calculator`, railings and pricing are loaded from Supabase in real-time.
-- **Quotations / Enquiries**: When a customer submits an estimate, it saves directly to the `enquiries` table in Supabase and opens WhatsApp.
-- **Admin Dashboard (`/admin`)**: Changes made to product prices or active statuses update Supabase instantly for all visitors without needing a code redeploy.
+- **Real-Time Catalogue Management**: Add new railings, edit rates per sq.ft., upload photos, or toggle visibility.
+- **Lead Pipeline**: Update enquiry statuses from `NEW` to `CONFIRMED` or `COMPLETED`.
+- **CSV Data Export**: One-click download of all customer enquiries with calculation breakdowns.
+- **Cloud Sync**: One-click **Sync Cloud** button to refresh data from Supabase across all devices.
