@@ -276,7 +276,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       .subscribe();
 
     return () => {
-      void supabase.removeChannel(channel);
+      void supabase?.removeChannel(channel);
     };
   }, [refreshFromCloud]);
 
