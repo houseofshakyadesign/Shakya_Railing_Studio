@@ -362,7 +362,15 @@ function Railings() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => saveProduct({ ...p, isActive: !p.isActive })}
+                    onClick={async () => {
+                      const updated = { ...p, isActive: !p.isActive };
+                      const ok = await saveProduct(updated);
+                      if (ok) {
+                        toast.success(`${p.code} ${updated.isActive ? "activated" : "deactivated"}`);
+                      } else {
+                        toast.error("Failed to update status in database");
+                      }
+                    }}
                     className="border border-hairline px-3 py-1.5 text-[0.62rem] tracking-[0.16em] uppercase hover:border-foreground/40"
                   >
                     {p.isActive ? "Deactivate" : "Activate"}
@@ -384,22 +392,32 @@ function Railings() {
       <ProductEditor
         product={editing}
         onClose={() => setEditing(null)}
-        onSave={(p) => {
-          saveProduct(p);
-          setEditing(null);
-          toast.success(`${p.code || "Product"} saved`);
+        onSave={async (p) => {
+          const ok = await saveProduct(p);
+          if (ok) {
+            setEditing(null);
+            toast.success(`${p.code || "Product"} saved to Supabase`);
+          } else {
+            toast.error("Failed to save changes to database");
+          }
         }}
       />
 
       <ConfirmDialog
         open={Boolean(confirmDelete)}
         title={`Delete ${confirmDelete?.code ?? ""}?`}
-        copy="This permanently removes the railing from this browser's product data."
+        copy="This permanently removes the railing from the Supabase database and collection."
         onCancel={() => setConfirmDelete(null)}
-        onConfirm={() => {
-          if (confirmDelete) deleteProduct(confirmDelete.id);
+        onConfirm={async () => {
+          if (confirmDelete) {
+            const ok = await deleteProduct(confirmDelete.id);
+            if (ok) {
+              toast.success("Product deleted from database");
+            } else {
+              toast.error("Failed to delete from database");
+            }
+          }
           setConfirmDelete(null);
-          toast.success("Product deleted");
         }}
       />
     </div>
@@ -413,14 +431,28 @@ function ProductEditor({
 }: {
   product: Product | null;
   onClose: () => void;
-  onSave: (p: Product) => void;
+  onSave: (p: Product) => Promise<void>;
 }) {
   const [draft, setDraft] = useState<Product | null>(product);
+  const [saving, setSaving] = useState(false);
+
   useEffect(() => setDraft(product), [product]);
   if (!product || !draft) return null;
 
   const set = <K extends keyof Product>(k: K, v: Product[K]) =>
     setDraft((d) => (d ? { ...d, [k]: v } : d));
+
+  const handleFormSave = async () => {
+    setSaving(true);
+    try {
+      await onSave({
+        ...draft,
+        gallery: draft.gallery.length ? draft.gallery : [draft.image],
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <AnimatePresence>
@@ -523,15 +555,17 @@ function ProductEditor({
           <div className="mt-9 flex gap-3">
             <button
               type="button"
-              onClick={() => onSave({ ...draft, gallery: draft.gallery.length ? draft.gallery : [draft.image] })}
-              className="bg-charcoal px-7 py-3.5 text-[0.7rem] tracking-[0.2em] text-ivory uppercase hover:bg-bronze"
+              disabled={saving}
+              onClick={handleFormSave}
+              className="bg-charcoal px-7 py-3.5 text-[0.7rem] tracking-[0.2em] text-ivory uppercase hover:bg-bronze disabled:opacity-50"
             >
-              Save
+              {saving ? "Saving to Supabase..." : "Save"}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="border border-hairline px-7 py-3.5 text-[0.7rem] tracking-[0.2em] uppercase"
+              disabled={saving}
+              className="border border-hairline px-7 py-3.5 text-[0.7rem] tracking-[0.2em] uppercase disabled:opacity-50"
             >
               Cancel
             </button>

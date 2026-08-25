@@ -56,13 +56,13 @@ type StudioValue = {
   selectedId: string | null;
   selectedProduct: Product | null;
   selectProduct: (id: string | null) => void;
-  saveProduct: (p: Product) => void;
-  deleteProduct: (id: string) => void;
+  saveProduct: (p: Product) => Promise<boolean>;
+  deleteProduct: (id: string) => Promise<boolean>;
   resetProducts: () => void;
   addEnquiry: (e: Omit<Enquiry, "id" | "createdAt" | "status">) => Enquiry;
-  updateEnquiryStatus: (id: string, status: EnquiryStatus) => void;
+  updateEnquiryStatus: (id: string, status: EnquiryStatus) => Promise<boolean>;
   clearEnquiries: () => void;
-  updateSettings: (s: Partial<Settings>) => void;
+  updateSettings: (s: Partial<Settings>) => Promise<boolean>;
   refreshFromCloud: () => Promise<void>;
 };
 
@@ -79,7 +79,7 @@ function mapDbProductToProduct(row: any): Product {
     pricePerSqft: Number(row.price_per_sqft) || 0,
     isCustom: Boolean(row.is_custom),
     image: row.image,
-    gallery: Array.isArray(row.gallery) ? row.gallery : [row.image],
+    gallery: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : [row.image],
     features: Array.isArray(row.features) ? row.features : [],
     applications: Array.isArray(row.applications) ? row.applications : [],
     isActive: row.is_active ?? true,
@@ -243,9 +243,41 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 2. Fetch live data from Supabase on mount
+  // 2. Fetch live data on mount and subscribe to realtime updates
   useEffect(() => {
-    refreshFromCloud();
+    void refreshFromCloud();
+
+    if (!isSupabaseConfigured || !supabase) return;
+
+    // Realtime subscription to products and enquiries changes
+    const channel = supabase
+      .channel("studio-realtime")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "products" },
+        () => {
+          void refreshFromCloud();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "enquiries" },
+        () => {
+          void refreshFromCloud();
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "settings" },
+        () => {
+          void refreshFromCloud();
+        },
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, [refreshFromCloud]);
 
   const persistProducts = useCallback((next: Product[]) => {
@@ -262,31 +294,59 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setSelectedId(id);
   }, []);
 
-  const saveProduct = useCallback((p: Product) => {
-    setProducts((prev) => {
-      const exists = prev.some((x) => x.id === p.id);
-      const next = exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
-      writeJSON(STORAGE_KEYS.products, next);
-      return next;
-    });
+  const saveProduct = useCallback(
+    async (p: Product): Promise<boolean> => {
+      setProducts((prev) => {
+        const exists = prev.some((x) => x.id === p.id);
+        const next = exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
+        writeJSON(STORAGE_KEYS.products, next);
+        return next;
+      });
 
-    if (supabase && isSupabaseConfigured) {
-      void supabase.from("products").upsert(mapProductToDbProduct(p));
-    }
-  }, []);
+      if (supabase && isSupabaseConfigured) {
+        try {
+          const { error } = await supabase.from("products").upsert(mapProductToDbProduct(p));
+          if (error) {
+            console.error("Supabase saveProduct error:", error);
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.error("Supabase saveProduct exception:", err);
+          return false;
+        }
+      }
+      return true;
+    },
+    [],
+  );
 
-  const deleteProduct = useCallback((id: string) => {
-    setProducts((prev) => {
-      const next = prev.filter((x) => x.id !== id);
-      writeJSON(STORAGE_KEYS.products, next);
-      return next;
-    });
-    setSelectedId((cur) => (cur === id ? null : cur));
+  const deleteProduct = useCallback(
+    async (id: string): Promise<boolean> => {
+      setProducts((prev) => {
+        const next = prev.filter((x) => x.id !== id);
+        writeJSON(STORAGE_KEYS.products, next);
+        return next;
+      });
+      setSelectedId((cur) => (cur === id ? null : cur));
 
-    if (supabase && isSupabaseConfigured) {
-      void supabase.from("products").delete().eq("id", id);
-    }
-  }, []);
+      if (supabase && isSupabaseConfigured) {
+        try {
+          const { error } = await supabase.from("products").delete().eq("id", id);
+          if (error) {
+            console.error("Supabase deleteProduct error:", error);
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.error("Supabase deleteProduct exception:", err);
+          return false;
+        }
+      }
+      return true;
+    },
+    [],
+  );
 
   const resetProducts = useCallback(() => {
     if (supabase && isSupabaseConfigured) {
@@ -331,17 +391,31 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return enquiry;
   }, []);
 
-  const updateEnquiryStatus = useCallback((id: string, status: EnquiryStatus) => {
-    setEnquiries((prev) => {
-      const next = prev.map((e) => (e.id === id ? { ...e, status } : e));
-      writeJSON(STORAGE_KEYS.enquiries, next);
-      return next;
-    });
+  const updateEnquiryStatus = useCallback(
+    async (id: string, status: EnquiryStatus): Promise<boolean> => {
+      setEnquiries((prev) => {
+        const next = prev.map((e) => (e.id === id ? { ...e, status } : e));
+        writeJSON(STORAGE_KEYS.enquiries, next);
+        return next;
+      });
 
-    if (supabase && isSupabaseConfigured) {
-      void supabase.from("enquiries").update({ status }).eq("id", id);
-    }
-  }, []);
+      if (supabase && isSupabaseConfigured) {
+        try {
+          const { error } = await supabase.from("enquiries").update({ status }).eq("id", id);
+          if (error) {
+            console.error("Supabase updateEnquiryStatus error:", error);
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.error("Supabase updateEnquiryStatus exception:", err);
+          return false;
+        }
+      }
+      return true;
+    },
+    [],
+  );
 
   const clearEnquiries = useCallback(() => {
     persistEnquiries([]);
@@ -350,32 +424,44 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, [persistEnquiries]);
 
-  const updateSettings = useCallback((s: Partial<Settings>) => {
-    setSettings((prev) => {
-      const next = { ...prev, ...s };
-      writeJSON(STORAGE_KEYS.settings, next);
-      return next;
-    });
+  const updateSettings = useCallback(
+    async (s: Partial<Settings>): Promise<boolean> => {
+      setSettings((prev) => {
+        const next = { ...prev, ...s };
+        writeJSON(STORAGE_KEYS.settings, next);
+        return next;
+      });
 
-    if (supabase && isSupabaseConfigured) {
-      void supabase
-        .from("settings")
-        .upsert({
-          id: "default",
-          company_name: s.companyName,
-          studio_name: s.studioName,
-          whatsapp_number: s.whatsappNumber,
-          phone: s.phone,
-          email: s.email,
-          address: s.address,
-          currency: s.currency,
-          currency_locale: s.currencyLocale,
-          instagram: s.instagram,
-          website: s.website,
-          updated_at: new Date().toISOString(),
-        });
-    }
-  }, []);
+      if (supabase && isSupabaseConfigured) {
+        try {
+          const { error } = await supabase.from("settings").upsert({
+            id: "default",
+            company_name: s.companyName,
+            studio_name: s.studioName,
+            whatsapp_number: s.whatsappNumber,
+            phone: s.phone,
+            email: s.email,
+            address: s.address,
+            currency: s.currency,
+            currency_locale: s.currencyLocale,
+            instagram: s.instagram,
+            website: s.website,
+            updated_at: new Date().toISOString(),
+          });
+          if (error) {
+            console.error("Supabase updateSettings error:", error);
+            return false;
+          }
+          return true;
+        } catch (err) {
+          console.error("Supabase updateSettings exception:", err);
+          return false;
+        }
+      }
+      return true;
+    },
+    [],
+  );
 
   const value = useMemo<StudioValue>(() => {
     const activeProducts = products.filter((p) => p.isActive);
