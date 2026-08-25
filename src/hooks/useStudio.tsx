@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { DEFAULT_PRODUCTS, type Product } from "@/data/products";
+import { type Product } from "@/data/products";
 import { DEFAULT_SETTINGS, STORAGE_KEYS, type Settings } from "@/config/settings";
 import { isStorageAvailable, readJSON, writeJSON } from "@/utils/localStorage";
 import { supabase, isSupabaseConfigured } from "@/lib/supabase";
@@ -152,12 +152,12 @@ function mapEnquiryToDbEnquiry(e: Enquiry) {
 export function StudioProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [storageOk, setStorageOk] = useState(true);
-  const [products, setProducts] = useState<Product[]>(DEFAULT_PRODUCTS);
+  const [products, setProducts] = useState<Product[]>([]);
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
   const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
-  // 1. Initial hydration from local cache (fast initial paint)
+  // 1. Initial hydration from local cache
   useEffect(() => {
     const ok = isStorageAvailable();
     setStorageOk(ok);
@@ -165,8 +165,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       const storedProducts = readJSON<Product[] | null>(STORAGE_KEYS.products, null);
       if (storedProducts && Array.isArray(storedProducts) && storedProducts.length) {
         setProducts(storedProducts);
-      } else {
-        writeJSON(STORAGE_KEYS.products, DEFAULT_PRODUCTS);
       }
       const loadedSettings = readJSON<Partial<Settings>>(STORAGE_KEYS.settings, {});
       if (loadedSettings.whatsappNumber === "9779800000000") {
@@ -192,19 +190,19 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const refreshFromCloud = useCallback(async () => {
     if (!isSupabaseConfigured || !supabase) return;
     try {
-      // Fetch products
+      // Fetch products dynamically from Supabase database
       const { data: dbProducts, error: prodErr } = await supabase
         .from("products")
         .select("*")
         .order("display_order", { ascending: true });
 
-      if (!prodErr && dbProducts && dbProducts.length) {
+      if (!prodErr && dbProducts) {
         const mapped = dbProducts.map(mapDbProductToProduct);
         setProducts(mapped);
         writeJSON(STORAGE_KEYS.products, mapped);
       }
 
-      // Fetch enquiries
+      // Fetch enquiries dynamically from Supabase database
       const { data: dbEnquiries, error: enqErr } = await supabase
         .from("enquiries")
         .select("*")
@@ -216,7 +214,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         writeJSON(STORAGE_KEYS.enquiries, mapped);
       }
 
-      // Fetch settings
+      // Fetch settings dynamically from Supabase database
       const { data: dbSettings, error: setErr } = await supabase
         .from("settings")
         .select("*")
@@ -245,7 +243,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // 2. Cloud sync with Supabase when configured
+  // 2. Fetch live data from Supabase on mount
   useEffect(() => {
     refreshFromCloud();
   }, [refreshFromCloud]);
@@ -291,12 +289,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetProducts = useCallback(() => {
-    persistProducts(DEFAULT_PRODUCTS);
     if (supabase && isSupabaseConfigured) {
-      const dbRows = DEFAULT_PRODUCTS.map(mapProductToDbProduct);
-      void supabase.from("products").upsert(dbRows);
+      void refreshFromCloud();
     }
-  }, [persistProducts]);
+  }, [refreshFromCloud]);
 
   const addEnquiry = useCallback<StudioValue["addEnquiry"]>((data) => {
     const enquiry: Enquiry = {
