@@ -112,6 +112,24 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              try {
+                if ('scrollRestoration' in history) {
+                  history.scrollRestoration = 'manual';
+                }
+                window.scrollTo(0, 0);
+                window.addEventListener('beforeunload', function() {
+                  window.scrollTo(0, 0);
+                });
+                window.addEventListener('load', function() {
+                  window.scrollTo(0, 0);
+                });
+              } catch (e) {}
+            `,
+          }}
+        />
         <HeadContent />
       </head>
       <body>
@@ -124,16 +142,33 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
-  const router = useRouter();
 
-  // Scroll to top on page refresh and hard loads
+  // Ensure scroll is forced to top (0, 0) on page refresh and hard loads
   useEffect(() => {
-    if (typeof window !== "undefined") {
-      if ("scrollRestoration" in window.history) {
-        window.history.scrollRestoration = "manual";
-      }
-      window.scrollTo(0, 0);
+    if (typeof window === "undefined") return;
+
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
     }
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    
+    const raf = requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    });
+
+    const t1 = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    }, 50);
+
+    const t2 = setTimeout(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
+    }, 150);
+
+    return () => {
+      cancelAnimationFrame(raf);
+      clearTimeout(t1);
+      clearTimeout(t2);
+    };
   }, []);
 
   return (
