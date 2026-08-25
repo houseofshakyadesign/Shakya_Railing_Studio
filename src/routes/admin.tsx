@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Download, Lock, LogOut, Plus, Trash2, X } from "lucide-react";
+import { Download, Lock, LogOut, Plus, RefreshCw, Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
@@ -38,6 +38,7 @@ function AdminPage() {
   const [pw, setPw] = useState("");
   const [pwError, setPwError] = useState("");
   const [tab, setTab] = useState<Tab>("overview");
+  const [syncing, setSyncing] = useState(false);
 
   useEffect(() => {
     try {
@@ -56,6 +57,13 @@ function AdminPage() {
     setUnlocked(false);
     setPw("");
     toast.success("Admin session locked");
+  };
+
+  const handleSync = async () => {
+    setSyncing(true);
+    await studio.refreshFromCloud();
+    setSyncing(false);
+    toast.success("Cloud data synchronized");
   };
 
   if (!unlocked) {
@@ -116,9 +124,19 @@ function AdminPage() {
           <p className="label-xs text-bronze">Studio admin</p>
           <h1 className="mt-4 text-3xl tracking-tight md:text-4xl">Railing Studio dashboard</h1>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            onClick={handleSync}
+            disabled={syncing}
+            className="flex items-center gap-2 border border-hairline bg-card px-3.5 py-2 text-[0.68rem] tracking-[0.16em] uppercase transition-colors hover:border-bronze hover:text-bronze disabled:opacity-50"
+            title="Sync with Supabase database"
+          >
+            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin text-bronze" : ""}`} />
+            {syncing ? "Syncing..." : "Sync Cloud"}
+          </button>
           <span
-            className={`inline-flex items-center gap-1.5 border px-3 py-1 text-[0.62rem] font-medium tracking-[0.16em] uppercase ${
+            className={`inline-flex items-center gap-1.5 border px-3 py-2 text-[0.62rem] font-medium tracking-[0.16em] uppercase ${
               studio.isCloudConnected
                 ? "border-success/40 bg-success/10 text-success"
                 : "border-hairline bg-sand/60 text-muted-foreground"
@@ -134,7 +152,7 @@ function AdminPage() {
           <button
             type="button"
             onClick={handleLogout}
-            className="flex items-center gap-2 border border-hairline bg-card px-4 py-2.5 text-[0.68rem] tracking-[0.18em] uppercase transition-colors hover:border-destructive/60 hover:text-destructive"
+            className="flex items-center gap-2 border border-hairline bg-card px-4 py-2 text-[0.68rem] tracking-[0.18em] uppercase transition-colors hover:border-destructive/60 hover:text-destructive"
           >
             <LogOut className="h-3.5 w-3.5" />
             Lock & Log Out

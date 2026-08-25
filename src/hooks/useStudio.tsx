@@ -63,6 +63,7 @@ type StudioValue = {
   updateEnquiryStatus: (id: string, status: EnquiryStatus) => void;
   clearEnquiries: () => void;
   updateSettings: (s: Partial<Settings>) => void;
+  refreshFromCloud: () => Promise<void>;
 };
 
 const StudioContext = createContext<StudioValue | null>(null);
@@ -188,67 +189,66 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, []);
 
+  const refreshFromCloud = useCallback(async () => {
+    if (!isSupabaseConfigured || !supabase) return;
+    try {
+      // Fetch products
+      const { data: dbProducts, error: prodErr } = await supabase
+        .from("products")
+        .select("*")
+        .order("display_order", { ascending: true });
+
+      if (!prodErr && dbProducts && dbProducts.length) {
+        const mapped = dbProducts.map(mapDbProductToProduct);
+        setProducts(mapped);
+        writeJSON(STORAGE_KEYS.products, mapped);
+      }
+
+      // Fetch enquiries
+      const { data: dbEnquiries, error: enqErr } = await supabase
+        .from("enquiries")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (!enqErr && dbEnquiries) {
+        const mapped = dbEnquiries.map(mapDbEnquiryToEnquiry);
+        setEnquiries(mapped);
+        writeJSON(STORAGE_KEYS.enquiries, mapped);
+      }
+
+      // Fetch settings
+      const { data: dbSettings, error: setErr } = await supabase
+        .from("settings")
+        .select("*")
+        .eq("id", "default")
+        .single();
+
+      if (!setErr && dbSettings) {
+        const mapped: Settings = {
+          companyName: dbSettings.company_name || DEFAULT_SETTINGS.companyName,
+          studioName: dbSettings.studio_name || DEFAULT_SETTINGS.studioName,
+          whatsappNumber: dbSettings.whatsapp_number || DEFAULT_SETTINGS.whatsappNumber,
+          phone: dbSettings.phone || DEFAULT_SETTINGS.phone,
+          email: dbSettings.email || DEFAULT_SETTINGS.email,
+          address: dbSettings.address || DEFAULT_SETTINGS.address,
+          currency: dbSettings.currency || DEFAULT_SETTINGS.currency,
+          currencyLocale: dbSettings.currency_locale || DEFAULT_SETTINGS.currencyLocale,
+          instagram: dbSettings.instagram || DEFAULT_SETTINGS.instagram,
+          website: dbSettings.website || DEFAULT_SETTINGS.website,
+          adminPassword: DEFAULT_SETTINGS.adminPassword,
+        };
+        setSettings(mapped);
+        writeJSON(STORAGE_KEYS.settings, mapped);
+      }
+    } catch (err) {
+      console.error("Supabase sync error:", err);
+    }
+  }, []);
+
   // 2. Cloud sync with Supabase when configured
   useEffect(() => {
-    if (!isSupabaseConfigured || !supabase) return;
-
-    async function syncFromCloud() {
-      try {
-        // Fetch products
-        const { data: dbProducts, error: prodErr } = await supabase!
-          .from("products")
-          .select("*")
-          .order("display_order", { ascending: true });
-
-        if (!prodErr && dbProducts && dbProducts.length) {
-          const mapped = dbProducts.map(mapDbProductToProduct);
-          setProducts(mapped);
-          writeJSON(STORAGE_KEYS.products, mapped);
-        }
-
-        // Fetch enquiries
-        const { data: dbEnquiries, error: enqErr } = await supabase!
-          .from("enquiries")
-          .select("*")
-          .order("created_at", { ascending: false });
-
-        if (!enqErr && dbEnquiries) {
-          const mapped = dbEnquiries.map(mapDbEnquiryToEnquiry);
-          setEnquiries(mapped);
-          writeJSON(STORAGE_KEYS.enquiries, mapped);
-        }
-
-        // Fetch settings
-        const { data: dbSettings, error: setErr } = await supabase!
-          .from("settings")
-          .select("*")
-          .eq("id", "default")
-          .single();
-
-        if (!setErr && dbSettings) {
-          const mapped: Settings = {
-            companyName: dbSettings.company_name || DEFAULT_SETTINGS.companyName,
-            studioName: dbSettings.studio_name || DEFAULT_SETTINGS.studioName,
-            whatsappNumber: dbSettings.whatsapp_number || DEFAULT_SETTINGS.whatsappNumber,
-            phone: dbSettings.phone || DEFAULT_SETTINGS.phone,
-            email: dbSettings.email || DEFAULT_SETTINGS.email,
-            address: dbSettings.address || DEFAULT_SETTINGS.address,
-            currency: dbSettings.currency || DEFAULT_SETTINGS.currency,
-            currencyLocale: dbSettings.currency_locale || DEFAULT_SETTINGS.currencyLocale,
-            instagram: dbSettings.instagram || DEFAULT_SETTINGS.instagram,
-            website: dbSettings.website || DEFAULT_SETTINGS.website,
-            adminPassword: DEFAULT_SETTINGS.adminPassword,
-          };
-          setSettings(mapped);
-          writeJSON(STORAGE_KEYS.settings, mapped);
-        }
-      } catch (err) {
-        console.error("Supabase sync error:", err);
-      }
-    }
-
-    syncFromCloud();
-  }, []);
+    refreshFromCloud();
+  }, [refreshFromCloud]);
 
   const persistProducts = useCallback((next: Product[]) => {
     setProducts(next);
@@ -401,6 +401,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       updateEnquiryStatus,
       clearEnquiries,
       updateSettings,
+      refreshFromCloud,
     };
   }, [
     ready,
@@ -417,6 +418,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     updateEnquiryStatus,
     clearEnquiries,
     updateSettings,
+    refreshFromCloud,
   ]);
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
