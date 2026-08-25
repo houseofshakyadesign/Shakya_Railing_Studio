@@ -5,7 +5,7 @@ import { Reveal, SectionHeading } from "@/components/Reveal";
 
 const title = "How It Works | House of Shakya Railing Studio";
 const description =
-  "Discover, select, calculate and enquire. See how the House of Shakya Railing Studio takes you from design to an instant sq.ft. estimate in minutes.";
+  "Select, measure, estimate and enquire. See how the House of Shakya Railing Studio takes you from design to an instant boundary railing calculation in minutes.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -23,16 +23,20 @@ export const Route = createFileRoute("/how-it-works")({
 
 const FAQ = [
   {
+    q: "How is boundary railing area calculated?",
+    a: "Area is calculated automatically as Length × Height in square feet (e.g., 20 ft × 3.5 ft = 70 sq.ft.). Standard 3.5 ft height is pre-filled for convenience.",
+  },
+  {
+    q: "What does Estimated Panels mean?",
+    a: "Estimated panels represent the approximate number of railing modules required along the boundary (e.g., 20 ft / 4 ft module = ~5 panels). Final fabrication quantity is confirmed upon site inspection.",
+  },
+  {
     q: "Is the calculated price final?",
-    a: "No. It is an indicative estimate based on area × rate. Final pricing is confirmed after a site visit and final measurements.",
+    a: "It is an accurate architectural estimate based on estimated area × rate per sq.ft. Final quotation is confirmed after site verification and anchor detailing.",
   },
   {
-    q: "How is area measured?",
-    a: "Railing area is measured as running length × height in square feet. Our team can verify this on site.",
-  },
-  {
-    q: "What happens after I send my requirement?",
-    a: "Your enquiry reaches us on WhatsApp with the railing, area and estimate attached. We respond with a formal quotation.",
+    q: "What happens after I send my requirement via WhatsApp?",
+    a: "Your enquiry reaches our technical team with the chosen railing model, dimensions, estimated panels, and estimate attached. We respond promptly with a formal schedule.",
   },
 ];
 
@@ -42,8 +46,8 @@ function HowItWorksPage() {
       <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-4 md:px-10 md:pt-48">
         <SectionHeading
           label="Process"
-          title="Discover, select, calculate, enquire."
-          intro="A deliberately short path between a design you like and a number you can plan around."
+          title="Select, measure, estimate, enquire."
+          intro="A seamless architectural path between a design you love and a precise calculation you can plan around."
         />
       </section>
       <HowItWorks />

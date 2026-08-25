@@ -1,4 +1,5 @@
 import { formatNPR } from "./currency";
+import { formatArea, formatPanels } from "./calculations";
 import type { Enquiry } from "@/hooks/useStudio";
 
 export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
@@ -14,25 +15,23 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
     "",
   ];
 
+  if (e.lengthFt > 0) {
+    lines.push("LENGTH", `${e.lengthFt} ft`, "");
+    lines.push("HEIGHT", `${e.heightFt} ft`, "");
+    lines.push("ESTIMATED AREA", formatArea(e.estimatedAreaSqft), "");
+    lines.push("ESTIMATED PANELS", formatPanels(e.estimatedPanelQuantity), "");
+  } else if (e.area > 0) {
+    lines.push("ESTIMATED AREA", `${e.area} sq.ft.`, "");
+  }
+
   if (e.isCustom) {
-    lines.push("REQUIREMENT", "Custom quote request", "");
-    if (e.quantity > 0) lines.push("QUANTITY", String(e.quantity), "");
-    if (e.area > 0) lines.push("APPROX. AREA / UNIT", `${e.area} sq.ft.`, "");
+    lines.push("ESTIMATED PRICE", "Custom Quote (to be confirmed)", "");
   } else {
     lines.push(
-      "QUANTITY",
-      String(e.quantity),
-      "",
-      "AREA PER UNIT",
-      `${e.area} sq.ft.`,
-      "",
-      "TOTAL AREA",
-      `${e.totalArea} sq.ft.`,
-      "",
       "RATE",
       `${formatNPR(e.rate, currency)} / sq.ft.`,
       "",
-      "ESTIMATED TOTAL",
+      "ESTIMATED PRICE",
       formatNPR(e.estimatedTotal, currency),
       "",
     );
@@ -68,10 +67,9 @@ export function buildWhatsAppUrl(e: Enquiry, number: string, currency = "NPR"): 
   )}`;
 }
 
-/** Returns false when the window could not be opened (popup blocked / unavailable). */
 export function openWhatsApp(e: Enquiry, number: string, currency = "NPR"): boolean {
-  const digits = (number || "").replace(/\D/g, "");
-  if (!digits || digits.length < 8) return false;
-  const win = window.open(buildWhatsAppUrl(e, number, currency), "_blank", "noopener,noreferrer");
+  if (typeof window === "undefined") return false;
+  const url = buildWhatsAppUrl(e, number, currency);
+  const win = window.open(url, "_blank", "noopener,noreferrer");
   return Boolean(win);
 }

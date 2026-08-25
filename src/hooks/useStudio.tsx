@@ -36,13 +36,19 @@ export type Enquiry = {
   productName: string;
   material: string;
   isCustom: boolean;
-  quantity: number;
-  area: number;
-  totalArea: number;
+  lengthFt: number;
+  heightFt: number;
+  estimatedAreaSqft: number;
+  estimatedPanelQuantity: number;
+  standardModuleWidthFt: number;
   rate: number;
   estimatedTotal: number;
   additionalRequirements: string;
   status: EnquiryStatus;
+  // Compatibility fields
+  quantity: number;
+  area: number;
+  totalArea: number;
 };
 
 type StudioValue = {
@@ -70,6 +76,9 @@ const StudioContext = createContext<StudioValue | null>(null);
 
 // Database record mappers
 function mapDbProductToProduct(row: any): Product {
+  const modWidth = Number(row.standard_module_width);
+  const stdHeight = Number(row.standard_height);
+
   return {
     id: row.id,
     code: row.code,
@@ -77,6 +86,8 @@ function mapDbProductToProduct(row: any): Product {
     description: row.description,
     material: row.material,
     pricePerSqft: Number(row.price_per_sqft) || 0,
+    standardModuleWidth: Number.isFinite(modWidth) && modWidth > 0 ? modWidth : 4,
+    standardHeight: Number.isFinite(stdHeight) && stdHeight > 0 ? stdHeight : 3.5,
     isCustom: Boolean(row.is_custom),
     image: row.image,
     gallery: Array.isArray(row.gallery) && row.gallery.length ? row.gallery : [row.image],
@@ -94,6 +105,8 @@ function mapProductToDbProduct(p: Product) {
     description: p.description,
     material: p.material,
     price_per_sqft: p.pricePerSqft,
+    standard_module_width: p.standardModuleWidth || 4,
+    standard_height: p.standardHeight || 3.5,
     is_custom: p.isCustom,
     image: p.image,
     features: p.features,
@@ -104,6 +117,12 @@ function mapProductToDbProduct(p: Product) {
 }
 
 function mapDbEnquiryToEnquiry(row: any): Enquiry {
+  const lengthFt = Number(row.length_ft) || 0;
+  const heightFt = Number(row.height_ft) || 3.5;
+  const estimatedArea = Number(row.estimated_area_sqft) || Number(row.total_area) || Number(row.area) || 0;
+  const panelQty = Number(row.estimated_panel_quantity) || Number(row.quantity) || 1;
+  const modWidth = Number(row.standard_module_width_ft) || 4;
+
   return {
     id: String(row.id),
     createdAt: row.created_at || new Date().toISOString(),
@@ -117,13 +136,19 @@ function mapDbEnquiryToEnquiry(row: any): Enquiry {
     productName: row.product_name || "",
     material: row.material || "",
     isCustom: Boolean(row.is_custom),
-    quantity: Number(row.quantity) || 1,
-    area: Number(row.area) || 0,
-    totalArea: Number(row.total_area) || 0,
+    lengthFt,
+    heightFt,
+    estimatedAreaSqft: estimatedArea,
+    estimatedPanelQuantity: panelQty,
+    standardModuleWidthFt: modWidth,
     rate: Number(row.rate) || 0,
-    estimatedTotal: Number(row.estimated_total) || 0,
+    estimatedTotal: Number(row.estimated_price) || Number(row.estimated_total) || 0,
     additionalRequirements: row.additional_requirements || "",
     status: row.status || "NEW",
+    // Compatibility aliases
+    quantity: panelQty,
+    area: estimatedArea,
+    totalArea: estimatedArea,
   };
 }
 
@@ -139,9 +164,15 @@ function mapEnquiryToDbEnquiry(e: Enquiry) {
     product_name: e.productName,
     material: e.material,
     is_custom: e.isCustom,
-    quantity: e.quantity,
-    area: e.area,
-    total_area: e.totalArea,
+    length_ft: e.lengthFt,
+    height_ft: e.heightFt,
+    estimated_area_sqft: e.estimatedAreaSqft,
+    estimated_panel_quantity: e.estimatedPanelQuantity,
+    standard_module_width_ft: e.standardModuleWidthFt,
+    estimated_price: e.estimatedTotal,
+    quantity: e.quantity || e.estimatedPanelQuantity,
+    area: e.area || e.estimatedAreaSqft,
+    total_area: e.totalArea || e.estimatedAreaSqft,
     rate: e.rate,
     estimated_total: e.estimatedTotal,
     status: e.status,
@@ -178,10 +209,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
       setSettings({ ...DEFAULT_SETTINGS, ...loadedSettings });
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
-      try {
-        localStorage.removeItem(STORAGE_KEYS.selected);
-      } catch {
-        /* ignore */
+      const savedSelected = readJSON<string | null>(STORAGE_KEYS.selected, null);
+      if (savedSelected) {
+        setSelectedId(savedSelected);
       }
     }
     setReady(true);
@@ -292,6 +322,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const selectProduct = useCallback((id: string | null) => {
     setSelectedId(id);
+    writeJSON(STORAGE_KEYS.selected, id);
   }, []);
 
   const saveProduct = useCallback(

@@ -5,6 +5,8 @@ export type Product = {
   description: string;
   material: string;
   pricePerSqft: number;
+  standardModuleWidth: number; // in feet, e.g. 4
+  standardHeight: number;      // in feet, e.g. 3.5
   image: string;
   gallery: string[];
   features: string[];

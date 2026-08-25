@@ -312,6 +312,8 @@ const BLANK_PRODUCT: Product = {
   description: "",
   material: "",
   pricePerSqft: 0,
+  standardModuleWidth: 4,
+  standardHeight: 3.5,
   image: "/images/railings/r01.jpg",
   gallery: [],
   features: [],
@@ -564,6 +566,22 @@ function ProductEditor({
                 onChange={(e) => set("pricePerSqft", Number(e.target.value) || 0)}
               />
             </Field>
+            <Field id="p-mod" label="Standard Module Width (ft)" hint="Used to calculate estimated panels (default 4 ft)">
+              <input
+                className={inputClass}
+                inputMode="decimal"
+                value={String(draft.standardModuleWidth || 4)}
+                onChange={(e) => set("standardModuleWidth", Number(e.target.value) || 4)}
+              />
+            </Field>
+            <Field id="p-std-height" label="Standard Height (ft)" hint="Pre-filled height for calculator (default 3.5 ft)">
+              <input
+                className={inputClass}
+                inputMode="decimal"
+                value={String(draft.standardHeight || 3.5)}
+                onChange={(e) => set("standardHeight", Number(e.target.value) || 3.5)}
+              />
+            </Field>
 
             {/* Direct Image Upload & Live Preview Section */}
             <div className="sm:col-span-2">
@@ -783,10 +801,11 @@ function Enquiries() {
                   ["Project type", open.projectType],
                   ["Railing", `${open.productCode} — ${open.productName}`],
                   ["Material", open.material],
-                  ["Quantity", open.isCustom ? (open.quantity ? String(open.quantity) : "To be confirmed") : String(open.quantity)],
-                  ["Area / unit", open.isCustom ? (open.area ? `${open.area} sq.ft.` : "To be confirmed") : `${open.area} sq.ft.`],
-                  ["Total area", open.isCustom ? "To be confirmed" : `${open.totalArea} sq.ft.`],
-                  ["Rate", open.isCustom ? "Custom" : formatNPR(open.rate, settings.currency)],
+                  ["Length", open.lengthFt ? `${open.lengthFt} ft` : "—"],
+                  ["Height", open.heightFt ? `${open.heightFt} ft` : "—"],
+                  ["Estimated area", open.estimatedAreaSqft ? `${open.estimatedAreaSqft} sq.ft.` : (open.area ? `${open.area} sq.ft.` : "—")],
+                  ["Estimated panels", open.estimatedPanelQuantity ? `~${open.estimatedPanelQuantity} panels` : "—"],
+                  ["Rate", open.isCustom ? "Custom" : `${formatNPR(open.rate, settings.currency)} / sq.ft.`],
                   [
                     "Estimated total",
                     open.isCustom ? "Custom Quote" : formatNPR(open.estimatedTotal, settings.currency),
