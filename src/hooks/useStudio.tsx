@@ -183,10 +183,49 @@ function mapEnquiryToDbEnquiry(e: Enquiry) {
 export function StudioProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [storageOk, setStorageOk] = useState(true);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
-  const [enquiries, setEnquiries] = useState<Enquiry[]>([]);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = readJSON<Product[] | null>(STORAGE_KEYS.products, null);
+        if (stored && Array.isArray(stored) && stored.length > 0) return stored;
+      } catch {
+        /* ignore */
+      }
+    }
+    return [];
+  });
+  const [settings, setSettings] = useState<Settings>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const loaded = readJSON<Partial<Settings>>(STORAGE_KEYS.settings, {});
+        return { ...DEFAULT_SETTINGS, ...loaded };
+      } catch {
+        /* ignore */
+      }
+    }
+    return DEFAULT_SETTINGS;
+  });
+  const [enquiries, setEnquiries] = useState<Enquiry[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        return readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []);
+      } catch {
+        /* ignore */
+      }
+    }
+    return [];
+  });
+  const [selectedId, setSelectedId] = useState<string | null>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const saved = readJSON<string | null>(STORAGE_KEYS.selected, null);
+        if (saved) return saved;
+      } catch {
+        /* ignore */
+      }
+    }
+    return null;
+  });
 
   // 1. Initial hydration from local cache
   useEffect(() => {

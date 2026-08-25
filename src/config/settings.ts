@@ -40,4 +40,6 @@ export const STORAGE_KEYS = {
   selected: "houseOfShakya_selectedRailing",
   settings: "houseOfShakya_settings",
   admin: "houseOfShakya_adminSession",
+  length: "houseOfShakya_length",
+  height: "houseOfShakya_height",
 } as const;

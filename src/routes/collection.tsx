@@ -8,6 +8,8 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { ProductGrid } from "@/components/ProductGrid";
 import { EASE, Reveal, SectionHeading } from "@/components/Reveal";
+import { STORAGE_KEYS } from "@/config/settings";
+import { readJSON, writeJSON } from "@/utils/localStorage";
 import type { Product } from "@/data/products";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea, formatPanels } from "@/utils/calculations";
@@ -76,14 +78,36 @@ type Errors = Partial<
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
 
 function CollectionPage() {
-  const { selectedProduct, selectProduct, settings, addEnquiry, storageOk } = useStudio();
+  const { selectedProduct, selectedId, selectProduct, products, ready, settings, addEnquiry, storageOk } = useStudio();
   const calcRef = useRef<HTMLElement>(null);
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const [justSelected, setJustSelected] = useState(false);
 
   // Measurements
-  const [length, setLength] = useState<string>("20");
-  const [height, setHeight] = useState<string>("3.5");
+  const [length, setLength] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = readJSON<string | null>(STORAGE_KEYS.length, null);
+        if (stored) return stored;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "20";
+  });
+
+  const [height, setHeight] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = readJSON<string | null>(STORAGE_KEYS.height, null);
+        if (stored) return stored;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "3.5";
+  });
+
   const [showFormula, setShowFormula] = useState(false);
 
   // Form state

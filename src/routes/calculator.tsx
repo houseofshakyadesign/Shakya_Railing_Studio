@@ -6,6 +6,8 @@ import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { EASE, Reveal } from "@/components/Reveal";
+import { STORAGE_KEYS } from "@/config/settings";
+import { readJSON, writeJSON } from "@/utils/localStorage";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea, formatPanels } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
@@ -73,12 +75,34 @@ type Errors = Partial<
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
 
 function CalculatorPage() {
-  const { selectedProduct, selectProduct, settings, addEnquiry, storageOk } = useStudio();
+  const { selectedProduct, selectedId, selectProduct, products, ready, settings, addEnquiry, storageOk } = useStudio();
   const lengthInputRef = useRef<HTMLInputElement>(null);
 
-  // Measurements
-  const [length, setLength] = useState<string>("20");
-  const [height, setHeight] = useState<string>("3.5");
+  // Measurements initialized from localStorage or defaults
+  const [length, setLength] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = readJSON<string | null>(STORAGE_KEYS.length, null);
+        if (stored) return stored;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "20";
+  });
+
+  const [height, setHeight] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const stored = readJSON<string | null>(STORAGE_KEYS.height, null);
+        if (stored) return stored;
+      } catch {
+        /* ignore */
+      }
+    }
+    return "3.5";
+  });
+
   const [showFormula, setShowFormula] = useState(false);
 
   // Form State
@@ -86,17 +110,20 @@ function CalculatorPage() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState<Enquiry | null>(null);
 
-  // Pre-fill height based on selected product's standardHeight
+  // Update height and focus length when product changes
   useEffect(() => {
     if (selectedProduct) {
-      const stdH = selectedProduct.standardHeight || 3.5;
-      setHeight(String(stdH));
-      // Focus length input for immediate action
+      const storedHeight = readJSON<string | null>(STORAGE_KEYS.height, null);
+      if (!storedHeight) {
+        const stdH = selectedProduct.standardHeight || 3.5;
+        setHeight(String(stdH));
+        writeJSON(STORAGE_KEYS.height, String(stdH));
+      }
       setTimeout(() => {
         lengthInputRef.current?.focus();
       }, 300);
     }
-  }, [selectedProduct?.id, selectedProduct?.standardHeight]);
+  }, [selectedProduct?.id]);
 
   const numLength = parseFloat(length);
   const numHeight = parseFloat(height);
@@ -211,6 +238,19 @@ function CalculatorPage() {
       });
     }
   };
+
+  if (selectedId && !selectedProduct && (!ready || products.length === 0)) {
+    return (
+      <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-32 md:px-10 md:pt-48">
+        <div className="mx-auto max-w-xl border border-hairline bg-card p-12 text-center">
+          <div className="mx-auto h-8 w-8 animate-spin rounded-full border-2 border-bronze border-t-transparent" />
+          <p className="mt-4 text-xs tracking-[0.2em] text-bronze uppercase">
+            Loading your railing selection...
+          </p>
+        </div>
+      </section>
+    );
+  }
 
   if (!selectedProduct) {
     return (
