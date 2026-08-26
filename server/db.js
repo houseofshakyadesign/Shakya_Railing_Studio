@@ -36,7 +36,7 @@ export async function query(sql, params = []) {
         .replace(/DECIMAL\(\d+,\s*\d+\)/gi, "REAL")
         .replace(/ENUM\([^)]+\)/gi, "TEXT");
 
-      if (sSql.trim().toUpperCase().startsWith("SELECT") || sSql.trim().toUpperCase().startsWith("PRAGMA")) {
+      if (sSql.trim().toUpperCase().startsWith("SELECT") || sSql.trim().toUpperCase().startsWith("PRAGMA") || sSql.trim().toUpperCase().startsWith("SHOW")) {
         sqliteDb.all(sSql, params, (err, rows) => {
           if (err) return reject(err);
           resolve(rows);
@@ -103,6 +103,20 @@ export async function initDatabase() {
 
 async function createTables() {
   if (dbType === "mysql") {
+    // 1. Railing Types Table
+    await query(`
+      CREATE TABLE IF NOT EXISTS \`railing_types\` (
+        \`id\` VARCHAR(32) PRIMARY KEY,
+        \`name\` VARCHAR(128) NOT NULL,
+        \`slug\` VARCHAR(64) NOT NULL UNIQUE,
+        \`standard_height_ft\` DECIMAL(4, 2) NOT NULL DEFAULT 3.00,
+        \`description\` VARCHAR(255) DEFAULT '',
+        \`created_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        \`updated_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+    `);
+
+    // 2. Products Table
     await query(`
       CREATE TABLE IF NOT EXISTS \`products\` (
         \`id\` VARCHAR(64) PRIMARY KEY,
@@ -125,6 +139,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // 3. Enquiries Table
     await query(`
       CREATE TABLE IF NOT EXISTS \`enquiries\` (
         \`id\` VARCHAR(64) PRIMARY KEY,
@@ -132,22 +147,18 @@ async function createTables() {
         \`phone\` VARCHAR(64) NOT NULL,
         \`email\` VARCHAR(255),
         \`location\` VARCHAR(255) NOT NULL,
-        \`project_type\` VARCHAR(128) NOT NULL,
+        \`project_type\` VARCHAR(128) NOT NULL DEFAULT 'Residential',
+        \`railing_type\` VARCHAR(64) NOT NULL DEFAULT 'Balcony Railing',
         \`product_id\` VARCHAR(64) NOT NULL,
         \`product_code\` VARCHAR(32) NOT NULL,
         \`product_name\` VARCHAR(255) NOT NULL,
         \`material\` VARCHAR(128) NOT NULL,
         \`is_custom\` BOOLEAN NOT NULL DEFAULT FALSE,
         \`length_ft\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-        \`height_ft\` DECIMAL(10, 2) NOT NULL DEFAULT 3.50,
+        \`height_ft\` DECIMAL(10, 2) NOT NULL DEFAULT 3.00,
         \`estimated_area_sqft\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-        \`estimated_panel_quantity\` INT NOT NULL DEFAULT 1,
-        \`standard_module_width_ft\` DECIMAL(5, 2) NOT NULL DEFAULT 4.00,
-        \`estimated_price\` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
-        \`quantity\` INT NOT NULL DEFAULT 1,
-        \`area\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-        \`total_area\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
         \`rate\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+        \`estimated_price\` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
         \`estimated_total\` DECIMAL(12, 2) NOT NULL DEFAULT 0.00,
         \`status\` ENUM('new', 'in_review', 'quoted', 'confirmed', 'archived') NOT NULL DEFAULT 'new',
         \`additional_requirements\` TEXT,
@@ -155,6 +166,14 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // Add railing_type column if upgrading existing table
+    try {
+      await query("ALTER TABLE `enquiries` ADD COLUMN IF NOT EXISTS `railing_type` VARCHAR(64) NOT NULL DEFAULT 'Balcony Railing'");
+    } catch {
+      /* ignore column exists error */
+    }
+
+    // 4. Settings Table
     await query(`
       CREATE TABLE IF NOT EXISTS \`settings\` (
         \`id\` VARCHAR(32) PRIMARY KEY DEFAULT 'default',
@@ -173,6 +192,7 @@ async function createTables() {
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
 
+    // 5. Admins Table
     await query(`
       CREATE TABLE IF NOT EXISTS \`admins\` (
         \`id\` VARCHAR(64) PRIMARY KEY,
@@ -183,6 +203,18 @@ async function createTables() {
     `);
   } else {
     // SQLite Tables
+    await query(`
+      CREATE TABLE IF NOT EXISTS railing_types (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        slug TEXT NOT NULL UNIQUE,
+        standard_height_ft REAL NOT NULL DEFAULT 3.00,
+        description TEXT,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
     await query(`
       CREATE TABLE IF NOT EXISTS products (
         id TEXT PRIMARY KEY,
@@ -212,22 +244,18 @@ async function createTables() {
         phone TEXT NOT NULL,
         email TEXT,
         location TEXT NOT NULL,
-        project_type TEXT NOT NULL,
+        project_type TEXT NOT NULL DEFAULT 'Residential',
+        railing_type TEXT NOT NULL DEFAULT 'Balcony Railing',
         product_id TEXT NOT NULL,
         product_code TEXT NOT NULL,
         product_name TEXT NOT NULL,
         material TEXT NOT NULL,
         is_custom INTEGER NOT NULL DEFAULT 0,
         length_ft REAL NOT NULL DEFAULT 0.00,
-        height_ft REAL NOT NULL DEFAULT 3.50,
+        height_ft REAL NOT NULL DEFAULT 3.00,
         estimated_area_sqft REAL NOT NULL DEFAULT 0.00,
-        estimated_panel_quantity INTEGER NOT NULL DEFAULT 1,
-        standard_module_width_ft REAL NOT NULL DEFAULT 4.00,
-        estimated_price REAL NOT NULL DEFAULT 0.00,
-        quantity INTEGER NOT NULL DEFAULT 1,
-        area REAL NOT NULL DEFAULT 0.00,
-        total_area REAL NOT NULL DEFAULT 0.00,
         rate REAL NOT NULL DEFAULT 0.00,
+        estimated_price REAL NOT NULL DEFAULT 0.00,
         estimated_total REAL NOT NULL DEFAULT 0.00,
         status TEXT NOT NULL DEFAULT 'new',
         additional_requirements TEXT,
@@ -266,7 +294,21 @@ async function createTables() {
 
 async function seedInitialData() {
   try {
-    // 1. Seed Admin
+    // 1. Seed Railing Types (Balcony: 3 ft / Staircase: 2.8 ft)
+    const existingTypes = await query("SELECT id FROM railing_types LIMIT 1");
+    if (!existingTypes || existingTypes.length === 0) {
+      await query(
+        "INSERT INTO railing_types (id, name, slug, standard_height_ft, description) VALUES (?, ?, ?, ?, ?)",
+        ["balcony", "Balcony Railing", "balcony", 3.0, "Standard height: 3 ft"]
+      );
+      await query(
+        "INSERT INTO railing_types (id, name, slug, standard_height_ft, description) VALUES (?, ?, ?, ?, ?)",
+        ["staircase", "Staircase Railing", "staircase", 2.8, "Standard height: 2.8 ft"]
+      );
+      console.log("📏 Seeded Railing Types: Balcony (3 ft) & Staircase (2.8 ft)");
+    }
+
+    // 2. Seed Admin
     const admins = await query("SELECT id FROM admins LIMIT 1");
     if (!admins || admins.length === 0) {
       const passwordHash = await bcrypt.hash("ShakyaAdmin2026!", 10);
@@ -277,7 +319,7 @@ async function seedInitialData() {
       console.log("👤 Default Admin created: admin@metalworknepal.com / ShakyaAdmin2026!");
     }
 
-    // 2. Seed Settings
+    // 3. Seed Settings
     const existingSettings = await query("SELECT id FROM settings WHERE id = 'default'");
     if (!existingSettings || existingSettings.length === 0) {
       await query(
@@ -301,7 +343,7 @@ async function seedInitialData() {
       console.log("⚙️ Default settings initialized.");
     }
 
-    // 3. Seed Products from JSON file
+    // 4. Seed Products from JSON file
     const existingProducts = await query("SELECT id FROM products LIMIT 1");
     if (!existingProducts || existingProducts.length === 0) {
       const seedFile = path.join(__dirname, "seedProducts.json");

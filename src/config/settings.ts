@@ -39,6 +39,7 @@ export const STORAGE_KEYS = {
   products: "metalWorkNepal_products",
   enquiries: "metalWorkNepal_enquiries",
   selected: "metalWorkNepal_selectedRailing",
+  railingType: "metalWorkNepal_railingType",
   settings: "metalWorkNepal_settings",
   admin: "metalWorkNepal_adminSession",
   length: "metalWorkNepal_length",

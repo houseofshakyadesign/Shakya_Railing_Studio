@@ -23,20 +23,20 @@ export const Route = createFileRoute("/how-it-works")({
 
 const FAQ = [
   {
-    q: "How is boundary railing area calculated?",
-    a: "Area is calculated automatically as Length × Height in square feet (e.g., 20 ft × 3.5 ft = 70 sq.ft.). Standard 3.5 ft height is pre-filled for convenience.",
+    q: "How is railing area calculated?",
+    a: "Area is calculated automatically as Length × Standard Height in square feet. For Balcony railings, standard height is 3 ft (e.g., 20 ft × 3 ft = 60 sq.ft.). For Staircase railings, standard height is 2.8 ft (e.g., 20 ft × 2.8 ft = 56 sq.ft.).",
   },
   {
-    q: "What does Estimated Panels mean?",
-    a: "Estimated panels represent the approximate number of railing modules required along the boundary (e.g., 20 ft / 4 ft module = ~5 panels). Final fabrication quantity is confirmed upon site inspection.",
+    q: "How do I measure my staircase railing length?",
+    a: "For staircase railings, simply measure the approximate running length along the slope of the railing itself from start to finish.",
   },
   {
     q: "Is the calculated price final?",
-    a: "It is an accurate architectural estimate based on estimated area × rate per sq.ft. Final quotation is confirmed after site verification and anchor detailing.",
+    a: "It is an accurate architectural estimate based on estimated area × rate per sq.ft. Final quotation is confirmed after site inspection and review of site requirements.",
   },
   {
     q: "What happens after I send my requirement via WhatsApp?",
-    a: "Your enquiry reaches our technical team with the chosen railing model, dimensions, estimated panels, and estimate attached. We respond promptly with a formal schedule.",
+    a: "Your enquiry reaches our engineering team with the chosen railing model, application type, dimensions, and estimate attached. We respond promptly with a formal schedule.",
   },
 ];
 

@@ -12,7 +12,7 @@ import { STORAGE_KEYS } from "@/config/settings";
 import { readJSON, writeJSON } from "@/utils/localStorage";
 import type { Product } from "@/data/products";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
-import { calculateRailingEstimate, formatArea, formatPanels } from "@/utils/calculations";
+import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
@@ -58,7 +58,7 @@ const EMPTY_FORM: FormState = {
   phone: "",
   email: "",
   location: "",
-  projectType: "",
+  projectType: "Residential",
   additionalRequirements: "",
 };
 
@@ -69,8 +69,7 @@ type Errors = Partial<
     | "email"
     | "location"
     | "projectType"
-    | "length"
-    | "height",
+    | "length",
     string
   >
 >;
@@ -78,7 +77,20 @@ type Errors = Partial<
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
 
 function CollectionPage() {
-  const { selectedProduct, selectedId, selectProduct, products, ready, settings, addEnquiry, storageOk } = useStudio();
+  const {
+    selectedProduct,
+    selectedId,
+    selectProduct,
+    products,
+    ready,
+    settings,
+    addEnquiry,
+    storageOk,
+    railingType,
+    setRailingType,
+    currentStandardHeight,
+  } = useStudio();
+
   const calcRef = useRef<HTMLElement>(null);
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const [justSelected, setJustSelected] = useState(false);
@@ -96,18 +108,6 @@ function CollectionPage() {
     return "20";
   });
 
-  const [height, setHeight] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = readJSON<string | null>(STORAGE_KEYS.height, null);
-        if (stored) return stored;
-      } catch {
-        /* ignore */
-      }
-    }
-    return "3.5";
-  });
-
   const [showFormula, setShowFormula] = useState(false);
 
   // Form state
@@ -116,29 +116,25 @@ function CollectionPage() {
   const [submitted, setSubmitted] = useState<Enquiry | null>(null);
 
   const numLength = parseFloat(length);
-  const numHeight = parseFloat(height);
   const isCustom = Boolean(selectedProduct?.isCustom);
 
   const estimate = useMemo(() => {
     const validLength = Number.isFinite(numLength) && numLength > 0 ? numLength : 0;
-    const validHeight = Number.isFinite(numHeight) && numHeight > 0 ? numHeight : 3.5;
     const rate = selectedProduct?.pricePerSqft ?? 0;
-    const moduleWidth = selectedProduct?.standardModuleWidth ?? 4;
+    const typeLabel = railingType === "staircase" ? "Staircase Railing" : "Balcony Railing";
 
     return calculateRailingEstimate(
       validLength,
-      validHeight,
+      currentStandardHeight,
       rate,
-      moduleWidth,
       isCustom,
+      typeLabel,
     );
-  }, [numLength, numHeight, selectedProduct, isCustom]);
+  }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
 
   // Called when a product card's "Select & Calculate" is clicked
   const handleAfterSelect = useCallback((p: Product) => {
-    // Reset measurements and prefill standard height
     setLength("20");
-    setHeight(String(p.standardHeight || 3.5));
     setErrors({});
     setSubmitted(null);
 
@@ -175,10 +171,6 @@ function CollectionPage() {
       next.length = "Please enter a valid length greater than 0 ft.";
     }
 
-    if (!height.trim() || isNaN(numHeight) || numHeight <= 0) {
-      next.height = "Please enter a valid height greater than 0 ft.";
-    }
-
     setErrors(next);
     if (Object.keys(next).length) {
       toast.error("Please check the highlighted fields");
@@ -195,22 +187,19 @@ function CollectionPage() {
       email: form.email.trim(),
       location: form.location.trim(),
       projectType: form.projectType,
+      railingType: railingType === "staircase" ? "Staircase Railing" : "Balcony Railing",
       productId: selectedProduct.id,
       productCode: selectedProduct.code,
       productName: selectedProduct.name,
       material: selectedProduct.material,
       isCustom,
       lengthFt: estimate.length,
-      heightFt: estimate.height,
+      heightFt: currentStandardHeight,
       estimatedAreaSqft: estimate.area,
-      estimatedPanelQuantity: estimate.panels,
-      standardModuleWidthFt: estimate.standardModuleWidth,
       rate: isCustom ? 0 : selectedProduct.pricePerSqft,
+      estimatedPrice: isCustom ? 0 : estimate.total,
       estimatedTotal: isCustom ? 0 : estimate.total,
       additionalRequirements: form.additionalRequirements.trim(),
-      quantity: estimate.panels,
-      area: estimate.area,
-      totalArea: estimate.area,
     };
   }
 
@@ -234,7 +223,7 @@ function CollectionPage() {
         });
       }
     } else {
-      toast.success("Requirement recorded", {
+      toast.success("Enquiry recorded successfully", {
         description: "Send it via WhatsApp so our team receives it instantly.",
       });
     }
@@ -318,12 +307,58 @@ function CollectionPage() {
                   TELL US YOUR RAILING DIMENSIONS
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Enter the approximate length and height of your boundary railing. We'll calculate
-                  the estimated area and price for you.
+                  Choose your application type and enter the approximate length. We automatically determine standard heights and calculate your estimate.
                 </p>
               </div>
 
-              <div className="mt-14 grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
+              {/* Application Type Selector in Collection Page */}
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl">
+                <button
+                  type="button"
+                  onClick={() => setRailingType("balcony")}
+                  className={`flex flex-col p-4 text-left transition-all ${
+                    railingType === "balcony"
+                      ? "border-2 border-bronze bg-background shadow-sm"
+                      : "border border-hairline bg-background/60 hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
+                      BALCONY RAILING
+                    </span>
+                    {railingType === "balcony" && (
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-bronze text-ivory">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-[0.7rem] text-muted-foreground">Standard height: 3 ft</p>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setRailingType("staircase")}
+                  className={`flex flex-col p-4 text-left transition-all ${
+                    railingType === "staircase"
+                      ? "border-2 border-bronze bg-background shadow-sm"
+                      : "border border-hairline bg-background/60 hover:border-foreground/30"
+                  }`}
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
+                      STAIRCASE RAILING
+                    </span>
+                    {railingType === "staircase" && (
+                      <span className="flex h-4 w-4 items-center justify-center rounded-full bg-bronze text-ivory">
+                        <Check className="h-2.5 w-2.5 stroke-[3]" />
+                      </span>
+                    )}
+                  </div>
+                  <p className="mt-1 text-[0.7rem] text-muted-foreground">Standard height: 2.8 ft</p>
+                </button>
+              </div>
+
+              <div className="mt-12 grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
                 {/* LEFT: selected railing + measurements + form */}
                 <div>
                   {/* Selected railing card */}
@@ -338,7 +373,7 @@ function CollectionPage() {
                       <div className="flex items-center justify-between">
                         <p className="label-xs text-bronze">{selectedProduct.code}</p>
                         <span className="text-[0.62rem] tracking-wider text-muted-foreground uppercase">
-                          Module: {selectedProduct.standardModuleWidth || 4} ft
+                          {railingType === "staircase" ? "Staircase" : "Balcony"}
                         </span>
                       </div>
                       <h3 className="mt-1 text-lg leading-snug tracking-tight">
@@ -389,7 +424,9 @@ function CollectionPage() {
                             HOW LONG IS YOUR RAILING?
                           </label>
                           <p className="mt-1 text-[0.7rem] text-muted-foreground">
-                            Total boundary or perimeter length in feet.
+                            {railingType === "staircase"
+                              ? "Enter the approximate length along the railing."
+                              : "Total boundary length in feet."}
                           </p>
                         </div>
                         <div className="mt-4">
@@ -423,46 +460,27 @@ function CollectionPage() {
                         </div>
                       </div>
 
-                      {/* Height Input */}
+                      {/* Standard Height (Automatic) */}
                       <div className="flex flex-col justify-between border border-hairline bg-card p-5">
                         <div>
                           <label
-                            htmlFor="col-height"
                             className="block text-[0.72rem] font-medium tracking-[0.16em] text-foreground uppercase"
                           >
-                            HOW HIGH IS YOUR RAILING?
+                            STANDARD HEIGHT
                           </label>
                           <p className="mt-1 text-[0.7rem] text-bronze/90">
-                            Standard height is pre-filled. Change it if needed.
+                            Standard height used for this estimate.
                           </p>
                         </div>
                         <div className="mt-4">
-                          <div className="relative flex items-center">
-                            <input
-                              id="col-height"
-                              type="number"
-                              step="any"
-                              min="0.1"
-                              inputMode="decimal"
-                              value={height}
-                              onChange={(e) => {
-                                setHeight(e.target.value);
-                                setErrors((x) => ({ ...x, height: "" }));
-                              }}
-                              placeholder="3.5"
-                              className={`w-full border bg-background px-4 py-3.5 pr-12 text-xl font-medium tracking-tight tabular-nums outline-none transition-colors ${
-                                errors.height
-                                  ? "border-destructive focus:border-destructive"
-                                  : "border-hairline focus:border-bronze"
-                              }`}
-                            />
-                            <span className="pointer-events-none absolute right-4 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                              ft
+                          <div className="flex items-center justify-between border border-hairline bg-background/70 px-4 py-3.5">
+                            <span className="text-xl font-medium tracking-tight text-foreground">
+                              {currentStandardHeight} ft
+                            </span>
+                            <span className="text-[0.65rem] tracking-wider text-muted-foreground uppercase">
+                              {railingType === "staircase" ? "Staircase" : "Balcony"}
                             </span>
                           </div>
-                          {errors.height ? (
-                            <p className="mt-2 text-xs text-destructive">{errors.height}</p>
-                          ) : null}
                         </div>
                       </div>
                     </div>
@@ -494,14 +512,14 @@ function CollectionPage() {
                           >
                             <p>
                               <strong>Area Formula:</strong> {estimate.length || 0} ft (Length) ×{" "}
-                              {estimate.height || 0} ft (Height) ={" "}
+                              {currentStandardHeight} ft (Height) ={" "}
                               <strong>{formatArea(estimate.area)}</strong>
                             </p>
-                            <p className="mt-1.5">
-                              <strong>Panel Estimate:</strong> {estimate.length || 0} ft ÷{" "}
-                              {estimate.standardModuleWidth} ft module ={" "}
-                              <strong>{formatPanels(estimate.panels)}</strong>
-                            </p>
+                            {!isCustom && (
+                              <p className="mt-1.5">
+                                <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(selectedProduct.pricePerSqft, settings.currency)} = <strong>{formatNPR(estimate.total, settings.currency)}</strong>
+                              </p>
+                            )}
                           </motion.div>
                         ) : null}
                       </AnimatePresence>
@@ -564,7 +582,6 @@ function CollectionPage() {
                           onChange={(e) => setField("projectType", e.target.value)}
                           className={errors.projectType ? errorInputClass : inputClass}
                         >
-                          <option value="">Select project type</option>
                           {PROJECT_TYPES.map((t) => (
                             <option key={t} value={t}>
                               {t}
@@ -603,22 +620,8 @@ function CollectionPage() {
                       <p className="mt-1.5 text-3xl font-semibold tracking-tight tabular-nums">
                         {formatArea(estimate.area)}
                       </p>
-                    </div>
-
-                    {/* ESTIMATED PANELS */}
-                    <div className="mt-5 border-t border-hairline pt-5">
-                      <div className="flex items-baseline justify-between">
-                        <p className="text-[0.68rem] tracking-[0.18em] text-muted-foreground uppercase">
-                          ESTIMATED PANELS
-                        </p>
-                        <p className="text-base font-medium tabular-nums text-foreground">
-                          {formatPanels(estimate.panels)}
-                        </p>
-                      </div>
-                      <p className="mt-2 text-[0.68rem] leading-relaxed text-muted-foreground">
-                        Approximate panel count based on a {estimate.standardModuleWidth} ft standard module.
-                        Final quantity may vary depending on final site measurements, post spacing, corners
-                        and fabrication details.
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        {estimate.length} ft × {currentStandardHeight} ft ({railingType === "staircase" ? "Staircase" : "Balcony"})
                       </p>
                     </div>
 
@@ -634,8 +637,7 @@ function CollectionPage() {
                               CUSTOM QUOTE
                             </span>
                             <p className="mt-2 text-[0.7rem] leading-relaxed text-muted-foreground">
-                              Pricing depends on the final design, materials, dimensions and fabrication
-                              requirements.
+                              Pricing depends on the final design, materials, dimensions and fabrication requirements.
                             </p>
                           </div>
                         ) : (
@@ -648,10 +650,11 @@ function CollectionPage() {
 
                     {/* Detailed Parameters List */}
                     <dl className="mt-7 space-y-3 border-t border-hairline pt-6 text-sm">
+                      <Row label="Railing Type" value={railingType === "staircase" ? "Staircase Railing" : "Balcony Railing"} />
                       <Row label="Railing" value={`${selectedProduct.code} — ${selectedProduct.name}`} />
                       <Row label="Material" value={selectedProduct.material} />
                       <Row label="Length" value={`${estimate.length || 0} ft`} />
-                      <Row label="Height" value={`${estimate.height || 0} ft`} />
+                      <Row label="Standard Height" value={`${currentStandardHeight} ft`} />
                       <Row
                         label="Rate"
                         value={
@@ -686,8 +689,7 @@ function CollectionPage() {
                     </div>
 
                     <p className="mt-5 text-[0.68rem] leading-relaxed text-muted-foreground">
-                      Directly connected to Metal Work Nepal studio database. WhatsApp opens
-                      with your customized calculation pre-filled.
+                      Directly connected to Metal Work Nepal studio database. WhatsApp opens with your calculation pre-filled.
                     </p>
                   </div>
 

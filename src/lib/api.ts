@@ -93,6 +93,19 @@ export const api = {
       }),
   },
 
+  railingTypes: {
+    list: () =>
+      request<
+        {
+          id: string;
+          name: string;
+          slug: "balcony" | "staircase";
+          standardHeightFt: number;
+          description: string;
+        }[]
+      >("/railing-types"),
+  },
+
   settings: {
     get: () => request<Settings>("/settings"),
     update: (data: Partial<Settings>) =>

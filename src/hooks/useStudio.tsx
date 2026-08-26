@@ -10,6 +10,7 @@ import {
 import { type Product } from "@/data/products";
 import { DEFAULT_SETTINGS, STORAGE_KEYS, type Settings } from "@/config/settings";
 import { isStorageAvailable, readJSON, writeJSON } from "@/utils/localStorage";
+import { DEFAULT_RAILING_TYPES, type RailingTypeConfig, type RailingTypeSlug } from "@/utils/calculations";
 import { api } from "@/lib/api";
 
 export const ENQUIRY_STATUSES = [
@@ -31,6 +32,7 @@ export type Enquiry = {
   email: string;
   location: string;
   projectType: string;
+  railingType: string;
   productId: string;
   productCode: string;
   productName: string;
@@ -39,16 +41,17 @@ export type Enquiry = {
   lengthFt: number;
   heightFt: number;
   estimatedAreaSqft: number;
-  estimatedPanelQuantity: number;
-  standardModuleWidthFt: number;
   rate: number;
+  estimatedPrice: number;
   estimatedTotal: number;
   additionalRequirements: string;
   status: EnquiryStatus;
-  // Compatibility fields
-  quantity: number;
-  area: number;
-  totalArea: number;
+  // Compatibility fields if ever read
+  quantity?: number;
+  area?: number;
+  totalArea?: number;
+  estimatedPanelQuantity?: number;
+  standardModuleWidthFt?: number;
 };
 
 type StudioValue = {
@@ -59,6 +62,10 @@ type StudioValue = {
   activeProducts: Product[];
   settings: Settings;
   enquiries: Enquiry[];
+  railingTypes: RailingTypeConfig[];
+  railingType: RailingTypeSlug;
+  setRailingType: (type: RailingTypeSlug) => void;
+  currentStandardHeight: number;
   selectedId: string | null;
   selectedProduct: Product | null;
   selectProduct: (id: string | null) => void;
@@ -91,7 +98,27 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []);
   });
 
-  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [railingTypes, setRailingTypes] = useState<RailingTypeConfig[]>(DEFAULT_RAILING_TYPES);
+
+  const [railingType, setRailingTypeState] = useState<RailingTypeSlug>(() => {
+    const saved = readJSON<RailingTypeSlug>(STORAGE_KEYS.railingType, "balcony");
+    return saved === "staircase" ? "staircase" : "balcony";
+  });
+
+  const [selectedId, setSelectedId] = useState<string | null>(() => {
+    return readJSON<string | null>(STORAGE_KEYS.selected, null);
+  });
+
+  const setRailingType = useCallback((type: RailingTypeSlug) => {
+    setRailingTypeState(type);
+    writeJSON(STORAGE_KEYS.railingType, type);
+  }, []);
+
+  const currentStandardHeight = useMemo(() => {
+    const found = railingTypes.find((t) => t.slug === railingType);
+    if (found) return found.standardHeightFt;
+    return railingType === "staircase" ? 2.8 : 3.0;
+  }, [railingTypes, railingType]);
 
   // 1. Initial hydration
   useEffect(() => {
@@ -99,11 +126,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setProducts(readJSON<Product[]>(STORAGE_KEYS.products, []));
       setSettings(readJSON<Settings>(STORAGE_KEYS.settings, DEFAULT_SETTINGS));
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
-      try {
-        localStorage.removeItem(STORAGE_KEYS.selected);
-      } catch {
-        /* ignore */
-      }
+      const savedType = readJSON<RailingTypeSlug>(STORAGE_KEYS.railingType, "balcony");
+      setRailingTypeState(savedType === "staircase" ? "staircase" : "balcony");
+      const savedSel = readJSON<string | null>(STORAGE_KEYS.selected, null);
+      if (savedSel) setSelectedId(savedSel);
     }
     setReady(true);
   }, [storageOk]);
@@ -111,6 +137,16 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   // 2. Fetch live data from Express + MySQL backend
   const refreshFromCloud = useCallback(async () => {
     try {
+      // Fetch railing types
+      try {
+        const types = await api.railingTypes.list();
+        if (Array.isArray(types) && types.length > 0) {
+          setRailingTypes(types);
+        }
+      } catch {
+        /* fallback to defaults */
+      }
+
       // Fetch products from backend
       const dbProducts = await api.products.list();
       if (Array.isArray(dbProducts) && dbProducts.length > 0) {
@@ -206,8 +242,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [refreshFromCloud]);
 
   const addEnquiry = useCallback<StudioValue["addEnquiry"]>((data) => {
+    const estimatedPrice = data.estimatedPrice || data.estimatedTotal || 0;
     const enquiry: Enquiry = {
       ...data,
+      railingType: data.railingType || "Balcony Railing",
+      estimatedPrice,
+      estimatedTotal: estimatedPrice,
       id: `enq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       createdAt: new Date().toISOString(),
       status: "NEW",
@@ -259,82 +299,60 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     writeJSON(STORAGE_KEYS.enquiries, []);
   }, []);
 
-  const updateSettings = useCallback(
-    async (s: Partial<Settings>): Promise<boolean> => {
-      setSettings((prev) => {
-        const next = { ...prev, ...s };
-        writeJSON(STORAGE_KEYS.settings, next);
-        return next;
-      });
+  const updateSettings = useCallback(async (patch: Partial<Settings>): Promise<boolean> => {
+    setSettings((prev) => {
+      const next = { ...prev, ...patch };
+      writeJSON(STORAGE_KEYS.settings, next);
+      return next;
+    });
 
-      try {
-        await api.settings.update(s);
-        return true;
-      } catch (err) {
-        console.error("api.settings.update error:", err);
-        return false;
-      }
-    },
-    [],
-  );
+    try {
+      await api.settings.update(patch);
+      return true;
+    } catch (err) {
+      console.error("api.settings.update error:", err);
+      return false;
+    }
+  }, []);
 
-  const activeProducts = useMemo(
-    () => products.filter((p) => p.isActive),
-    [products],
-  );
+  const activeProducts = useMemo(() => {
+    return products.filter((p) => p.isActive);
+  }, [products]);
 
-  const selectedProduct = useMemo(
-    () => (selectedId ? products.find((p) => p.id === selectedId) ?? null : null),
-    [products, selectedId],
-  );
+  const selectedProduct = useMemo(() => {
+    if (!selectedId) return activeProducts[0] ?? null;
+    return products.find((p) => p.id === selectedId) ?? activeProducts[0] ?? null;
+  }, [products, selectedId, activeProducts]);
 
-  const value = useMemo<StudioValue>(
-    () => ({
-      ready,
-      isCloudConnected,
-      storageOk,
-      products,
-      activeProducts,
-      settings,
-      enquiries,
-      selectedId,
-      selectedProduct,
-      selectProduct,
-      saveProduct,
-      deleteProduct,
-      resetProducts,
-      addEnquiry,
-      updateEnquiryStatus,
-      clearEnquiries,
-      updateSettings,
-      refreshFromCloud,
-    }),
-    [
-      ready,
-      isCloudConnected,
-      storageOk,
-      products,
-      activeProducts,
-      settings,
-      enquiries,
-      selectedId,
-      selectedProduct,
-      selectProduct,
-      saveProduct,
-      deleteProduct,
-      resetProducts,
-      addEnquiry,
-      updateEnquiryStatus,
-      clearEnquiries,
-      updateSettings,
-      refreshFromCloud,
-    ],
-  );
+  const value: StudioValue = {
+    ready,
+    isCloudConnected,
+    storageOk,
+    products,
+    activeProducts,
+    settings,
+    enquiries,
+    railingTypes,
+    railingType,
+    setRailingType,
+    currentStandardHeight,
+    selectedId,
+    selectedProduct,
+    selectProduct,
+    saveProduct,
+    deleteProduct,
+    resetProducts,
+    addEnquiry,
+    updateEnquiryStatus,
+    clearEnquiries,
+    updateSettings,
+    refreshFromCloud,
+  };
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
 }
 
-export function useStudio(): StudioValue {
+export function useStudio() {
   const ctx = useContext(StudioContext);
   if (!ctx) {
     throw new Error("useStudio must be used within a StudioProvider");

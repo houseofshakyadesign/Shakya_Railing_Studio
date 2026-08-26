@@ -1,60 +1,53 @@
 import { formatNPR } from "./currency";
-import { formatArea, formatPanels } from "./calculations";
+import { formatArea } from "./calculations";
 import type { Enquiry } from "@/hooks/useStudio";
 
 export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
   const lines = [
-    "Hello Metal Work Nepal,",
-    "I would like to enquire about an architectural railing / metalwork project.",
+    "HOUSE OF SHAKYA RAILING ENQUIRY",
     "",
-    "RAILING",
+    "Railing:",
     `${e.productCode} — ${e.productName}`,
     "",
-    "MATERIAL",
-    e.material,
+    "Railing Type:",
+    e.railingType || "Balcony Railing",
+    "",
+    "Length:",
+    `${e.lengthFt} ft`,
+    "",
+    "Standard Height:",
+    `${e.heightFt} ft`,
+    "",
+    "Estimated Area:",
+    formatArea(e.estimatedAreaSqft),
     "",
   ];
 
-  if (e.lengthFt > 0) {
-    lines.push("LENGTH", `${e.lengthFt} ft`, "");
-    lines.push("HEIGHT", `${e.heightFt} ft`, "");
-    lines.push("ESTIMATED AREA", formatArea(e.estimatedAreaSqft), "");
-    lines.push("ESTIMATED PANELS", formatPanels(e.estimatedPanelQuantity), "");
-  } else if (e.area > 0) {
-    lines.push("ESTIMATED AREA", `${e.area} sq.ft.`, "");
-  }
-
   if (e.isCustom) {
-    lines.push("ESTIMATED PRICE", "Custom Quote (to be confirmed)", "");
+    lines.push("Rate:", "Custom Quote", "", "Estimated Price:", "Pricing will be confirmed based on final design", "");
   } else {
     lines.push(
-      "RATE",
-      `${formatNPR(e.rate, currency)} / sq.ft.`,
+      "Rate:",
+      `${formatNPR(e.rate, currency)}/sq.ft.`,
       "",
-      "ESTIMATED PRICE",
-      formatNPR(e.estimatedTotal, currency),
+      "Estimated Price:",
+      formatNPR(e.estimatedPrice || e.estimatedTotal, currency),
       "",
     );
   }
 
   lines.push(
-    "CUSTOMER",
+    "Customer:",
     e.customerName,
     "",
-    "PHONE",
+    "Phone:",
     e.phone,
     "",
-    "PROJECT LOCATION",
+    "Location:",
     e.location,
     "",
-    "PROJECT TYPE",
-    e.projectType,
-    "",
-    "ADDITIONAL REQUIREMENTS",
-    e.additionalRequirements?.trim() ||
-      "Please provide the final quotation and installation details.",
-    "",
-    "Thank you.",
+    "Additional Requirements:",
+    e.additionalRequirements?.trim() || "Please provide the quotation and site measurement confirmation.",
   );
 
   return lines.join("\n");

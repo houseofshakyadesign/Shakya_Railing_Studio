@@ -1,18 +1,26 @@
 import { Reveal, SectionHeading } from "./Reveal";
 
 const STEPS = [
-  { n: "01", title: "Select", copy: "Browse our railing designs and choose your preferred model." },
+  {
+    n: "01",
+    title: "Application",
+    copy: "Choose Balcony Railing (3 ft standard height) or Staircase Railing (2.8 ft standard height).",
+  },
   {
     n: "02",
-    title: "Measure",
-    copy: "Enter your boundary length in feet — standard height is already pre-filled.",
+    title: "Design",
+    copy: "Select your preferred architectural railing model from our curated catalog.",
   },
   {
     n: "03",
-    title: "Estimate",
-    copy: "Instant automatic calculation of area, estimated panels, and transparent pricing.",
+    title: "Length",
+    copy: "Enter only the railing length — standard height and area are calculated automatically.",
   },
-  { n: "04", title: "Send", copy: "Send your custom requirement straight to Metal Work Nepal via WhatsApp." },
+  {
+    n: "04",
+    title: "Quotation",
+    copy: "Review your transparent estimate and send directly to our engineering team via WhatsApp.",
+  },
 ];
 
 export function HowItWorks() {
@@ -21,7 +29,7 @@ export function HowItWorks() {
       <SectionHeading
         label="The Process"
         title="Four steps from design to quotation."
-        intro="No complicated math or manual sq.ft. guesswork. Choose, enter length, and send — in under two minutes."
+        intro="No complex math or construction calculations. Choose your application type, enter length, and send — in under two minutes."
       />
       <ol className="mt-14 grid gap-px border border-hairline bg-hairline sm:grid-cols-2 lg:grid-cols-4">
         {STEPS.map((s, i) => (
