@@ -15,5 +15,5 @@ export type Product = {
   isActive: boolean;
 };
 
-// All product specifications and designs are dynamically stored and fetched from the Supabase database.
+// All product specifications and designs are dynamically stored and fetched from the Metal Work Nepal backend database.
 export const DEFAULT_PRODUCTS: Product[] = [];

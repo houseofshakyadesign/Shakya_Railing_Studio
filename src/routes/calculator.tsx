@@ -685,7 +685,7 @@ function CalculatorPage() {
             </div>
 
             <p className="mt-5 text-[0.68rem] leading-relaxed text-muted-foreground">
-              Directly connected to Metal Work Nepal Supabase studio database. WhatsApp opens
+              Directly connected to Metal Work Nepal studio database. WhatsApp opens
               with your customized calculation pre-filled.
             </p>
           </div>
@@ -711,7 +711,7 @@ function CalculatorPage() {
                 <div>
                   <p className="text-sm font-medium tracking-tight">Requirement recorded</p>
                   <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                    Reference #{submitted.id.slice(-6).toUpperCase()} · saved to Supabase cloud. Our
+                    Reference #{submitted.id.slice(-6).toUpperCase()} · saved to database. Our
                     team will confirm the final quotation.
                   </p>
                 </div>
