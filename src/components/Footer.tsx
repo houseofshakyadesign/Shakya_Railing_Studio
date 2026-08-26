@@ -11,14 +11,14 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-3.5">
             <img
-              src="/logo/logo.png"
-              alt="Metal Work Nepal Logo"
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="House of Shakya Railing Studio"
               className="h-10 w-10 shrink-0 rounded-sm object-contain"
             />
             <div>
-              <p className="text-sm font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
+              <p className="text-sm font-extrabold tracking-[0.24em] uppercase">House of Shakya</p>
               <p className="mt-0.5 text-[0.65rem] font-bold tracking-[0.3em] text-bronze uppercase">
-                Architectural Studio
+                Railing Studio
               </p>
             </div>
           </div>

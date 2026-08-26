@@ -145,13 +145,13 @@ function AdminPage() {
 
           <div className="mt-6 flex items-center gap-3.5">
             <img
-              src="/logo/logo.png"
-              alt="Metal Work Nepal Logo"
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="House of Shakya Railing Studio"
               className="h-12 w-12 shrink-0 rounded-sm object-contain"
             />
             <div>
               <h1 className="text-xl font-bold tracking-tight">Studio Admin Login</h1>
-              <p className="text-xs text-muted-foreground">Metal Work Nepal Management</p>
+              <p className="text-xs text-muted-foreground">House of Shakya Management</p>
             </div>
           </div>
           <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
@@ -207,8 +207,8 @@ function AdminPage() {
       <div className="flex flex-wrap items-end justify-between gap-6">
         <div className="flex items-center gap-4">
           <img
-            src="/logo/logo.png"
-            alt="Metal Work Nepal Logo"
+            src="/logo/house-of-shakya-logo-dark.png"
+            alt="House of Shakya Railing Studio"
             className="h-12 w-12 shrink-0 rounded-sm object-contain"
           />
           <div>
@@ -220,7 +220,7 @@ function AdminPage() {
                 </span>
               ) : null}
             </div>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">Metal Work Nepal Dashboard</h1>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">House of Shakya Dashboard</h1>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">

@@ -43,26 +43,43 @@ export function Navbar() {
           scrolled ? "h-16" : "h-20 md:h-24"
         }`}
       >
-        <Link to="/" className="group flex items-center gap-3.5 leading-none" aria-label="Metal Work Nepal">
-          <img
-            src="/logo/logo.png"
-            alt="Metal Work Nepal Logo"
-            className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-sm object-contain transition-transform duration-300 group-hover:scale-105"
-          />
+        <Link
+          to="/"
+          className="group flex items-center gap-3.5 leading-none"
+          aria-label="House of Shakya Railing Studio"
+        >
+          {/* Logo container with smooth crossfade between light and dark variants */}
+          <div className="relative h-10 w-10 md:h-12 md:w-12 shrink-0 overflow-hidden rounded-sm transition-transform duration-300 group-hover:scale-105">
+            <img
+              src="/logo/house-of-shakya-logo-light.png"
+              alt="House of Shakya Railing Studio"
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
+                isDarkHero ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
+            />
+            <img
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="House of Shakya Railing Studio"
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
+                isDarkHero ? "pointer-events-none opacity-0" : "opacity-100"
+              }`}
+            />
+          </div>
+
           <div>
             <span
-              className={`block text-[0.88rem] font-extrabold tracking-[0.24em] uppercase transition-colors duration-300 ${
+              className={`block text-[0.82rem] font-extrabold tracking-[0.22em] uppercase transition-colors duration-300 sm:text-[0.88rem] sm:tracking-[0.24em] ${
                 isDarkHero ? "text-ivory" : "text-foreground"
               }`}
             >
-              Metal Work Nepal
+              House of Shakya
             </span>
             <span
-              className={`mt-1 block text-[0.6rem] font-bold tracking-[0.32em] uppercase transition-colors duration-300 ${
+              className={`mt-1 block text-[0.58rem] font-bold tracking-[0.3em] uppercase transition-colors duration-300 sm:text-[0.6rem] sm:tracking-[0.32em] ${
                 isDarkHero ? "text-bronze-soft" : "text-bronze"
               }`}
             >
-              Architectural Studio
+              Railing Studio
             </span>
           </div>
         </Link>
@@ -123,7 +140,7 @@ export function Navbar() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: EASE }}
-            className="overflow-hidden border-t border-hairline bg-background/98 backdrop-blur-2xl shadow-lift lg:hidden"
+            className="overflow-hidden border-t border-hairline bg-background/98 shadow-lift backdrop-blur-2xl lg:hidden"
           >
             <nav aria-label="Mobile" className="flex flex-col px-5 py-4">
               {NAV.map((item) => (
