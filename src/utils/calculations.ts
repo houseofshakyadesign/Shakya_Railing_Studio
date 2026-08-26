@@ -30,12 +30,14 @@ export function formatPanels(panels: number): string {
   return `~${Math.ceil(panels)} panels`;
 }
 
+export const VAT_RATE = 0.13; // 13% standard VAT
+
 /**
  * Single source of truth for House of Shakya boundary railing calculations.
  *
  * 1. Area = Length × Height
  * 2. Panels = Ceiling(Length ÷ Standard Module Width)
- * 3. Price = Area × Rate (for non-custom)
+ * 3. Total = (Area × Rate) + 13% VAT (for non-custom)
  */
 export function calculateRailingEstimate(
   length: number,
@@ -55,7 +57,8 @@ export function calculateRailingEstimate(
   const rawArea = l * h;
   const area = Number(rawArea.toFixed(2));
   const panels = l > 0 ? Math.ceil(l / modWidth) : 0;
-  const total = isCustom ? 0 : Math.round(area * r);
+  const subtotal = area * r;
+  const total = isCustom ? 0 : Math.round(subtotal * (1 + VAT_RATE));
 
   return {
     length: l,
@@ -75,5 +78,7 @@ export function calculateEstimate(quantity: number, area: number, rate: number):
   const a = Number.isFinite(area) && area > 0 ? area : 0;
   const r = Number.isFinite(rate) && rate > 0 ? rate : 0;
   const totalArea = q * a;
-  return { quantity: q, area: a, totalArea, rate: r, total: Math.round(totalArea * r) };
+  const subtotal = totalArea * r;
+  const total = Math.round(subtotal * (1 + VAT_RATE));
+  return { quantity: q, area: a, totalArea, rate: r, total };
 }
