@@ -6,9 +6,7 @@ const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").r
 
 function getAuthHeader(): Record<string, string> {
   try {
-    const token =
-      localStorage.getItem("metalWorkNepal_adminToken") ||
-      sessionStorage.getItem("metalWorkNepal_adminToken");
+    const token = sessionStorage.getItem("metalWorkNepal_adminToken");
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }
@@ -18,31 +16,49 @@ function getAuthHeader(): Record<string, string> {
   return {};
 }
 
-async function request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+async function request<T>(endpoint: string, options: RequestInit = {}, retries = 2): Promise<T> {
   const url = `${API_BASE}${endpoint.startsWith("/") ? "" : "/"}${endpoint}`;
-  const headers = {
+  const headers: Record<string, string> = {
     "Content-Type": "application/json",
     ...getAuthHeader(),
-    ...(options.headers || {}),
+    ...((options.headers as Record<string, string>) || {}),
   };
 
-  const res = await fetch(url, {
-    ...options,
-    headers,
-  });
-
-  if (!res.ok) {
-    let errorMsg = `API Error ${res.status}: ${res.statusText}`;
+  let lastError: Error | null = null;
+  for (let attempt = 0; attempt <= retries; attempt++) {
     try {
-      const json = await res.json();
-      if (json.error) errorMsg = json.error;
-    } catch {
-      /* ignore json parse error */
-    }
-    throw new Error(errorMsg);
-  }
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  return res.json();
+      const res = await fetch(url, {
+        ...options,
+        headers,
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+
+      if (!res.ok) {
+        let errorMsg = `API Error ${res.status}: ${res.statusText}`;
+        try {
+          const json = await res.json();
+          if (json.error) errorMsg = json.error;
+        } catch {
+          /* ignore json parse error */
+        }
+        throw new Error(errorMsg);
+      }
+
+      return res.json();
+    } catch (err) {
+      lastError = err instanceof Error ? err : new Error(String(err));
+      if (attempt < retries && !lastError.message.includes("401") && !lastError.message.includes("403")) {
+        await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+        continue;
+      }
+      throw lastError;
+    }
+  }
+  throw lastError;
 }
 
 export const api = {

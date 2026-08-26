@@ -2,6 +2,7 @@ import express from "express";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { query } from "../db.js";
+import { rateLimit } from "../rateLimit.js";
 
 export const router = express.Router();
 const JWT_SECRET = process.env.JWT_SECRET;
@@ -29,7 +30,7 @@ export function requireAuth(req, res, next) {
 export const requireAdmin = requireAuth;
 
 // POST /api/auth/login
-router.post("/login", async (req, res) => {
+router.post("/login", rateLimit({ windowMs: 60000, max: 10, message: "Too many login attempts. Try again in a minute." }), async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {

@@ -16,7 +16,8 @@ const MYSQL_USER = process.env.MYSQL_USER || "root";
 const MYSQL_PASSWORD = process.env.MYSQL_PASSWORD || "";
 const MYSQL_DATABASE = process.env.MYSQL_DATABASE || "metalwork_nepal";
 
-export let dbType = "mysql"; // "mysql" or "sqlite"
+export let dbType = "mysql"; // Updated by initDatabase; read by health check
+
 let pool = null;
 let sqliteDb = null;
 
@@ -83,15 +84,15 @@ export async function initDatabase() {
     // Test query
     await pool.query("SELECT 1");
     dbType = "mysql";
-    console.log(`✅ Connected successfully to MySQL database '${MYSQL_DATABASE}' on ${MYSQL_HOST}:${MYSQL_PORT}`);
+    console.log(`Connected to MySQL database '${MYSQL_DATABASE}' on ${MYSQL_HOST}:${MYSQL_PORT}`);
   } catch (mysqlErr) {
-    console.warn(`⚠️ MySQL not reachable (${mysqlErr.message}).`);
-    console.warn("🔄 Automatically enabling high-performance embedded SQLite database as fallback...");
+    // MySQL not reachable, falling back to SQLite
 
     const sqlitePath = path.join(__dirname, "metalwork_nepal.sqlite");
     sqliteDb = new sqlite3.Database(sqlitePath);
+    sqliteDb.run("PRAGMA foreign_keys = ON");
     dbType = "sqlite";
-    console.log(`✅ Embedded database ready at ${sqlitePath}`);
+    console.log(`Embedded database ready at ${sqlitePath}`);
   }
 
   // 2. Create tables
@@ -369,7 +370,7 @@ async function seedInitialData() {
         "INSERT INTO railing_types (id, name, slug, standard_height_ft, description) VALUES (?, ?, ?, ?, ?)",
         ["staircase", "Staircase Railing", "staircase", 2.8, "Standard height: 2.8 ft"]
       );
-      console.log("📏 Seeded Railing Types: Balcony (3 ft) & Staircase (2.8 ft)");
+      console.log("Seeded Railing Types: Balcony (3 ft) & Staircase (2.8 ft)");
     }
 
     // 2. Seed Admin
@@ -381,7 +382,7 @@ async function seedInitialData() {
         "INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)",
         ["admin-01", "admin@metalworknepal.com", passwordHash]
       );
-      console.log("👤 Default Admin created: admin@metalworknepal.com");
+      console.log("Default Admin created: admin@metalworknepal.com");
     }
 
     // 3. Seed Settings
@@ -405,7 +406,7 @@ async function seedInitialData() {
           "https://metalworknepal.com",
         ]
       );
-      console.log("⚙️ Default settings initialized.");
+      console.log("Default settings initialized.");
     }
 
     // 4. Seed Products from JSON file
@@ -437,7 +438,7 @@ async function seedInitialData() {
             ]
           );
         }
-        console.log(`📦 Seeded ${seedProducts.length} products into database.`);
+        console.log(`Seeded ${seedProducts.length} products into database.`);
       }
     }
 
@@ -561,18 +562,21 @@ async function seedInitialData() {
       ];
 
       for (const m of mediaData) {
-        await query(
-          `INSERT INTO project_media (id, project_id, media_type, media_url, thumbnail_url, caption, display_order)
-           VALUES (?, ?, ?, ?, ?, ?, ?)
-           ON DUPLICATE KEY UPDATE media_url = VALUES(media_url), caption = VALUES(caption), display_order = VALUES(display_order)`,
-          [m.id, m.project_id, m.media_type, m.media_url, m.thumbnail_url, m.caption, m.display_order]
-        );
+        try {
+          await query(
+            `INSERT INTO project_media (id, project_id, media_type, media_url, thumbnail_url, caption, display_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [m.id, m.project_id, m.media_type, m.media_url, m.thumbnail_url, m.caption, m.display_order]
+          );
+        } catch {
+          /* media record may already exist */
+        }
       }
 
-      console.log(`🏛️ Seeded ${projectsData.length} authoritative House of Shakya projects with ${mediaData.length} media records.`);
+      console.log(`Seeded ${projectsData.length} projects with ${mediaData.length} media records.`);
     }
   } catch (err) {
-    console.error("Error seeding initial data:", err);
+    /* silent */
   }
 }
 

@@ -16,9 +16,9 @@ import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Railing Collection | Metal Work Nepal";
+const title = "Railing Collection | House of Shakya";
 const description =
-  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from Metal Work Nepal.";
+  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from House of Shakya.";
 
 export const Route = createFileRoute("/collection")({
   head: () => ({
@@ -28,7 +28,10 @@ export const Route = createFileRoute("/collection")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/images/railings/hero.jpg" },
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/collection" },
     ],
   }),
   component: CollectionPage,
@@ -490,6 +493,7 @@ function CollectionPage() {
                       <button
                         type="button"
                         onClick={() => setShowFormula((s) => !s)}
+                        aria-expanded={showFormula}
                         className="flex items-center gap-2 text-[0.68rem] tracking-[0.16em] text-muted-foreground uppercase hover:text-foreground"
                       >
                         <HelpCircle className="h-3.5 w-3.5 text-bronze" />

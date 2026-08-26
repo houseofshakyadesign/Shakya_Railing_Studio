@@ -2,6 +2,7 @@ import express from "express";
 import multer from "multer";
 import path from "path";
 import fs from "fs";
+import crypto from "crypto";
 import { fileURLToPath } from "url";
 import { requireAuth } from "./auth.js";
 
@@ -24,21 +25,28 @@ const storage = multer.diskStorage({
       .basename(file.originalname, ext)
       .toLowerCase()
       .replace(/[^a-z0-9]/g, "-");
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e5);
+    const uniqueSuffix = Date.now() + "-" + crypto.randomUUID().slice(0, 8);
     cb(null, `${cleanName}-${uniqueSuffix}${ext}`);
   },
 });
 
+const ALLOWED_IMAGE_EXTS = [".jpg", ".jpeg", ".png", ".gif", ".webp", ".avif"];
+const ALLOWED_VIDEO_EXTS = [".mp4", ".mov", ".webm", ".m4v", ".mkv"];
+const ALLOWED_IMAGE_MIMES = ["image/jpeg", "image/png", "image/gif", "image/webp", "image/avif"];
+const ALLOWED_VIDEO_MIMES = ["video/mp4", "video/quicktime", "video/webm", "video/x-matroska"];
+
 const upload = multer({
   storage: storage,
-  limits: { fileSize: 250 * 1024 * 1024 }, // 250MB limit for high-definition video
+  limits: { fileSize: 250 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith("image/") || file.mimetype.startsWith("video/")) {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (ALLOWED_IMAGE_MIMES.includes(file.mimetype) && ALLOWED_IMAGE_EXTS.includes(ext)) {
       return cb(null, true);
     }
-    // Also allow common video extensions if mimetype is octet-stream
-    const ext = path.extname(file.originalname).toLowerCase();
-    if ([".mp4", ".mov", ".webm", ".m4v", ".mkv"].includes(ext)) {
+    if (ALLOWED_VIDEO_MIMES.includes(file.mimetype) && ALLOWED_VIDEO_EXTS.includes(ext)) {
+      return cb(null, true);
+    }
+    if (ext && [...ALLOWED_IMAGE_EXTS, ...ALLOWED_VIDEO_EXTS].includes(ext)) {
       return cb(null, true);
     }
     cb(new Error("Only image and video files are allowed"), false);
@@ -54,7 +62,7 @@ router.post(
     const uploadSingle = upload.any();
     uploadSingle(req, res, (err) => {
       if (err) {
-        console.error("Multer upload error:", err);
+        /* silent */
         return res.status(400).json({ error: err.message || "File upload failed" });
       }
       next();
@@ -79,7 +87,7 @@ router.post(
         mediaType: isVideo ? "video" : "image",
       });
     } catch (err) {
-      console.error("Upload handler error:", err);
+      /* silent */
       return res.status(500).json({ error: "Failed to upload media file" });
     }
   }

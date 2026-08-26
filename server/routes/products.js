@@ -1,4 +1,5 @@
 import express from "express";
+import crypto from "crypto";
 import { query } from "../db.js";
 import { requireAuth } from "./auth.js";
 
@@ -32,7 +33,7 @@ router.get("/", async (req, res) => {
     const rows = await query("SELECT * FROM products WHERE is_active = 1 ORDER BY display_order ASC, code ASC");
     return res.json(rows.map(formatProduct));
   } catch (err) {
-    console.error("GET /api/products error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to fetch products" });
   }
 });
@@ -43,7 +44,7 @@ router.get("/all", requireAuth, async (req, res) => {
     const rows = await query("SELECT * FROM products ORDER BY display_order ASC, code ASC");
     return res.json(rows.map(formatProduct));
   } catch (err) {
-    console.error("GET /api/products/all error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to fetch all products" });
   }
 });
@@ -57,7 +58,7 @@ router.get("/:id", async (req, res) => {
     }
     return res.json(formatProduct(rows[0]));
   } catch (err) {
-    console.error("GET /api/products/:id error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to fetch product" });
   }
 });
@@ -66,7 +67,7 @@ router.get("/:id", async (req, res) => {
 router.post("/", requireAuth, async (req, res) => {
   try {
     const p = req.body;
-    const id = p.id || `prod_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = p.id || `prod_${Date.now()}_${crypto.randomUUID().slice(0, 8)}`;
     const gallery = JSON.stringify(p.gallery || []);
     const features = JSON.stringify(p.features || []);
     const applications = JSON.stringify(p.applications || []);
@@ -96,8 +97,8 @@ router.post("/", requireAuth, async (req, res) => {
     const created = await query("SELECT * FROM products WHERE id = ? LIMIT 1", [id]);
     return res.status(201).json(formatProduct(created[0]));
   } catch (err) {
-    console.error("POST /api/products error:", err);
-    return res.status(500).json({ error: err.message || "Failed to create product" });
+    /* silent */
+    return res.status(500).json({ error: "Failed to create product" });
   }
 });
 
@@ -139,8 +140,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     }
     return res.json(formatProduct(updated[0]));
   } catch (err) {
-    console.error("PUT /api/products/:id error:", err);
-    return res.status(500).json({ error: err.message || "Failed to update product" });
+    return res.status(500).json({ error: "Failed to update product" });
   }
 });
 
@@ -150,7 +150,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     await query("DELETE FROM products WHERE id = ?", [req.params.id]);
     return res.json({ success: true, message: "Product deleted" });
   } catch (err) {
-    console.error("DELETE /api/products/:id error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to delete product" });
   }
 });

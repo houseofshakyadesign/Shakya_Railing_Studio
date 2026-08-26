@@ -1,8 +1,12 @@
 import express from "express";
+import crypto from "crypto";
 import { query } from "../db.js";
 import { requireAuth } from "./auth.js";
+import { rateLimit } from "../rateLimit.js";
 
 export const router = express.Router();
+
+const ALLOWED_STATUSES = ["new", "in_review", "quoted", "confirmed", "archived"];
 
 function formatEnquiry(e) {
   return {
@@ -36,16 +40,16 @@ router.get("/", requireAuth, async (req, res) => {
     const rows = await query("SELECT * FROM enquiries ORDER BY created_at DESC");
     return res.json(rows.map(formatEnquiry));
   } catch (err) {
-    console.error("GET /api/enquiries error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to fetch enquiries" });
   }
 });
 
 // POST /api/enquiries (public customer quotation submission)
-router.post("/", async (req, res) => {
+router.post("/", rateLimit({ windowMs: 60000, max: 5, message: "Too many enquiries. Please try again later." }), async (req, res) => {
   try {
     const e = req.body;
-    const id = e.id || `enq_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const id = e.id || `enq_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`;
     const estimatedPrice = Number(e.estimatedPrice || e.estimatedTotal) || 0;
 
     await query(
@@ -82,8 +86,8 @@ router.post("/", async (req, res) => {
     const created = await query("SELECT * FROM enquiries WHERE id = ? LIMIT 1", [id]);
     return res.status(201).json(formatEnquiry(created[0]));
   } catch (err) {
-    console.error("POST /api/enquiries error:", err);
-    return res.status(500).json({ error: err.message || "Failed to record enquiry" });
+    /* silent */
+    return res.status(500).json({ error: "Failed to record enquiry" });
   }
 });
 
@@ -95,6 +99,10 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
       return res.status(400).json({ error: "Status is required" });
     }
 
+    if (!ALLOWED_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Allowed: ${ALLOWED_STATUSES.join(", ")}` });
+    }
+
     await query("UPDATE enquiries SET status = ? WHERE id = ?", [status, req.params.id]);
     const updated = await query("SELECT * FROM enquiries WHERE id = ? LIMIT 1", [req.params.id]);
     if (!updated || updated.length === 0) {
@@ -102,7 +110,7 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
     }
     return res.json(formatEnquiry(updated[0]));
   } catch (err) {
-    console.error("PATCH /api/enquiries/:id/status error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to update status" });
   }
 });
@@ -113,7 +121,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     await query("DELETE FROM enquiries WHERE id = ?", [req.params.id]);
     return res.json({ success: true, message: "Enquiry deleted" });
   } catch (err) {
-    console.error("DELETE /api/enquiries/:id error:", err);
+    /* silent */
     return res.status(500).json({ error: "Failed to delete enquiry" });
   }
 });

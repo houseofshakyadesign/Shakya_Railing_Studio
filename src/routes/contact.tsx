@@ -3,9 +3,9 @@ import { Instagram, Mail, MapPin, MessageCircle, Phone, Video } from "lucide-rea
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { useStudio } from "@/hooks/useStudio";
 
-const title = "Contact | Metal Work Nepal";
+const title = "Contact | House of Shakya";
 const description =
-  "Talk to Metal Work Nepal about your architectural metalwork and railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, precision fabrication and installation.";
+  "Talk to House of Shakya about your architectural metalwork and railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, precision fabrication and installation.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -15,7 +15,10 @@ export const Route = createFileRoute("/contact")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/images/railings/hero.jpg" },
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/contact" },
     ],
   }),
   component: ContactPage,

@@ -146,72 +146,54 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     setReady(true);
   }, [storageOk]);
 
-  // 2. Fetch live data from Express + MySQL backend
+  // 2. Fetch live data from Express + MySQL backend (parallelized)
   const refreshFromCloud = useCallback(async () => {
-    try {
-      // Fetch railing types
-      try {
-        const types = await api.railingTypes.list();
-        if (Array.isArray(types) && types.length > 0) {
-          setRailingTypes(types);
-        }
-      } catch {
-        /* fallback to defaults */
-      }
+    const hasAdminToken = Boolean(
+      typeof window !== "undefined" &&
+        (localStorage.getItem("metalWorkNepal_adminToken") ||
+          sessionStorage.getItem("metalWorkNepal_adminToken"))
+    );
 
-      // Fetch products from backend
-      try {
-        const dbProducts = await api.products.list();
-        if (Array.isArray(dbProducts) && dbProducts.length > 0) {
-          setProducts(dbProducts);
-          writeJSON(STORAGE_KEYS.products, dbProducts);
-        }
-      } catch {
-        /* ignore */
-      }
+    const results = await Promise.allSettled([
+      api.railingTypes.list(),
+      api.products.list(),
+      api.projects.list(true),
+      api.settings.get(),
+      hasAdminToken ? api.enquiries.list().catch(() => null) : Promise.resolve(null),
+    ]);
 
-      // Fetch projects from backend
-      try {
-        const dbProjects = await api.projects.list(true);
-        if (Array.isArray(dbProjects) && dbProjects.length > 0) {
-          setProjects(dbProjects);
-          writeJSON(STORAGE_KEYS.projects, dbProjects);
-        }
-      } catch {
-        /* ignore */
-      }
+    const [typesResult, productsResult, projectsResult, settingsResult, enquiriesResult] = results;
 
-      // Fetch settings from backend
-      try {
-        const dbSettings = await api.settings.get();
-        if (dbSettings && dbSettings.companyName) {
-          const fullSettings: Settings = {
-            ...DEFAULT_SETTINGS,
-            ...dbSettings,
-          };
-          setSettings(fullSettings);
-          writeJSON(STORAGE_KEYS.settings, fullSettings);
-        }
-      } catch {
-        /* ignore */
-      }
-
-      // Fetch enquiries if token is present
-      try {
-        const dbEnquiries = await api.enquiries.list();
-        if (Array.isArray(dbEnquiries)) {
-          setEnquiries(dbEnquiries);
-          writeJSON(STORAGE_KEYS.enquiries, dbEnquiries);
-        }
-      } catch {
-        /* User is unauthenticated, skip admin enquiry list */
-      }
-
-      setIsCloudConnected(true);
-    } catch (err) {
-      console.warn("Backend API sync notice:", err);
-      setIsCloudConnected(false);
+    if (typesResult.status === "fulfilled" && Array.isArray(typesResult.value) && typesResult.value.length > 0) {
+      setRailingTypes(typesResult.value);
     }
+
+    if (productsResult.status === "fulfilled" && Array.isArray(productsResult.value) && productsResult.value.length > 0) {
+      setProducts(productsResult.value);
+      writeJSON(STORAGE_KEYS.products, productsResult.value);
+    }
+
+    if (projectsResult.status === "fulfilled" && Array.isArray(projectsResult.value) && projectsResult.value.length > 0) {
+      setProjects(projectsResult.value);
+      writeJSON(STORAGE_KEYS.projects, projectsResult.value);
+    }
+
+    if (settingsResult.status === "fulfilled" && settingsResult.value && settingsResult.value.companyName) {
+      const fullSettings: Settings = {
+        ...DEFAULT_SETTINGS,
+        ...settingsResult.value,
+      };
+      setSettings(fullSettings);
+      writeJSON(STORAGE_KEYS.settings, fullSettings);
+    }
+
+    if (enquiriesResult.status === "fulfilled" && Array.isArray(enquiriesResult.value)) {
+      setEnquiries(enquiriesResult.value);
+      writeJSON(STORAGE_KEYS.enquiries, enquiriesResult.value);
+    }
+
+    const anyFulfilled = results.some((r) => r.status === "fulfilled");
+    setIsCloudConnected(anyFulfilled);
   }, []);
 
   useEffect(() => {
@@ -240,8 +222,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           await api.products.create(p);
         }
         return true;
-      } catch (err) {
-        console.error("api.products save error:", err);
+      } catch {
+        /* silent */
         return false;
       }
     },
@@ -260,8 +242,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       try {
         await api.products.delete(id);
         return true;
-      } catch (err) {
-        console.error("api.products delete error:", err);
+      } catch {
+        /* silent */
         return false;
       }
     },
@@ -289,8 +271,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           await api.projects.create(p);
         }
         return true;
-      } catch (err) {
-        console.error("api.projects save error:", err);
+      } catch {
+        /* silent */
         return false;
       }
     },
@@ -308,8 +290,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       try {
         await api.projects.delete(id);
         return true;
-      } catch (err) {
-        console.error("api.projects delete error:", err);
+      } catch {
+        /* silent */
         return false;
       }
     },
@@ -342,8 +324,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
             prev.map((item) => (item.id === enquiry.id ? created : item))
           );
         }
-      } catch (err) {
-        console.error("Express API enquiry sync error:", err);
+      } catch {
+        /* silent */
       }
     })();
 
@@ -361,8 +343,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       try {
         await api.enquiries.updateStatus(id, status);
         return true;
-      } catch (err) {
-        console.error("api.enquiries.updateStatus error:", err);
+      } catch {
+        /* silent */
         return false;
       }
     },
@@ -384,10 +366,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     try {
       await api.settings.update(patch);
       return true;
-    } catch (err) {
-      console.error("api.settings.update error:", err);
-      return false;
-    }
+    } catch {
+        /* silent */
+        return false;
+      }
   }, []);
 
   const activeProducts = useMemo(() => {
@@ -405,7 +387,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return products.find((p) => p.id === selectedId) ?? activeProducts[0] ?? null;
   }, [products, selectedId, activeProducts]);
 
-  const value: StudioValue = {
+  const value: StudioValue = useMemo(() => ({
     ready,
     isCloudConnected,
     storageOk,
@@ -432,7 +414,13 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     clearEnquiries,
     updateSettings,
     refreshFromCloud,
-  };
+  }), [
+    ready, isCloudConnected, storageOk, products, activeProducts, projects, activeProjects,
+    settings, enquiries, railingTypes, railingType, setRailingType, currentStandardHeight,
+    selectedId, selectedProduct, selectProduct, saveProduct, deleteProduct, resetProducts,
+    saveProject, deleteProject, addEnquiry, updateEnquiryStatus, clearEnquiries,
+    updateSettings, refreshFromCloud,
+  ]);
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
 }

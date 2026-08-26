@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useId } from "react";
 
 const base =
   "w-full border border-hairline bg-card px-4 py-3.5 text-sm outline-none transition-all duration-200 placeholder:text-muted-foreground/60 focus:border-bronze focus:ring-1 focus:ring-bronze";
@@ -18,6 +18,10 @@ export function Field({
   hint?: string | undefined;
   children: ReactNode;
 }) {
+  const hintId = useId();
+  const errorId = useId();
+  const describedBy = error ? errorId : hint ? hintId : undefined;
+
   return (
     <div>
       <label htmlFor={id} className="label-xs block text-muted-foreground">
@@ -26,11 +30,11 @@ export function Field({
       </label>
       <div className="mt-2.5">{children}</div>
       {error ? (
-        <p className="mt-2 text-xs text-destructive" role="alert">
+        <p id={errorId} className="mt-2 text-xs text-destructive" role="alert">
           {error}
         </p>
       ) : hint ? (
-        <p className="mt-2 text-xs text-muted-foreground">{hint}</p>
+        <p id={hintId} className="mt-2 text-xs text-muted-foreground">{hint}</p>
       ) : null}
     </div>
   );

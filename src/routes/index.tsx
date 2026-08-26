@@ -7,9 +7,9 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { TrustSection } from "@/components/TrustSection";
 
-const title = "Metal Work Nepal | Architectural Metalwork & Railings";
+const title = "House of Shakya | Architectural Metalwork & Railings";
 const description =
-  "Explore architectural metalwork and premium railing systems by Metal Work Nepal. Select a railing design, calculate your instant estimate and send your requirement directly to our team.";
+  "Explore architectural metalwork and premium railing systems by House of Shakya. Select a railing design, calculate your instant estimate and send your requirement directly to our team.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -18,8 +18,12 @@ export const Route = createFileRoute("/")({
       { name: "description", content: description },
       { property: "og:title", content: title },
       { property: "og:description", content: description },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    links: [
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/" },
     ],
   }),
   component: Index,

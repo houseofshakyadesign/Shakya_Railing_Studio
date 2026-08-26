@@ -2,11 +2,13 @@ import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
 import { EASE } from "./Reveal";
+import { useReducedMotion } from "@/hooks/useFocusTrap";
 
 export function Hero() {
   const ref = useRef<HTMLElement | null>(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "12%"]);
+  const reducedMotion = useReducedMotion();
+  const y = useTransform(scrollYProgress, [0, 1], ["0%", reducedMotion.current ? "0%" : "12%"]);
 
   return (
     <section ref={ref} className="relative min-h-[92vh] overflow-hidden bg-charcoal">
@@ -80,13 +82,13 @@ export function Hero() {
       </div>
 
       <motion.div
-        aria-hidden
+        aria-hidden="true"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.1, duration: 0.6 }}
         className="absolute right-5 bottom-8 hidden flex-col items-center gap-3 md:right-10 md:flex"
       >
-        <span className="text-[0.6rem] tracking-[0.3em] text-ivory/50 uppercase">Scroll</span>
+        <span className="text-[0.6rem] tracking-[0.3em] text-ivory/70 uppercase">Scroll</span>
         <div className="h-16 w-px overflow-hidden bg-ivory/20">
           <motion.div
             className="h-6 w-px bg-bronze-soft"

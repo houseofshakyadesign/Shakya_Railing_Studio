@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import type { Product } from "@/data/products";
 import { formatNPR } from "@/utils/currency";
 import { EASE } from "./Reveal";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 export function ProductModal({
   product,
@@ -20,6 +21,8 @@ export function ProductModal({
   onDeselect?: (p: Product) => void;
   currency?: string;
 }) {
+  const trapRef = useFocusTrap(!!product);
+
   useEffect(() => {
     if (!product) return;
     const onKey = (e: KeyboardEvent) => {
@@ -48,6 +51,7 @@ export function ProductModal({
           aria-label={product.name}
         >
           <motion.div
+            ref={trapRef}
             onClick={(e) => e.stopPropagation()}
             initial={{ opacity: 0, scale: 0.97, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}

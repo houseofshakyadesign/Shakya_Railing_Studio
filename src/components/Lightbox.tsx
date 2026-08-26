@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { EASE } from "@/components/Reveal";
 import type { ProjectMedia } from "@/data/projects";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 type LightboxProps = {
   media: ProjectMedia[];
@@ -20,6 +21,7 @@ export function Lightbox({
   onNavigate,
 }: LightboxProps) {
   const current = media[currentIndex];
+  const trapRef = useFocusTrap(open);
 
   useEffect(() => {
     if (!open) return;
@@ -59,14 +61,14 @@ export function Lightbox({
         >
           {/* Top Controls Bar */}
           <div className="absolute top-4 right-4 z-20 flex items-center gap-4 md:top-6 md:right-8">
-            <span className="text-[0.72rem] font-bold tracking-[0.2em] text-ivory/60 uppercase">
+            <span className="text-[0.72rem] font-bold tracking-[0.2em] text-ivory/80 uppercase">
               {currentIndex + 1} / {media.length}
             </span>
             <button
               type="button"
               onClick={onClose}
               aria-label="Close Lightbox"
-              className="grid h-10 w-10 place-items-center rounded-none border border-hairline/20 bg-charcoal/80 text-ivory transition-colors hover:border-bronze hover:text-bronze"
+              className="grid h-11 w-11 place-items-center rounded-none border border-hairline/20 bg-charcoal/80 text-ivory transition-colors hover:border-bronze hover:text-bronze"
             >
               <X className="h-5 w-5" />
             </button>
@@ -89,6 +91,7 @@ export function Lightbox({
 
           {/* Media Content Container */}
           <div
+            ref={trapRef}
             onClick={(e) => e.stopPropagation()}
             className="relative flex max-h-[85vh] max-w-[90vw] flex-col items-center justify-center"
           >

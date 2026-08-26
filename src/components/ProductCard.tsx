@@ -1,10 +1,11 @@
+import { memo } from "react";
 import { motion } from "framer-motion";
 import { ArrowRight, Check } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatNPR } from "@/utils/currency";
 import { EASE } from "./Reveal";
 
-export function ProductCard({
+export const ProductCard = memo(function ProductCard({
   product,
   index,
   selected,
@@ -35,7 +36,7 @@ export function ProductCard({
       <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         <img
           src={product.image}
-          alt={`${product.name} by Metal Work Nepal`}
+          alt={`${product.name} by House of Shakya`}
           loading="lazy"
           width={1024}
           height={1280}
@@ -119,4 +120,4 @@ export function ProductCard({
       </div>
     </motion.article>
   );
-}
+});

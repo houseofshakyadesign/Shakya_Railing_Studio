@@ -38,7 +38,7 @@ export type RailingEstimate = {
 /** Formats square footage cleanly without trailing zeroes (e.g. 60 sq.ft., 56 sq.ft., 62.5 sq.ft.). */
 export function formatArea(sqft: number): string {
   if (!Number.isFinite(sqft) || sqft <= 0) return "0 sq.ft.";
-  const formatted = Number(sqft.toFixed(2));
+  const formatted = Math.round(sqft * 100) / 100;
   return `${formatted} sq.ft.`;
 }
 
@@ -58,7 +58,8 @@ export function calculateRailingEstimate(
   railingType = "Balcony Railing",
 ): RailingEstimate {
   const l = Number.isFinite(length) && length > 0 ? Number(length.toFixed(2)) : 0;
-  const h = Number.isFinite(height) && height > 0 ? Number(height.toFixed(2)) : 3.0;
+  const defaultHeight = railingType === "Staircase Railing" ? 2.8 : 3.0;
+  const h = Number.isFinite(height) && height > 0 ? Number(height.toFixed(2)) : defaultHeight;
   const r = Number.isFinite(rate) && rate > 0 ? rate : 0;
 
   const rawArea = l * h;

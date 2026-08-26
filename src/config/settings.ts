@@ -1,5 +1,5 @@
 /**
- * Metal Work Nepal
+ * House of Shakya — Railing Studio
  * Central configuration.
  */
 

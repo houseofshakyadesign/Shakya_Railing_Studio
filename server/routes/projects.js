@@ -50,7 +50,7 @@ async function attachMediaToProjects(projects) {
 // 1. GET /api/projects — List all active projects with media
 router.get("/", async (req, res) => {
   try {
-    const includeInactive = req.query.all === "true";
+    const includeInactive = req.query.all === "true" && req.headers.authorization;
     const sql = includeInactive
       ? "SELECT * FROM projects ORDER BY display_order ASC, created_at DESC"
       : "SELECT * FROM projects WHERE is_active = 1 ORDER BY display_order ASC, created_at DESC";
@@ -58,7 +58,7 @@ router.get("/", async (req, res) => {
     const projects = await attachMediaToProjects(rows);
     res.json(projects);
   } catch (err) {
-    console.error("GET /api/projects error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to fetch projects" });
   }
 });
@@ -74,7 +74,7 @@ router.get("/:slug", async (req, res) => {
     const projects = await attachMediaToProjects(rows);
     res.json(projects[0]);
   } catch (err) {
-    console.error("GET /api/projects/:slug error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to fetch project" });
   }
 });
@@ -129,7 +129,7 @@ router.post("/", requireAuth, async (req, res) => {
     const created = await attachMediaToProjects([{ id, slug, title, location, project_type: projectType, railing_type: railingType, description, cover_image: coverImage, featured, display_order: displayOrder, is_active: isActive }]);
     res.status(201).json(created[0]);
   } catch (err) {
-    console.error("POST /api/projects error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to create project" });
   }
 });
@@ -177,7 +177,7 @@ router.put("/:id", requireAuth, async (req, res) => {
     const updated = await attachMediaToProjects(rows);
     res.json(updated[0]);
   } catch (err) {
-    console.error("PUT /api/projects/:id error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to update project" });
   }
 });
@@ -190,7 +190,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     await query("DELETE FROM projects WHERE id = ?", [id]);
     res.json({ success: true, message: "Project deleted successfully" });
   } catch (err) {
-    console.error("DELETE /api/projects/:id error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to delete project" });
   }
 });
@@ -219,7 +219,7 @@ router.post("/:id/media", requireAuth, async (req, res) => {
       displayOrder,
     });
   } catch (err) {
-    console.error("POST /api/projects/:id/media error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to add media" });
   }
 });
@@ -231,7 +231,7 @@ router.delete("/media/:mediaId", requireAuth, async (req, res) => {
     await query("DELETE FROM project_media WHERE id = ?", [mediaId]);
     res.json({ success: true, message: "Media deleted successfully" });
   } catch (err) {
-    console.error("DELETE /api/projects/media/:mediaId error:", err);
+    /* silent */
     res.status(500).json({ error: "Failed to delete media" });
   }
 });

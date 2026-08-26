@@ -13,9 +13,9 @@ import { calculateRailingEstimate, formatArea, type RailingTypeSlug } from "@/ut
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Price Calculator | Metal Work Nepal";
+const title = "Price Calculator | House of Shakya";
 const description =
-  "Instant area and price calculation for Balcony and Staircase boundary railings from Metal Work Nepal.";
+  "Instant area and price calculation for Balcony and Staircase boundary railings from House of Shakya.";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({
@@ -25,7 +25,10 @@ export const Route = createFileRoute("/calculator")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/images/railings/hero.jpg" },
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/calculator" },
     ],
   }),
   component: CalculatorPage,
@@ -721,6 +724,7 @@ function CalculatorPage() {
               <button
                 type="button"
                 onClick={() => setShowFormula(!showFormula)}
+                aria-expanded={showFormula}
                 className="flex w-full items-center justify-between text-left text-xs tracking-wider text-muted-foreground hover:text-foreground"
               >
                 <span>How is this calculated?</span>

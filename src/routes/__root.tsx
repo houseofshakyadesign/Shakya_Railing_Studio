@@ -39,8 +39,11 @@ function NotFoundComponent() {
   );
 }
 
+NotFoundComponent.head = () => ({
+  meta: [{ name: "robots", content: "noindex" }],
+});
+
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
   const router = useRouter();
 
   return (
@@ -89,7 +92,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "theme-color", content: "#f6f3ec" },
       { property: "og:site_name", content: "House of Shakya — Railing Studio" },
       { property: "og:type", content: "website" },
+      { property: "og:title", content: "House of Shakya | Railing Studio" },
+      {
+        property: "og:description",
+        content:
+          "Explore architectural metalwork and bespoke railing systems by House of Shakya.",
+      },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
+      { property: "og:url", content: "https://shakya-railing-studio.vercel.app" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "House of Shakya | Railing Studio" },
+      {
+        name: "twitter:description",
+        content:
+          "Explore architectural metalwork and bespoke railing systems by House of Shakya.",
+      },
+      { name: "twitter:image", content: "/images/railings/hero.jpg" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -101,6 +119,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       },
       { rel: "icon", href: "/logo/house-of-shakya-logo-dark.png", type: "image/png" },
       { rel: "apple-touch-icon", href: "/logo/house-of-shakya-logo-dark.png" },
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app" },
     ],
   }),
   shellComponent: RootShell,
@@ -113,24 +132,6 @@ function RootShell({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              try {
-                if ('scrollRestoration' in history) {
-                  history.scrollRestoration = 'manual';
-                }
-                window.scrollTo(0, 0);
-                window.addEventListener('beforeunload', function() {
-                  window.scrollTo(0, 0);
-                });
-                window.addEventListener('load', function() {
-                  window.scrollTo(0, 0);
-                });
-              } catch (e) {}
-            `,
-          }}
-        />
         <HeadContent />
       </head>
       <body>
@@ -144,40 +145,48 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
-  // Ensure scroll is forced to top (0, 0) on page refresh and hard loads
   useEffect(() => {
     if (typeof window === "undefined") return;
-
     if ("scrollRestoration" in window.history) {
       window.history.scrollRestoration = "manual";
     }
     window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-    
-    const raf = requestAnimationFrame(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-    });
-
-    const t1 = setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-    }, 50);
-
-    const t2 = setTimeout(() => {
-      window.scrollTo({ top: 0, left: 0, behavior: "instant" as ScrollBehavior });
-    }, 150);
-
-    return () => {
-      cancelAnimationFrame(raf);
-      clearTimeout(t1);
-      clearTimeout(t2);
-    };
   }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
       <StudioProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:z-[200] focus:bg-background focus:px-4 focus:py-2 focus:text-sm focus:font-medium focus:text-foreground focus:outline-none focus:ring-2 focus:ring-bronze"
+        >
+          Skip to main content
+        </a>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "LocalBusiness",
+              name: "House of Shakya",
+              description: "Architectural metalwork and bespoke railing systems",
+              url: "https://shakya-railing-studio.vercel.app",
+              telephone: "+977-984-3935689",
+              address: {
+                "@type": "PostalAddress",
+                streetAddress: "Imadole",
+                addressLocality: "Mahalaxmi",
+                addressCountry: "NP",
+              },
+              sameAs: [
+                "https://www.instagram.com/metalwork.nepal",
+                "https://www.tiktok.com/@metalworknepal",
+              ],
+            }),
+          }}
+        />
         <Navbar />
-        <main className="min-h-screen pb-20 lg:pb-0">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <main id="main-content" className="min-h-screen pb-20 lg:pb-0">
           <Outlet />
         </main>
         <Footer />

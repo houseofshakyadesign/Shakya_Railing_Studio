@@ -82,7 +82,7 @@ export function Footer() {
       </div>
       <div className="border-t border-hairline">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-5 py-6 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase md:flex-row md:items-center md:justify-between md:px-10">
-          <p>© {new Date().getFullYear()} Metal Work Nepal. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} House of Shakya. All rights reserved.</p>
           <p>Estimates are indicative and confirmed after site review.</p>
         </div>
       </div>

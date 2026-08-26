@@ -26,9 +26,9 @@ export function MobileSelectionBar() {
                 type="button"
                 onClick={() => selectProduct(null)}
                 aria-label="Deselect railing"
-                className="grid h-7 w-7 shrink-0 place-items-center rounded-full border border-hairline bg-sand/60 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
+                className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-hairline bg-sand/60 text-muted-foreground hover:bg-destructive/15 hover:text-destructive"
               >
-                <X className="h-3.5 w-3.5" />
+                <X className="h-4 w-4" />
               </button>
               <div className="min-w-0">
                 <p className="truncate text-xs font-medium text-foreground">

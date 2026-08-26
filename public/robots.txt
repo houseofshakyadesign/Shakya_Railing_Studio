@@ -1,3 +1,7 @@
+User-agent: *
+Allow: /
+Sitemap: https://shakya-railing-studio.vercel.app/sitemap.xml
+
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +14,4 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
-Allow: /
+Disallow: /admin

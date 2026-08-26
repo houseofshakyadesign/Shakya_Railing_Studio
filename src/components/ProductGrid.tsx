@@ -1,5 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { toast } from "sonner";
 import type { Product } from "@/data/products";
 import { useStudio } from "@/hooks/useStudio";
@@ -11,7 +11,6 @@ export function ProductGrid({
   onAfterSelect,
 }: {
   limit?: number;
-  /** Called after a product is selected via the card button. Use this to scroll to calculator. */
   onAfterSelect?: (product: Product) => void;
 }) {
   const { activeProducts, selectedId, selectProduct, settings } = useStudio();
@@ -20,13 +19,12 @@ export function ProductGrid({
 
   const products = limit ? activeProducts.slice(0, limit) : activeProducts;
 
-  const handleSelect = (p: Product, close = false) => {
+  const handleSelect = useCallback((p: Product, close = false) => {
     selectProduct(p.id);
     if (close) setOpenProduct(null);
-  };
+  }, [selectProduct]);
 
-  const handleCardSelect = (p: Product) => {
-    // Toggle: if already selected, deselect
+  const handleCardSelect = useCallback((p: Product) => {
     if (p.id === selectedId) {
       selectProduct(null);
       toast.success(`${p.code} deselected`);
@@ -39,7 +37,7 @@ export function ProductGrid({
       toast.success(`${p.code} selected`, { description: p.name });
       navigate({ to: "/calculator" });
     }
-  };
+  }, [selectedId, selectProduct, handleSelect, onAfterSelect, navigate]);
 
   if (products.length === 0) {
     return (

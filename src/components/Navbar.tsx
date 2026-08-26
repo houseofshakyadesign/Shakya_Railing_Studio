@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { EASE } from "./Reveal";
+import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const NAV = [
   { label: "Collection", to: "/collection" },
@@ -21,6 +22,8 @@ export function Navbar() {
   const isDarkHero = pathname === "/" && !scrolled;
 
   useEffect(() => setOpen(false), [pathname]);
+
+  const mobileTrapRef = useFocusTrap(open);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -53,14 +56,16 @@ export function Navbar() {
           <div className="relative h-10 w-10 md:h-12 md:w-12 shrink-0 overflow-hidden rounded-sm transition-transform duration-300 group-hover:scale-105">
             <img
               src="/logo/house-of-shakya-logo-light.png"
-              alt="House of Shakya Railing Studio"
+              alt=""
+              aria-hidden="true"
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
                 isDarkHero ? "opacity-100" : "pointer-events-none opacity-0"
               }`}
             />
             <img
               src="/logo/house-of-shakya-logo-dark.png"
-              alt="House of Shakya Railing Studio"
+              alt=""
+              aria-hidden="true"
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
                 isDarkHero ? "pointer-events-none opacity-0" : "opacity-100"
               }`}
@@ -137,6 +142,7 @@ export function Navbar() {
       <AnimatePresence>
         {open ? (
           <motion.div
+            ref={mobileTrapRef}
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

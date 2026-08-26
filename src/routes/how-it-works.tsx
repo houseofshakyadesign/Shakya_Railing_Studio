@@ -3,9 +3,9 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 
-const title = "How It Works | Metal Work Nepal";
+const title = "How It Works | House of Shakya";
 const description =
-  "Select, measure, estimate and enquire. See how Metal Work Nepal takes you from design to an instant architectural estimation in minutes.";
+  "Select, measure, estimate and enquire. See how House of Shakya takes you from design to an instant architectural estimation in minutes.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({
@@ -15,7 +15,10 @@ export const Route = createFileRoute("/how-it-works")({
       { property: "og:title", content: title },
       { property: "og:description", content: description },
       { property: "og:type", content: "website" },
+      { property: "og:image", content: "/images/railings/hero.jpg" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/images/railings/hero.jpg" },
+      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/how-it-works" },
     ],
   }),
   component: HowItWorksPage,

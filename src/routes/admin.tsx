@@ -15,15 +15,15 @@ import { api } from "@/lib/api";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Studio Admin | Metal Work Nepal" },
+      { title: "Studio Admin | House of Shakya" },
       {
         name: "description",
         content:
-          "Studio admin dashboard for Metal Work Nepal — manage catalog, review enquiries, and update cloud settings.",
+          "Studio admin dashboard for House of Shakya — manage catalog, review enquiries, and update cloud settings.",
       },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Studio Admin | Metal Work Nepal" },
-      { property: "og:description", content: "Studio admin dashboard for Metal Work Nepal." },
+      { property: "og:title", content: "Studio Admin | House of Shakya" },
+      { property: "og:description", content: "Studio admin dashboard for House of Shakya." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -45,9 +45,7 @@ function AdminPage() {
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const token =
-      localStorage.getItem("metalWorkNepal_adminToken") ||
-      sessionStorage.getItem("metalWorkNepal_adminToken");
+    const token = sessionStorage.getItem("metalWorkNepal_adminToken");
 
     if (token) {
       void api.auth
@@ -59,14 +57,9 @@ function AdminPage() {
           }
         })
         .catch(() => {
-          // Token invalid
-          localStorage.removeItem("metalWorkNepal_adminToken");
           sessionStorage.removeItem("metalWorkNepal_adminToken");
           setUnlocked(false);
         });
-    } else if (sessionStorage.getItem(STORAGE_KEYS.admin) === "1") {
-      setUnlocked(true);
-      setCurrentUserEmail("admin@metalworknepal.com");
     }
   }, []);
 
@@ -251,11 +244,15 @@ function AdminPage() {
         </div>
       </div>
 
-      <nav className="mt-10 flex flex-wrap gap-px border-b border-hairline">
+      <nav role="tablist" aria-label="Admin sections" className="mt-10 flex flex-wrap gap-px border-b border-hairline">
         {tabs.map((t) => (
           <button
             key={t}
             type="button"
+            role="tab"
+            aria-selected={tab === t}
+            aria-controls={`panel-${t}`}
+            id={`tab-${t}`}
             onClick={() => setTab(t)}
             className={`relative px-5 py-3 text-[0.7rem] tracking-[0.18em] uppercase transition-colors ${
               tab === t ? "text-foreground" : "text-muted-foreground hover:text-foreground"
@@ -269,7 +266,7 @@ function AdminPage() {
         ))}
       </nav>
 
-      <div className="mt-10">
+      <div className="mt-10" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
         {tab === "overview" ? <Overview /> : null}
         {tab === "railings" ? <Railings /> : null}
         {tab === "projects" ? <ProjectsManager /> : null}
@@ -344,7 +341,7 @@ function Railings() {
         <ul className="mt-8 grid gap-px border border-hairline bg-hairline md:grid-cols-2 xl:grid-cols-3">
           {products.map((p) => (
             <li key={p.id} className="flex gap-4 bg-background p-5">
-              <img src={p.image} alt="" className="h-24 w-20 shrink-0 object-cover" loading="lazy" />
+              <img src={p.image} alt={p.name} className="h-24 w-20 shrink-0 object-cover" loading="lazy" />
               <div className="min-w-0 flex-1">
                 <p className="label-xs text-bronze">{p.code}</p>
                 <p className="mt-1.5 truncate text-sm">{p.name}</p>
@@ -1589,6 +1586,14 @@ function Enquiries() {
 function SettingsPanel() {
   const { settings, updateSettings, clearEnquiries, resetProducts } = useStudio();
   const [confirm, setConfirm] = useState<"enquiries" | "products" | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const debouncedUpdate = (patch: Record<string, string>) => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      updateSettings(patch);
+    }, 500);
+  };
 
   return (
     <div className="grid gap-10 lg:grid-cols-2">
@@ -1598,64 +1603,64 @@ function SettingsPanel() {
           <Field id="s-company" label="Company name">
             <input
               className={inputClass}
-              value={settings.companyName}
-              onChange={(e) => updateSettings({ companyName: e.target.value })}
+              defaultValue={settings.companyName}
+              onChange={(e) => debouncedUpdate({ companyName: e.target.value })}
             />
           </Field>
           <Field id="s-wa" label="WhatsApp number" hint="Country code + number, digits only.">
             <input
               className={inputClass}
-              value={settings.whatsappNumber}
-              onChange={(e) => updateSettings({ whatsappNumber: e.target.value })}
+              defaultValue={settings.whatsappNumber}
+              onChange={(e) => debouncedUpdate({ whatsappNumber: e.target.value })}
             />
           </Field>
           <Field id="s-cur" label="Currency">
             <input
               className={inputClass}
-              value={settings.currency}
-              onChange={(e) => updateSettings({ currency: e.target.value })}
+              defaultValue={settings.currency}
+              onChange={(e) => debouncedUpdate({ currency: e.target.value })}
             />
           </Field>
           <Field id="s-loc" label="Currency locale">
             <input
               className={inputClass}
-              value={settings.currencyLocale}
-              onChange={(e) => updateSettings({ currencyLocale: e.target.value })}
+              defaultValue={settings.currencyLocale}
+              onChange={(e) => debouncedUpdate({ currencyLocale: e.target.value })}
             />
           </Field>
           <Field id="s-instagram" label="Instagram URL">
             <input
               className={inputClass}
-              value={settings.instagram}
-              onChange={(e) => updateSettings({ instagram: e.target.value })}
+              defaultValue={settings.instagram}
+              onChange={(e) => debouncedUpdate({ instagram: e.target.value })}
             />
           </Field>
           <Field id="s-tiktok" label="TikTok URL">
             <input
               className={inputClass}
-              value={settings.tiktok || ""}
-              onChange={(e) => updateSettings({ tiktok: e.target.value })}
+              defaultValue={settings.tiktok || ""}
+              onChange={(e) => debouncedUpdate({ tiktok: e.target.value })}
             />
           </Field>
           <Field id="s-email" label="Email address">
             <input
               className={inputClass}
-              value={settings.email}
-              onChange={(e) => updateSettings({ email: e.target.value })}
+              defaultValue={settings.email}
+              onChange={(e) => debouncedUpdate({ email: e.target.value })}
             />
           </Field>
           <Field id="s-phone" label="Phone number">
             <input
               className={inputClass}
-              value={settings.phone}
-              onChange={(e) => updateSettings({ phone: e.target.value })}
+              defaultValue={settings.phone}
+              onChange={(e) => debouncedUpdate({ phone: e.target.value })}
             />
           </Field>
           <Field id="s-address" label="Address">
             <input
               className={inputClass}
-              value={settings.address}
-              onChange={(e) => updateSettings({ address: e.target.value })}
+              defaultValue={settings.address}
+              onChange={(e) => debouncedUpdate({ address: e.target.value })}
             />
           </Field>
         </div>
