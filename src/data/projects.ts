@@ -44,6 +44,15 @@ export const INITIAL_PROJECTS: Project[] = [
     isActive: true,
     media: [
       {
+        id: "pm-01-v",
+        projectId: "proj-01",
+        mediaType: "video",
+        mediaUrl: "/videos/railings/bhaisepati-railing.mp4",
+        thumbnailUrl: "/images/railings/r01.jpg",
+        caption: "Bhaisepati Railing 4K Walkthrough",
+        displayOrder: 0,
+      },
+      {
         id: "pm-01-1",
         projectId: "proj-01",
         mediaType: "image",
@@ -90,7 +99,7 @@ export const INITIAL_PROJECTS: Project[] = [
         id: "pm-02-v",
         projectId: "proj-02",
         mediaType: "video",
-        mediaUrl: "/videos/railings/budhanilkantha railing.mp4",
+        mediaUrl: "/videos/railings/budhanilkantha-railing.mp4",
         thumbnailUrl: "/images/railings/r02.jpg",
         caption: "Budhanilkantha Railing Installation Video",
         displayOrder: 0,
@@ -130,6 +139,15 @@ export const INITIAL_PROJECTS: Project[] = [
     isActive: true,
     media: [
       {
+        id: "pm-03-v",
+        projectId: "proj-03",
+        mediaType: "video",
+        mediaUrl: "/videos/railings/naxal-railing.mp4",
+        thumbnailUrl: "/images/railings/r03.jpg",
+        caption: "Naxal 4K Installation Video",
+        displayOrder: 0,
+      },
+      {
         id: "pm-03-1",
         projectId: "proj-03",
         mediaType: "image",
@@ -163,6 +181,15 @@ export const INITIAL_PROJECTS: Project[] = [
     displayOrder: 4,
     isActive: true,
     media: [
+      {
+        id: "pm-04-v",
+        projectId: "proj-04",
+        mediaType: "video",
+        mediaUrl: "/videos/railings/dhapasi-railing.mp4",
+        thumbnailUrl: "/images/railings/r04.jpg",
+        caption: "Dhapasi Staircase Railing Video",
+        displayOrder: 0,
+      },
       {
         id: "pm-04-1",
         projectId: "proj-04",
@@ -201,7 +228,7 @@ export const INITIAL_PROJECTS: Project[] = [
         id: "pm-05-v",
         projectId: "proj-05",
         mediaType: "video",
-        mediaUrl: "/videos/railings/imadol railing arju .mp4",
+        mediaUrl: "/videos/railings/imadole-railing.mp4",
         thumbnailUrl: "/images/railings/r05.jpg",
         caption: "Imadole Installation Video",
         displayOrder: 0,
@@ -244,7 +271,7 @@ export const INITIAL_PROJECTS: Project[] = [
         id: "pm-06-v",
         projectId: "proj-06",
         mediaType: "video",
-        mediaUrl: "/videos/railings/skylight time.mov",
+        mediaUrl: "/videos/railings/skylight-time.mov",
         thumbnailUrl: "/images/railings/r06.jpg",
         caption: "Skylight Structural Steel Video",
         displayOrder: 0,

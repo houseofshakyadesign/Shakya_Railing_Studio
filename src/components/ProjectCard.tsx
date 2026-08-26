@@ -33,15 +33,25 @@ export function ProjectCard({ project }: ProjectCardProps) {
           videoRef.current?.pause();
         }
       },
-      { threshold: 0.25 }
+      { threshold: 0.2 }
     );
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
   }, [videoMedia, videoError]);
 
+  const handleMouseEnter = () => {
+    if (videoRef.current && !videoError) {
+      videoRef.current.play().catch(() => {});
+    }
+  };
+
   return (
-    <article ref={containerRef} className="group flex flex-col">
+    <article
+      ref={containerRef}
+      onMouseEnter={handleMouseEnter}
+      className="group flex flex-col"
+    >
       <Link
         to="/projects/$slug"
         params={{ slug: project.slug }}
@@ -53,15 +63,18 @@ export function ProjectCard({ project }: ProjectCardProps) {
           {videoMedia && !videoError ? (
             <video
               ref={videoRef}
-              src={videoMedia.mediaUrl}
+              key={videoMedia.id || videoMedia.mediaUrl}
               poster={project.coverImage || videoMedia.thumbnailUrl}
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
               onError={() => setVideoError(true)}
               className="h-full w-full object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
-            />
+            >
+              <source src={videoMedia.mediaUrl} type={videoMedia.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+              <source src={videoMedia.mediaUrl} type="video/mp4" />
+            </video>
           ) : (
             <img
               src={project.coverImage}
