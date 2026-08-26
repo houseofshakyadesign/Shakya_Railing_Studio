@@ -1,6 +1,6 @@
 import express from "express";
 import { query } from "../db.js";
-import { requireAdmin } from "./auth.js";
+import { requireAuth } from "./auth.js";
 
 const router = express.Router();
 
@@ -80,7 +80,7 @@ router.get("/:slug", async (req, res) => {
 });
 
 // 3. POST /api/projects — Create Project (Admin)
-router.post("/", requireAdmin, async (req, res) => {
+router.post("/", requireAuth, async (req, res) => {
   try {
     const {
       title,
@@ -135,7 +135,7 @@ router.post("/", requireAdmin, async (req, res) => {
 });
 
 // 4. PUT /api/projects/:id — Update Project (Admin)
-router.put("/:id", requireAdmin, async (req, res) => {
+router.put("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     const {
@@ -183,7 +183,7 @@ router.put("/:id", requireAdmin, async (req, res) => {
 });
 
 // 5. DELETE /api/projects/:id — Delete Project (Admin)
-router.delete("/:id", requireAdmin, async (req, res) => {
+router.delete("/:id", requireAuth, async (req, res) => {
   try {
     const { id } = req.params;
     await query("DELETE FROM project_media WHERE project_id = ?", [id]);
@@ -196,7 +196,7 @@ router.delete("/:id", requireAdmin, async (req, res) => {
 });
 
 // 6. POST /api/projects/:id/media — Add Single Media to Project (Admin)
-router.post("/:id/media", requireAdmin, async (req, res) => {
+router.post("/:id/media", requireAuth, async (req, res) => {
   try {
     const { id: projectId } = req.params;
     const { mediaType = "image", mediaUrl, thumbnailUrl, caption = "", displayOrder = 0 } = req.body;
@@ -225,7 +225,7 @@ router.post("/:id/media", requireAdmin, async (req, res) => {
 });
 
 // 7. DELETE /api/projects/media/:mediaId — Delete Single Media (Admin)
-router.delete("/media/:mediaId", requireAdmin, async (req, res) => {
+router.delete("/media/:mediaId", requireAuth, async (req, res) => {
   try {
     const { mediaId } = req.params;
     await query("DELETE FROM project_media WHERE id = ?", [mediaId]);

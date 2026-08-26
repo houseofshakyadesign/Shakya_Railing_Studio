@@ -44,15 +44,6 @@ export const INITIAL_PROJECTS: Project[] = [
     isActive: true,
     media: [
       {
-        id: "pm-01-v",
-        projectId: "proj-01",
-        mediaType: "video",
-        mediaUrl: "/videos/railings/bhaisepati railing 4k.mp4",
-        thumbnailUrl: "/images/railings/r01.jpg",
-        caption: "Bhaisepati Railing 4K Walkthrough",
-        displayOrder: 0,
-      },
-      {
         id: "pm-01-1",
         projectId: "proj-01",
         mediaType: "image",
@@ -139,15 +130,6 @@ export const INITIAL_PROJECTS: Project[] = [
     isActive: true,
     media: [
       {
-        id: "pm-03-v",
-        projectId: "proj-03",
-        mediaType: "video",
-        mediaUrl: "/videos/railings/naxal railing 4k.mp4",
-        thumbnailUrl: "/images/railings/r03.jpg",
-        caption: "Naxal 4K Installation Video",
-        displayOrder: 0,
-      },
-      {
         id: "pm-03-1",
         projectId: "proj-03",
         mediaType: "image",
@@ -181,15 +163,6 @@ export const INITIAL_PROJECTS: Project[] = [
     displayOrder: 4,
     isActive: true,
     media: [
-      {
-        id: "pm-04-v",
-        projectId: "proj-04",
-        mediaType: "video",
-        mediaUrl: "/videos/railings/dhapasi railing.mp4",
-        thumbnailUrl: "/images/railings/r04.jpg",
-        caption: "Dhapasi Staircase Railing Video",
-        displayOrder: 0,
-      },
       {
         id: "pm-04-1",
         projectId: "proj-04",

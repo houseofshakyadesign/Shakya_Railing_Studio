@@ -23,6 +23,8 @@ export function requireAuth(req, res, next) {
   }
 }
 
+export const requireAdmin = requireAuth;
+
 // POST /api/auth/login
 router.post("/login", async (req, res) => {
   try {
