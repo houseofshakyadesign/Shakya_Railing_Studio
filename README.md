@@ -7,12 +7,13 @@ An architectural metalwork, railing catalogue, price calculator, and quotation w
 - **Architectural Catalogue**: Curated selection of steel, glass, cable, wood, and bespoke railing systems with specifications and high-resolution imagery. Expandable to future architectural metalwork systems.
 - **Interactive Boundary Railing Calculator**: Instant area (`sq.ft.`), estimated panels, and rate estimation (with 13% VAT calculated into total).
 - **WhatsApp Integration**: Generates structured project quotation requirements sent directly to the Metal Work Nepal engineering team.
-- **Cloud Admin Dashboard**: Manage products, direct image uploads to Supabase Storage, review enquiries, and export data to CSV.
+- **Admin Dashboard**: Manage products, direct image uploads, review enquiries, and export data to CSV.
 
 ## Tech Stack
 
-- **Framework**: React 19 + Vite 8
-- **Backend / Database**: Supabase (PostgreSQL + Auth + Storage)
+- **Frontend**: React 19 + Vite 8
+- **Backend**: Node.js + Express REST API
+- **Database**: MySQL (XAMPP / MariaDB / Cloud MySQL)
 - **Routing**: TanStack Router / TanStack Start
 - **Styling**: Tailwind CSS v4 (OKLCH design system)
 - **Animations**: Framer Motion
@@ -23,17 +24,20 @@ An architectural metalwork, railing catalogue, price calculator, and quotation w
 ### Prerequisites
 
 - Node.js (v18 or higher recommended)
-- npm or bun
+- MySQL / XAMPP Apache & MySQL
 
-### Installation
+### Installation & Running
 
 ```sh
 # Install dependencies
 npm install
 
-# Start local development server
+# Run both backend and frontend concurrently
+npm run dev:all
+
+# Or run frontend only
 npm run dev
 
-# Build for production
-npm run build
+# Or run backend only
+npm run server
 ```
