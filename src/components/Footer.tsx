@@ -35,6 +35,9 @@ export function Footer() {
           <Link to="/collection" className="w-fit hover:text-bronze">
             Collection
           </Link>
+          <Link to="/projects" className="w-fit hover:text-bronze">
+            Projects
+          </Link>
           <Link to="/how-it-works" className="w-fit hover:text-bronze">
             How It Works
           </Link>

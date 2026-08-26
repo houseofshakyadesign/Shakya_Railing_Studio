@@ -37,6 +37,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const STORAGE_KEYS = {
   products: "metalWorkNepal_products",
+  projects: "metalWorkNepal_projects",
   enquiries: "metalWorkNepal_enquiries",
   selected: "metalWorkNepal_selectedRailing",
   railingType: "metalWorkNepal_railingType",

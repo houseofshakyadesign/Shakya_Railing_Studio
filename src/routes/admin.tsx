@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Download, Image as ImageIcon, Lock, LogOut, Plus, RefreshCw, ShieldCheck, Trash2, Upload, User, X } from "lucide-react";
+import { Download, Image as ImageIcon, Lock, LogOut, Plus, RefreshCw, ShieldCheck, Trash2, Upload, User, Video as VideoIcon, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
@@ -31,7 +31,7 @@ export const Route = createFileRoute("/admin")({
   component: AdminPage,
 });
 
-type Tab = "overview" | "railings" | "enquiries" | "settings";
+type Tab = "overview" | "railings" | "projects" | "enquiries" | "settings";
 
 function AdminPage() {
   const studio = useStudio();
@@ -200,7 +200,7 @@ function AdminPage() {
     );
   }
 
-  const tabs: Tab[] = ["overview", "railings", "enquiries", "settings"];
+  const tabs: Tab[] = ["overview", "railings", "projects", "enquiries", "settings"];
 
   return (
     <section className="mx-auto max-w-[1440px] px-5 pt-32 pb-28 md:px-10 md:pt-40">
@@ -280,6 +280,7 @@ function AdminPage() {
       <div className="mt-10">
         {tab === "overview" ? <Overview /> : null}
         {tab === "railings" ? <Railings /> : null}
+        {tab === "projects" ? <ProjectsManager /> : null}
         {tab === "enquiries" ? <Enquiries /> : null}
         {tab === "settings" ? <SettingsPanel /> : null}
       </div>
@@ -679,6 +680,504 @@ function ProductEditor({
               className="bg-charcoal px-7 py-3.5 text-[0.7rem] tracking-[0.2em] text-ivory uppercase hover:bg-bronze disabled:opacity-50"
             >
               {saving ? "Saving to database..." : "Save Product"}
+            </button>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              className="border border-hairline px-7 py-3.5 text-[0.7rem] tracking-[0.2em] uppercase disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </motion.div>
+      </motion.div>
+    </AnimatePresence>
+  );
+}
+
+const BLANK_PROJECT: import("@/data/projects").Project = {
+  id: "",
+  slug: "",
+  title: "",
+  location: "",
+  projectType: "Residential",
+  railingType: "Balcony Railing",
+  description: "",
+  coverImage: "/images/railings/r01.jpg",
+  featured: false,
+  displayOrder: 1,
+  isActive: true,
+  media: [],
+};
+
+function ProjectsManager() {
+  const { projects, saveProject, deleteProject } = useStudio();
+  const [editing, setEditing] = useState<import("@/data/projects").Project | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<import("@/data/projects").Project | null>(null);
+
+  return (
+    <div>
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <p className="label-xs text-muted-foreground uppercase">Portfolio Management</p>
+          <h2 className="mt-1 text-xl tracking-tight">Completed Projects ({projects.length})</h2>
+        </div>
+        <button
+          type="button"
+          onClick={() =>
+            setEditing({
+              ...BLANK_PROJECT,
+              id: `proj_${Date.now()}`,
+              slug: `project-${Date.now()}`,
+              media: [],
+            })
+          }
+          className="flex items-center gap-2 bg-charcoal px-6 py-3 text-[0.7rem] tracking-[0.18em] text-ivory uppercase hover:bg-bronze"
+        >
+          <Plus className="h-3.5 w-3.5" /> Add Project
+        </button>
+      </div>
+
+      {projects.length === 0 ? (
+        <EmptyState title="No projects yet" copy="Add a completed project to showcase in the portfolio." />
+      ) : (
+        <ul className="mt-8 grid gap-px border border-hairline bg-hairline md:grid-cols-2 xl:grid-cols-3">
+          {projects.map((pr) => (
+            <li key={pr.id} className="flex gap-4 bg-background p-5">
+              <img src={pr.coverImage} alt="" className="h-24 w-24 shrink-0 object-cover" loading="lazy" />
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="label-xs text-bronze">{pr.location || pr.projectType}</span>
+                  {pr.featured ? (
+                    <span className="border border-bronze/40 bg-bronze/10 px-1.5 py-0.5 text-[0.55rem] font-bold text-bronze uppercase">
+                      Featured
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-1.5 truncate text-sm font-semibold">{pr.title}</p>
+                <p className="mt-1 text-xs text-muted-foreground">
+                  Order: #{pr.displayOrder} · {pr.media?.length || 0} media items
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditing(pr)}
+                    className="border border-hairline px-3 py-1.5 text-[0.62rem] tracking-[0.16em] uppercase hover:border-foreground/40"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const updated = { ...pr, isActive: !pr.isActive };
+                      const ok = await saveProject(updated);
+                      if (ok) {
+                        toast.success(`${pr.title} ${updated.isActive ? "activated" : "hidden"}`);
+                      } else {
+                        toast.error("Failed to update status");
+                      }
+                    }}
+                    className="border border-hairline px-3 py-1.5 text-[0.62rem] tracking-[0.16em] uppercase hover:border-foreground/40"
+                  >
+                    {pr.isActive ? "Deactivate" : "Activate"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmDelete(pr)}
+                    className="border border-destructive/40 px-3 py-1.5 text-[0.62rem] tracking-[0.16em] text-destructive uppercase"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </button>
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <ProjectEditor
+        project={editing}
+        onClose={() => setEditing(null)}
+        onSave={async (p) => {
+          const ok = await saveProject(p);
+          if (ok) {
+            setEditing(null);
+            toast.success(`${p.title} saved to database`);
+          } else {
+            toast.error("Failed to save project to database");
+          }
+        }}
+      />
+
+      <ConfirmDialog
+        open={Boolean(confirmDelete)}
+        title={`Delete ${confirmDelete?.title ?? ""}?`}
+        copy="This permanently removes the project and all its media from the database and portfolio."
+        onCancel={() => setConfirmDelete(null)}
+        onConfirm={async () => {
+          if (confirmDelete) {
+            const ok = await deleteProject(confirmDelete.id);
+            if (ok) {
+              toast.success("Project deleted from database");
+            } else {
+              toast.error("Failed to delete project");
+            }
+          }
+          setConfirmDelete(null);
+        }}
+      />
+    </div>
+  );
+}
+
+function ProjectEditor({
+  project,
+  onClose,
+  onSave,
+}: {
+  project: import("@/data/projects").Project | null;
+  onClose: () => void;
+  onSave: (p: import("@/data/projects").Project) => Promise<void>;
+}) {
+  const [draft, setDraft] = useState<import("@/data/projects").Project | null>(project);
+  const [saving, setSaving] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [newMediaUrl, setNewMediaUrl] = useState("");
+  const [newMediaCaption, setNewMediaCaption] = useState("");
+  const [newMediaType, setNewMediaType] = useState<"image" | "video">("image");
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    setDraft(project);
+    setSelectedFile(null);
+    setPreviewUrl(project?.coverImage || "");
+    setNewMediaUrl("");
+    setNewMediaCaption("");
+  }, [project]);
+
+  if (!project || !draft) return null;
+
+  const set = <K extends keyof import("@/data/projects").Project>(k: K, v: import("@/data/projects").Project[K]) =>
+    setDraft((d) => (d ? { ...d, [k]: v } : d));
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setSelectedFile(file);
+    const objectUrl = URL.createObjectURL(file);
+    setPreviewUrl(objectUrl);
+    toast.success("Cover image selected for upload");
+  };
+
+  const handleAddMedia = () => {
+    if (!newMediaUrl.trim()) {
+      toast.error("Please enter a media URL");
+      return;
+    }
+
+    const newMediaItem: import("@/data/projects").ProjectMedia = {
+      id: `pm-${draft.id}-${Date.now()}`,
+      projectId: draft.id,
+      mediaType: newMediaType,
+      mediaUrl: newMediaUrl.trim(),
+      thumbnailUrl: newMediaUrl.trim(),
+      caption: newMediaCaption.trim(),
+      displayOrder: (draft.media?.length || 0) + 1,
+    };
+
+    setDraft((prev) => (prev ? { ...prev, media: [...(prev.media || []), newMediaItem] } : prev));
+    setNewMediaUrl("");
+    setNewMediaCaption("");
+    toast.success("Media added to project");
+  };
+
+  const handleRemoveMedia = (mediaId: string) => {
+    setDraft((prev) =>
+      prev ? { ...prev, media: (prev.media || []).filter((m) => m.id !== mediaId) } : prev
+    );
+    toast.info("Media item removed");
+  };
+
+  const handleFormSave = async () => {
+    setSaving(true);
+    let finalCoverUrl = draft.coverImage;
+
+    try {
+      if (selectedFile) {
+        try {
+          const uploadRes = await api.upload.image(selectedFile);
+          if (uploadRes?.url) {
+            finalCoverUrl = uploadRes.url;
+            toast.success("Cover image uploaded successfully");
+          }
+        } catch {
+          toast.error("Could not upload cover photo to server, using local preview.");
+          finalCoverUrl = previewUrl;
+        }
+      }
+
+      await onSave({
+        ...draft,
+        coverImage: finalCoverUrl,
+      });
+    } catch {
+      toast.error("Failed to save project");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      <motion.div
+        className="fixed inset-0 z-[80] overflow-y-auto bg-charcoal/55 p-4 backdrop-blur-sm"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      >
+        <motion.div
+          onClick={(e) => e.stopPropagation()}
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 16 }}
+          transition={{ duration: 0.28, ease: EASE }}
+          className="mx-auto my-12 w-full max-w-3xl bg-background p-8 shadow-lift"
+        >
+          <div className="flex items-start justify-between">
+            <div>
+              <h2 className="text-xl tracking-tight">
+                {draft.title ? `Edit ${draft.title}` : "New Portfolio Project"}
+              </h2>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Manage project metadata, cover photography, and attached media.
+              </p>
+            </div>
+            <button type="button" onClick={onClose} aria-label="Close">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+            <Field id="pr-title" label="Project Title *">
+              <input
+                className={inputClass}
+                value={draft.title}
+                onChange={(e) => set("title", e.target.value)}
+                placeholder="e.g. Bhaisepati Railing"
+                required
+              />
+            </Field>
+
+            <Field id="pr-slug" label="Slug *">
+              <input
+                className={inputClass}
+                value={draft.slug}
+                onChange={(e) => set("slug", e.target.value)}
+                placeholder="e.g. bhaisepati-railing"
+                required
+              />
+            </Field>
+
+            <Field id="pr-location" label="Location">
+              <input
+                className={inputClass}
+                value={draft.location}
+                onChange={(e) => set("location", e.target.value)}
+                placeholder="e.g. Bhaisepati, Lalitpur"
+              />
+            </Field>
+
+            <Field id="pr-type" label="Project Type">
+              <input
+                className={inputClass}
+                value={draft.projectType}
+                onChange={(e) => set("projectType", e.target.value)}
+                placeholder="e.g. Residential or Commercial"
+              />
+            </Field>
+
+            <Field id="pr-railing" label="Railing Installation">
+              <input
+                className={inputClass}
+                value={draft.railingType}
+                onChange={(e) => set("railingType", e.target.value)}
+                placeholder="e.g. Balcony & Staircase Railing"
+              />
+            </Field>
+
+            <Field id="pr-order" label="Display Order">
+              <input
+                className={inputClass}
+                type="number"
+                value={draft.displayOrder}
+                onChange={(e) => set("displayOrder", parseInt(e.target.value, 10) || 0)}
+              />
+            </Field>
+
+            <div className="sm:col-span-2">
+              <Field id="pr-desc" label="Project Description">
+                <textarea
+                  className={inputClass}
+                  rows={3}
+                  value={draft.description}
+                  onChange={(e) => set("description", e.target.value)}
+                  placeholder="Architectural overview of the execution..."
+                />
+              </Field>
+            </div>
+
+            {/* Cover Image Upload */}
+            <div className="sm:col-span-2">
+              <label className="mb-2 block text-[0.68rem] tracking-[0.16em] uppercase text-muted-foreground">
+                Cover Image
+              </label>
+              <div className="flex flex-col sm:flex-row gap-5 items-start border border-hairline bg-card p-4">
+                <div className="relative w-full sm:w-44 h-36 shrink-0 bg-background border border-hairline overflow-hidden">
+                  {previewUrl ? (
+                    <img src={previewUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-3 text-center">
+                      <ImageIcon className="h-6 w-6 text-bronze/60 mb-1" />
+                      <span className="text-[0.62rem] uppercase">No photo</span>
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 space-y-3">
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="flex items-center gap-2 border border-hairline bg-background px-4 py-2 text-[0.68rem] tracking-[0.16em] uppercase hover:border-bronze"
+                  >
+                    <Upload className="h-3.5 w-3.5" /> Upload Cover Photo
+                  </button>
+                  <input
+                    className={inputClass}
+                    value={draft.coverImage}
+                    onChange={(e) => {
+                      set("coverImage", e.target.value);
+                      setPreviewUrl(e.target.value);
+                    }}
+                    placeholder="/images/railings/r01.jpg or URL"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Project Media Management */}
+            <div className="sm:col-span-2 border-t border-hairline pt-6">
+              <p className="label-xs text-bronze uppercase">Project Media & Gallery ({draft.media?.length || 0})</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Images and videos strictly associated with this project.
+              </p>
+
+              {/* Add New Media Row */}
+              <div className="mt-4 grid gap-3 sm:grid-cols-12 bg-card border border-hairline p-4">
+                <div className="sm:col-span-3">
+                  <select
+                    className={inputClass}
+                    value={newMediaType}
+                    onChange={(e) => setNewMediaType(e.target.value as "image" | "video")}
+                  >
+                    <option value="image">Image</option>
+                    <option value="video">Video</option>
+                  </select>
+                </div>
+                <div className="sm:col-span-5">
+                  <input
+                    className={inputClass}
+                    value={newMediaUrl}
+                    onChange={(e) => setNewMediaUrl(e.target.value)}
+                    placeholder="URL (e.g. /images/... or /videos/...)"
+                  />
+                </div>
+                <div className="sm:col-span-3">
+                  <input
+                    className={inputClass}
+                    value={newMediaCaption}
+                    onChange={(e) => setNewMediaCaption(e.target.value)}
+                    placeholder="Caption (optional)"
+                  />
+                </div>
+                <div className="sm:col-span-1">
+                  <button
+                    type="button"
+                    onClick={handleAddMedia}
+                    className="w-full h-full bg-charcoal text-ivory flex items-center justify-center hover:bg-bronze"
+                    title="Add Media"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Current Media List */}
+              {draft.media && draft.media.length > 0 ? (
+                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                  {draft.media.map((m) => (
+                    <div key={m.id} className="flex items-center gap-3 border border-hairline bg-background p-3">
+                      {m.mediaType === "video" ? (
+                        <div className="h-14 w-14 shrink-0 bg-charcoal flex items-center justify-center text-ivory">
+                          <VideoIcon className="h-6 w-6 text-bronze" />
+                        </div>
+                      ) : (
+                        <img src={m.mediaUrl} alt="" className="h-14 w-14 shrink-0 object-cover" />
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <span className="label-xs text-bronze uppercase">{m.mediaType}</span>
+                        <p className="truncate text-xs">{m.caption || m.mediaUrl}</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveMedia(m.id)}
+                        className="text-destructive hover:text-destructive/80 p-1"
+                        title="Remove media"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+
+          <div className="mt-6 flex items-center gap-6">
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={draft.featured}
+                onChange={(e) => set("featured", e.target.checked)}
+              />
+              Featured in portfolio
+            </label>
+            <label className="flex items-center gap-3 text-sm">
+              <input
+                type="checkbox"
+                checked={draft.isActive}
+                onChange={(e) => set("isActive", e.target.checked)}
+              />
+              Active on website
+            </label>
+          </div>
+
+          <div className="mt-9 flex gap-3">
+            <button
+              type="button"
+              disabled={saving}
+              onClick={handleFormSave}
+              className="bg-charcoal px-7 py-3.5 text-[0.7rem] tracking-[0.2em] text-ivory uppercase hover:bg-bronze disabled:opacity-50"
+            >
+              {saving ? "Saving to database..." : "Save Project"}
             </button>
             <button
               type="button"

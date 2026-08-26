@@ -6,6 +6,7 @@ import { EASE } from "./Reveal";
 
 const NAV = [
   { label: "Collection", to: "/collection" },
+  { label: "Projects", to: "/projects" },
   { label: "How It Works", to: "/how-it-works" },
   { label: "About", to: "/about" },
   { label: "Contact", to: "/contact" },

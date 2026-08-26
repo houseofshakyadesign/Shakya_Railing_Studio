@@ -84,10 +84,62 @@ CREATE TABLE IF NOT EXISTS `settings` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 5. Admins Table
-CREATE TABLE IF NOT EXISTS `admins` (
+-- 6. Projects Table
+CREATE TABLE IF NOT EXISTS `projects` (
   `id` VARCHAR(64) PRIMARY KEY,
-  `email` VARCHAR(255) NOT NULL UNIQUE,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+  `slug` VARCHAR(128) NOT NULL UNIQUE,
+  `title` VARCHAR(255) NOT NULL,
+  `location` VARCHAR(255) NOT NULL DEFAULT '',
+  `project_type` VARCHAR(128) NOT NULL DEFAULT 'Residential',
+  `railing_type` VARCHAR(128) NOT NULL DEFAULT 'Balcony Railing',
+  `description` TEXT,
+  `cover_image` TEXT NOT NULL,
+  `featured` BOOLEAN NOT NULL DEFAULT FALSE,
+  `display_order` INT NOT NULL DEFAULT 0,
+  `is_active` BOOLEAN NOT NULL DEFAULT TRUE,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 7. Project Media Table (Images & Videos belonging strictly to project_id)
+CREATE TABLE IF NOT EXISTS `project_media` (
+  `id` VARCHAR(64) PRIMARY KEY,
+  `project_id` VARCHAR(64) NOT NULL,
+  `media_type` ENUM('image', 'video') NOT NULL DEFAULT 'image',
+  `media_url` TEXT NOT NULL,
+  `thumbnail_url` TEXT,
+  `caption` VARCHAR(255) DEFAULT '',
+  `display_order` INT NOT NULL DEFAULT 0,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  FOREIGN KEY (`project_id`) REFERENCES `projects`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Seed Authoritative 6 Projects
+INSERT INTO `projects` (`id`, `slug`, `title`, `location`, `project_type`, `railing_type`, `description`, `cover_image`, `featured`, `display_order`)
+VALUES
+  ('proj-01', 'bhaisepati-railing', 'Bhaisepati Railing', 'Bhaisepati', 'Residential', 'Balcony & Staircase Railing', 'Precision architectural metalwork railing installation executed for a private modern residence in Bhaisepati. Featuring clean geometric lines, concealed mounting, and matte charcoal protective coating.', '/images/railings/r01.jpg', TRUE, 1),
+  ('proj-02', 'budhanilkantha-railing', 'Budhanilkantha Railing', 'Budhanilkantha', 'Residential', 'Balcony Railing', 'Custom-engineered balcony railing system with minimalist vertical bars and weather-resistant architectural bronze finish overlooking the Kathmandu valley.', '/images/railings/r02.jpg', FALSE, 2),
+  ('proj-03', 'naxal-railing', 'Naxal Railing', 'Naxal', 'Commercial / Residential', 'Balcony & Glass Railing', 'Contemporary architectural metalwork and tempered glass railing system fabricated for a high-traffic urban project in Naxal.', '/images/railings/r03.jpg', FALSE, 3),
+  ('proj-04', 'dhapasi-railing', 'Dhapasi Railing', 'Dhapasi', 'Residential', 'Staircase Railing', 'Precision continuous handrail and geometric balustrade detailing manufactured for a multi-story modern residence in Dhapasi.', '/images/railings/r04.jpg', FALSE, 4),
+  ('proj-05', 'imadole-railing', 'Imadole Railing', 'Imadole', 'Residential', 'Boundary & Balcony Railing', 'Complete residential boundary and terrace railing installation crafted with laser-cut detailing and structural steel anchor points.', '/images/railings/r05.jpg', FALSE, 5),
+  ('proj-06', 'skylight-time', 'Skylight Time', '', 'Architectural Metalwork', 'Custom Metalwork & Skylight Structure', 'Bespoke structural steel fabrication and architectural metalwork designed to frame natural light in a contemporary architectural setting.', '/images/railings/r06.jpg', FALSE, 6)
+ON DUPLICATE KEY UPDATE `title` = VALUES(`title`), `location` = VALUES(`location`), `display_order` = VALUES(`display_order`);
+
+-- Seed Initial Project Media
+INSERT INTO `project_media` (`id`, `project_id`, `media_type`, `media_url`, `thumbnail_url`, `caption`, `display_order`)
+VALUES
+  ('pm-01-1', 'proj-01', 'image', '/images/railings/r01.jpg', '/images/railings/r01.jpg', 'Terrace Balcony Installation Overview', 1),
+  ('pm-01-2', 'proj-01', 'image', '/images/railings/r07.jpg', '/images/railings/r07.jpg', 'Corner Joinery & Handrail Detail', 2),
+  ('pm-01-3', 'proj-01', 'image', '/images/railings/r08.jpg', '/images/railings/r08.jpg', 'Side Profile & Architectural Framing', 3),
+  ('pm-02-1', 'proj-02', 'image', '/images/railings/r02.jpg', '/images/railings/r02.jpg', 'Balcony Railing Elevation', 1),
+  ('pm-02-2', 'proj-02', 'image', '/images/railings/r09.jpg', '/images/railings/r09.jpg', 'Post Base Anchor Detail', 2),
+  ('pm-03-1', 'proj-03', 'image', '/images/railings/r03.jpg', '/images/railings/r03.jpg', 'Facade Railing Architecture', 1),
+  ('pm-03-2', 'proj-03', 'image', '/images/railings/r10.jpg', '/images/railings/r10.jpg', 'Metal Framing with Glass Integration', 2),
+  ('pm-04-1', 'proj-04', 'image', '/images/railings/r04.jpg', '/images/railings/r04.jpg', 'Staircase Balustrade Running Length', 1),
+  ('pm-04-2', 'proj-04', 'image', '/images/railings/r11.jpg', '/images/railings/r11.jpg', 'Stair Landing Handrail Return', 2),
+  ('pm-05-1', 'proj-05', 'image', '/images/railings/r05.jpg', '/images/railings/r05.jpg', 'Boundary Railing Perimeter', 1),
+  ('pm-05-2', 'proj-05', 'image', '/images/railings/r12.jpg', '/images/railings/r12.jpg', 'Gate & Balcony Alignment Detail', 2),
+  ('pm-06-1', 'proj-06', 'image', '/images/railings/r06.jpg', '/images/railings/r06.jpg', 'Skylight Structural Steel Framing', 1),
+  ('pm-06-2', 'proj-06', 'image', '/images/railings/r13.jpg', '/images/railings/r13.jpg', 'Precision Welded Light Frame', 2)
+ON DUPLICATE KEY UPDATE `media_url` = VALUES(`media_url`);
+

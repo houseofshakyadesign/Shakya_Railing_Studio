@@ -8,10 +8,13 @@ import {
   type ReactNode,
 } from "react";
 import { type Product } from "@/data/products";
+import { type Project, type ProjectMedia, INITIAL_PROJECTS } from "@/data/projects";
 import { DEFAULT_SETTINGS, STORAGE_KEYS, type Settings } from "@/config/settings";
 import { isStorageAvailable, readJSON, writeJSON } from "@/utils/localStorage";
 import { DEFAULT_RAILING_TYPES, type RailingTypeConfig, type RailingTypeSlug } from "@/utils/calculations";
 import { api } from "@/lib/api";
+
+export type { Project, ProjectMedia };
 
 export const ENQUIRY_STATUSES = [
   "NEW",
@@ -60,6 +63,8 @@ type StudioValue = {
   storageOk: boolean;
   products: Product[];
   activeProducts: Product[];
+  projects: Project[];
+  activeProjects: Project[];
   settings: Settings;
   enquiries: Enquiry[];
   railingTypes: RailingTypeConfig[];
@@ -72,6 +77,8 @@ type StudioValue = {
   saveProduct: (p: Product) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
   resetProducts: () => void;
+  saveProject: (p: Project) => Promise<boolean>;
+  deleteProject: (id: string) => Promise<boolean>;
   addEnquiry: (e: Omit<Enquiry, "id" | "createdAt" | "status">) => Enquiry;
   updateEnquiryStatus: (id: string, status: EnquiryStatus) => Promise<boolean>;
   clearEnquiries: () => void;
@@ -88,6 +95,10 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const [products, setProducts] = useState<Product[]>(() => {
     return readJSON<Product[]>(STORAGE_KEYS.products, []);
+  });
+
+  const [projects, setProjects] = useState<Project[]>(() => {
+    return readJSON<Project[]>(STORAGE_KEYS.projects, INITIAL_PROJECTS);
   });
 
   const [settings, setSettings] = useState<Settings>(() => {
@@ -124,6 +135,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (storageOk) {
       setProducts(readJSON<Product[]>(STORAGE_KEYS.products, []));
+      setProjects(readJSON<Project[]>(STORAGE_KEYS.projects, INITIAL_PROJECTS));
       setSettings(readJSON<Settings>(STORAGE_KEYS.settings, DEFAULT_SETTINGS));
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
       const savedType = readJSON<RailingTypeSlug>(STORAGE_KEYS.railingType, "balcony");
@@ -148,21 +160,40 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       }
 
       // Fetch products from backend
-      const dbProducts = await api.products.list();
-      if (Array.isArray(dbProducts) && dbProducts.length > 0) {
-        setProducts(dbProducts);
-        writeJSON(STORAGE_KEYS.products, dbProducts);
+      try {
+        const dbProducts = await api.products.list();
+        if (Array.isArray(dbProducts) && dbProducts.length > 0) {
+          setProducts(dbProducts);
+          writeJSON(STORAGE_KEYS.products, dbProducts);
+        }
+      } catch {
+        /* ignore */
+      }
+
+      // Fetch projects from backend
+      try {
+        const dbProjects = await api.projects.list(true);
+        if (Array.isArray(dbProjects) && dbProjects.length > 0) {
+          setProjects(dbProjects);
+          writeJSON(STORAGE_KEYS.projects, dbProjects);
+        }
+      } catch {
+        /* ignore */
       }
 
       // Fetch settings from backend
-      const dbSettings = await api.settings.get();
-      if (dbSettings && dbSettings.companyName) {
-        const fullSettings: Settings = {
-          ...DEFAULT_SETTINGS,
-          ...dbSettings,
-        };
-        setSettings(fullSettings);
-        writeJSON(STORAGE_KEYS.settings, fullSettings);
+      try {
+        const dbSettings = await api.settings.get();
+        if (dbSettings && dbSettings.companyName) {
+          const fullSettings: Settings = {
+            ...DEFAULT_SETTINGS,
+            ...dbSettings,
+          };
+          setSettings(fullSettings);
+          writeJSON(STORAGE_KEYS.settings, fullSettings);
+        }
+      } catch {
+        /* ignore */
       }
 
       // Fetch enquiries if token is present
@@ -241,6 +272,50 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     void refreshFromCloud();
   }, [refreshFromCloud]);
 
+  const saveProject = useCallback(
+    async (p: Project): Promise<boolean> => {
+      setProjects((prev) => {
+        const exists = prev.some((x) => x.id === p.id);
+        const next = exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
+        writeJSON(STORAGE_KEYS.projects, next);
+        return next;
+      });
+
+      try {
+        const exists = projects.some((x) => x.id === p.id);
+        if (exists) {
+          await api.projects.update(p.id, p);
+        } else {
+          await api.projects.create(p);
+        }
+        return true;
+      } catch (err) {
+        console.error("api.projects save error:", err);
+        return false;
+      }
+    },
+    [projects],
+  );
+
+  const deleteProject = useCallback(
+    async (id: string): Promise<boolean> => {
+      setProjects((prev) => {
+        const next = prev.filter((x) => x.id !== id);
+        writeJSON(STORAGE_KEYS.projects, next);
+        return next;
+      });
+
+      try {
+        await api.projects.delete(id);
+        return true;
+      } catch (err) {
+        console.error("api.projects delete error:", err);
+        return false;
+      }
+    },
+    [],
+  );
+
   const addEnquiry = useCallback<StudioValue["addEnquiry"]>((data) => {
     const estimatedPrice = data.estimatedPrice || data.estimatedTotal || 0;
     const enquiry: Enquiry = {
@@ -264,11 +339,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
         const created = await api.enquiries.create(enquiry);
         if (created && created.id) {
           setEnquiries((prev) =>
-            prev.map((e) => (e.id === enquiry.id ? created : e)),
+            prev.map((item) => (item.id === enquiry.id ? created : item))
           );
         }
       } catch (err) {
-        console.error("api.enquiries.create error:", err);
+        console.error("Express API enquiry sync error:", err);
       }
     })();
 
@@ -319,6 +394,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return products.filter((p) => p.isActive);
   }, [products]);
 
+  const activeProjects = useMemo(() => {
+    return projects
+      .filter((p) => p.isActive)
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [projects]);
+
   const selectedProduct = useMemo(() => {
     if (!selectedId) return activeProducts[0] ?? null;
     return products.find((p) => p.id === selectedId) ?? activeProducts[0] ?? null;
@@ -330,6 +411,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     storageOk,
     products,
     activeProducts,
+    projects,
+    activeProjects,
     settings,
     enquiries,
     railingTypes,
@@ -342,6 +425,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     saveProduct,
     deleteProduct,
     resetProducts,
+    saveProject,
+    deleteProject,
     addEnquiry,
     updateEnquiryStatus,
     clearEnquiries,

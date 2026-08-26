@@ -34,3 +34,10 @@ dist-ssr
 .vercel
 .env
 .env*.local
+
+# Large media files
+*.mp4
+*.mov
+*.webm
+*.avi
+server/metalwork_nepal.sqlite*

@@ -11,6 +11,7 @@ import { router as enquiriesRouter } from "./routes/enquiries.js";
 import { router as settingsRouter } from "./routes/settings.js";
 import { router as uploadRouter } from "./routes/upload.js";
 import { router as railingTypesRouter } from "./routes/railingTypes.js";
+import projectsRouter from "./routes/projects.js";
 
 dotenv.config();
 
@@ -54,6 +55,7 @@ app.use("/api/enquiries", enquiriesRouter);
 app.use("/api/settings", settingsRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/railing-types", railingTypesRouter);
+app.use("/api/projects", projectsRouter);
 
 // Start server
 async function start() {

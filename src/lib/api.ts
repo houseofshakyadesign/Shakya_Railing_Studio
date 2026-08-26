@@ -106,6 +106,36 @@ export const api = {
       >("/railing-types"),
   },
 
+  projects: {
+    list: (includeAll = false) =>
+      request<import("@/data/projects").Project[]>(`/projects${includeAll ? "?all=true" : ""}`),
+    getBySlug: (slug: string) =>
+      request<import("@/data/projects").Project>(`/projects/${slug}`),
+    create: (data: Partial<import("@/data/projects").Project>) =>
+      request<import("@/data/projects").Project>("/projects", {
+        method: "POST",
+        body: JSON.stringify(data),
+      }),
+    update: (id: string, data: Partial<import("@/data/projects").Project>) =>
+      request<import("@/data/projects").Project>(`/projects/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }),
+    delete: (id: string) =>
+      request<{ success: boolean }>(`/projects/${id}`, {
+        method: "DELETE",
+      }),
+    addMedia: (projectId: string, media: Partial<import("@/data/projects").ProjectMedia>) =>
+      request<import("@/data/projects").ProjectMedia>(`/projects/${projectId}/media`, {
+        method: "POST",
+        body: JSON.stringify(media),
+      }),
+    deleteMedia: (mediaId: string) =>
+      request<{ success: boolean }>(`/projects/media/${mediaId}`, {
+        method: "DELETE",
+      }),
+  },
+
   settings: {
     get: () => request<Settings>("/settings"),
     update: (data: Partial<Settings>) =>
