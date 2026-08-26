@@ -292,6 +292,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
           currency: dbSettings.currency || DEFAULT_SETTINGS.currency,
           currencyLocale: dbSettings.currency_locale || DEFAULT_SETTINGS.currencyLocale,
           instagram: dbSettings.instagram || DEFAULT_SETTINGS.instagram,
+          tiktok: dbSettings.tiktok || DEFAULT_SETTINGS.tiktok,
           website: dbSettings.website || DEFAULT_SETTINGS.website,
           adminPassword: DEFAULT_SETTINGS.adminPassword,
         };
@@ -506,6 +507,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
             currency: s.currency,
             currency_locale: s.currencyLocale,
             instagram: s.instagram,
+            tiktok: s.tiktok,
             website: s.website,
             updated_at: new Date().toISOString(),
           });

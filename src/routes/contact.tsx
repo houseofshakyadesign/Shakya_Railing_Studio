@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
+import { Instagram, Mail, MapPin, MessageCircle, Phone, Video } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { useStudio } from "@/hooks/useStudio";
 
@@ -30,7 +30,8 @@ function ContactPage() {
     { icon: Phone, label: "Phone", value: settings.phone, href: `tel:${settings.phone}` },
     { icon: Mail, label: "Email", value: settings.email, href: `mailto:${settings.email}` },
     { icon: MapPin, label: "Studio", value: settings.address, href: undefined },
-    { icon: Instagram, label: "Instagram", value: "@metalworknepal", href: settings.instagram },
+    { icon: Instagram, label: "Instagram", value: "@metalwork.nepal", href: settings.instagram },
+    { icon: Video, label: "TikTok", value: "@metalworknepal", href: settings.tiktok },
   ];
 
   return (

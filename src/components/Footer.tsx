@@ -51,6 +51,14 @@ export function Footer() {
             Instagram
           </a>
           <a
+            href={settings.tiktok}
+            target="_blank"
+            rel="noreferrer"
+            className="w-fit hover:text-bronze"
+          >
+            TikTok
+          </a>
+          <a
             href={settings.website}
             target="_blank"
             rel="noreferrer"

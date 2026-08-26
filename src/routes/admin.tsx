@@ -864,6 +864,41 @@ function SettingsPanel() {
               onChange={(e) => updateSettings({ currencyLocale: e.target.value })}
             />
           </Field>
+          <Field id="s-instagram" label="Instagram URL">
+            <input
+              className={inputClass}
+              value={settings.instagram}
+              onChange={(e) => updateSettings({ instagram: e.target.value })}
+            />
+          </Field>
+          <Field id="s-tiktok" label="TikTok URL">
+            <input
+              className={inputClass}
+              value={settings.tiktok || ""}
+              onChange={(e) => updateSettings({ tiktok: e.target.value })}
+            />
+          </Field>
+          <Field id="s-email" label="Email address">
+            <input
+              className={inputClass}
+              value={settings.email}
+              onChange={(e) => updateSettings({ email: e.target.value })}
+            />
+          </Field>
+          <Field id="s-phone" label="Phone number">
+            <input
+              className={inputClass}
+              value={settings.phone}
+              onChange={(e) => updateSettings({ phone: e.target.value })}
+            />
+          </Field>
+          <Field id="s-address" label="Address">
+            <input
+              className={inputClass}
+              value={settings.address}
+              onChange={(e) => updateSettings({ address: e.target.value })}
+            />
+          </Field>
         </div>
       </div>
 
