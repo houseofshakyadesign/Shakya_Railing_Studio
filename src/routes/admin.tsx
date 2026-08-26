@@ -143,8 +143,18 @@ function AdminPage() {
             </span>
           </div>
 
-          <h1 className="mt-5 text-2xl font-light tracking-tight">Studio Admin Login</h1>
-          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+          <div className="mt-6 flex items-center gap-3.5">
+            <img
+              src="/logo/logo.png"
+              alt="Metal Work Nepal Logo"
+              className="h-12 w-12 shrink-0 rounded-sm object-contain"
+            />
+            <div>
+              <h1 className="text-xl font-bold tracking-tight">Studio Admin Login</h1>
+              <p className="text-xs text-muted-foreground">Metal Work Nepal Management</p>
+            </div>
+          </div>
+          <p className="mt-3 text-xs leading-relaxed text-muted-foreground">
             {studio.isCloudConnected
               ? "Sign in with your verified administrator credentials."
               : "Prototype access gate. Data lives only in this browser."}
@@ -195,16 +205,23 @@ function AdminPage() {
   return (
     <section className="mx-auto max-w-[1440px] px-5 pt-32 pb-28 md:px-10 md:pt-40">
       <div className="flex flex-wrap items-end justify-between gap-6">
-        <div>
-          <div className="flex items-center gap-2">
-            <p className="label-xs text-bronze">Studio admin</p>
-            {currentUserEmail ? (
-              <span className="flex items-center gap-1 text-[0.68rem] text-muted-foreground">
-                • <ShieldCheck className="h-3 w-3 text-bronze" /> {currentUserEmail}
-              </span>
-            ) : null}
+        <div className="flex items-center gap-4">
+          <img
+            src="/logo/logo.png"
+            alt="Metal Work Nepal Logo"
+            className="h-12 w-12 shrink-0 rounded-sm object-contain"
+          />
+          <div>
+            <div className="flex items-center gap-2">
+              <p className="label-xs text-bronze">Studio admin</p>
+              {currentUserEmail ? (
+                <span className="flex items-center gap-1 text-[0.68rem] text-muted-foreground">
+                  • <ShieldCheck className="h-3 w-3 text-bronze" /> {currentUserEmail}
+                </span>
+              ) : null}
+            </div>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">Metal Work Nepal Dashboard</h1>
           </div>
-          <h1 className="mt-3 text-3xl tracking-tight md:text-4xl">Railing Studio dashboard</h1>
         </div>
         <div className="flex flex-wrap items-center gap-3">
           <button

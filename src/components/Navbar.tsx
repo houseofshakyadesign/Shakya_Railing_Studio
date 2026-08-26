@@ -43,21 +43,28 @@ export function Navbar() {
           scrolled ? "h-16" : "h-20 md:h-24"
         }`}
       >
-        <Link to="/" className="group leading-none" aria-label="Metal Work Nepal">
-          <span
-            className={`block text-[0.88rem] font-extrabold tracking-[0.24em] uppercase transition-colors duration-300 ${
-              isDarkHero ? "text-ivory" : "text-foreground"
-            }`}
-          >
-            Metal Work Nepal
-          </span>
-          <span
-            className={`mt-1 block text-[0.6rem] font-bold tracking-[0.32em] uppercase transition-colors duration-300 ${
-              isDarkHero ? "text-bronze-soft" : "text-bronze"
-            }`}
-          >
-            Architectural Studio
-          </span>
+        <Link to="/" className="group flex items-center gap-3.5 leading-none" aria-label="Metal Work Nepal">
+          <img
+            src="/logo/logo.png"
+            alt="Metal Work Nepal Logo"
+            className="h-10 w-10 md:h-12 md:w-12 shrink-0 rounded-sm object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+          <div>
+            <span
+              className={`block text-[0.88rem] font-extrabold tracking-[0.24em] uppercase transition-colors duration-300 ${
+                isDarkHero ? "text-ivory" : "text-foreground"
+              }`}
+            >
+              Metal Work Nepal
+            </span>
+            <span
+              className={`mt-1 block text-[0.6rem] font-bold tracking-[0.32em] uppercase transition-colors duration-300 ${
+                isDarkHero ? "text-bronze-soft" : "text-bronze"
+              }`}
+            >
+              Architectural Studio
+            </span>
+          </div>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-9 lg:flex">
