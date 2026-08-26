@@ -94,13 +94,17 @@ export function Lightbox({
           >
             {current.mediaType === "video" ? (
               <video
-                src={current.mediaUrl}
+                key={current.id || current.mediaUrl}
                 poster={current.thumbnailUrl}
                 controls
                 autoPlay
                 playsInline
+                preload="auto"
                 className="max-h-[75vh] max-w-full object-contain shadow-lift"
-              />
+              >
+                <source src={current.mediaUrl} type={current.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                Your browser does not support the video tag.
+              </video>
             ) : (
               <motion.img
                 key={current.id}

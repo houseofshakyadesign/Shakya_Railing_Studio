@@ -175,12 +175,16 @@ function ProjectDetailPage() {
 
             <div className="mt-8 relative aspect-video max-w-5xl overflow-hidden rounded-none border border-white/20 bg-charcoal/50">
               <video
-                src={videoMedia.mediaUrl}
+                key={videoMedia.id || videoMedia.mediaUrl}
                 poster={videoMedia.thumbnailUrl || project.coverImage}
                 controls
                 playsInline
+                preload="metadata"
                 className="h-full w-full object-cover"
-              />
+              >
+                <source src={videoMedia.mediaUrl} type={videoMedia.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                Your browser does not support the video tag.
+              </video>
             </div>
           </div>
         </section>

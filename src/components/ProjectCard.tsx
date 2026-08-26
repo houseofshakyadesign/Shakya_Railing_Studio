@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, Play, Video as VideoIcon } from "lucide-react";
+import { ArrowUpRight, Video as VideoIcon } from "lucide-react";
 import type { Project } from "@/data/projects";
 
 type ProjectCardProps = {
@@ -11,36 +11,35 @@ type ProjectCardProps = {
 export function ProjectCard({ project, layoutVariant = "standard" }: ProjectCardProps) {
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [videoError, setVideoError] = useState(false);
 
   // Check if project has a video in its media array
   const videoMedia = project.media?.find((m) => m.mediaType === "video");
 
   useEffect(() => {
-    if (!videoMedia || !videoRef.current || !containerRef.current) return;
+    if (!videoMedia || videoError || !videoRef.current || !containerRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
         if (!entry) return;
         if (entry.isIntersecting) {
-          videoRef.current
-            ?.play()
-            .then(() => setIsPlaying(true))
-            .catch(() => {
-              /* Autoplay blocked */
+          const playPromise = videoRef.current?.play();
+          if (playPromise !== undefined) {
+            playPromise.catch(() => {
+              /* Autoplay blocked by browser policy */
             });
+          }
         } else {
           videoRef.current?.pause();
-          setIsPlaying(false);
         }
       },
-      { threshold: 0.35 }
+      { threshold: 0.25 }
     );
 
     observer.observe(containerRef.current);
     return () => observer.disconnect();
-  }, [videoMedia]);
+  }, [videoMedia, videoError]);
 
   const heightClasses =
     layoutVariant === "large"
@@ -59,7 +58,7 @@ export function ProjectCard({ project, layoutVariant = "standard" }: ProjectCard
       >
         {/* Visual Media Container */}
         <div className={`relative w-full overflow-hidden bg-charcoal/5 ${heightClasses}`}>
-          {videoMedia ? (
+          {videoMedia && !videoError ? (
             <video
               ref={videoRef}
               src={videoMedia.mediaUrl}
@@ -68,6 +67,7 @@ export function ProjectCard({ project, layoutVariant = "standard" }: ProjectCard
               loop
               playsInline
               preload="metadata"
+              onError={() => setVideoError(true)}
               className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
             />
           ) : (
