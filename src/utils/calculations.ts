@@ -42,11 +42,13 @@ export function formatArea(sqft: number): string {
   return `${formatted} sq.ft.`;
 }
 
+export const VAT_RATE = 0.13; // 13% standard VAT included in the total
+
 /**
  * Single source of truth for railing calculations.
  *
  * 1. Estimated Area = Length × Standard Height
- * 2. Estimated Price = Estimated Area × Price per sq.ft. (or Custom Quote)
+ * 2. Estimated Price = (Estimated Area × Price per sq.ft.) + 13% VAT added into the total amount seamlessly.
  */
 export function calculateRailingEstimate(
   length: number,
@@ -61,7 +63,8 @@ export function calculateRailingEstimate(
 
   const rawArea = l * h;
   const area = Number(rawArea.toFixed(2));
-  const total = isCustom ? 0 : Math.round(area * r);
+  const subtotal = area * r;
+  const total = isCustom ? 0 : Math.round(subtotal * (1 + VAT_RATE));
 
   return {
     length: l,
