@@ -33,7 +33,7 @@ export function formatPanels(panels: number): string {
 export const VAT_RATE = 0.13; // 13% standard VAT
 
 /**
- * Single source of truth for House of Shakya boundary railing calculations.
+ * Single source of truth for Metal Work Nepal boundary railing calculations.
  *
  * 1. Area = Length × Height
  * 2. Panels = Ceiling(Length ÷ Standard Module Width)

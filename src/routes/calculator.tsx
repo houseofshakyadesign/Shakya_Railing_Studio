@@ -13,9 +13,9 @@ import { calculateRailingEstimate, formatArea, formatPanels } from "@/utils/calc
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Railing Price Calculator | House of Shakya";
+const title = "Price Calculator | Metal Work Nepal";
 const description =
-  "Enter the approximate length and height of your boundary railing. Instant area, estimated panels, and pricing calculation from House of Shakya.";
+  "Enter the approximate length and height of your boundary railing. Instant area, estimated panels, and pricing calculation from Metal Work Nepal.";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({
@@ -685,7 +685,7 @@ function CalculatorPage() {
             </div>
 
             <p className="mt-5 text-[0.68rem] leading-relaxed text-muted-foreground">
-              Directly connected to House of Shakya Supabase studio database. WhatsApp opens
+              Directly connected to Metal Work Nepal Supabase studio database. WhatsApp opens
               with your customized calculation pre-filled.
             </p>
           </div>
@@ -725,7 +725,7 @@ function CalculatorPage() {
         <p className="mt-20 max-w-3xl text-xs leading-relaxed text-muted-foreground">
           Estimated price and panel counts are approximate. Final pricing may vary depending on
           site conditions, structural anchoring, post spacing, corners, fabrication details, and
-          final site measurements. House of Shakya will confirm the final quotation after review.
+          final site measurements. Metal Work Nepal will confirm the final quotation after review.
         </p>
       </Reveal>
     </section>

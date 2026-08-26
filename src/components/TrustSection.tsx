@@ -16,7 +16,7 @@ export function TrustSection() {
           <div className="overflow-hidden">
             <img
               src="/images/railings/craft.jpg"
-              alt="House of Shakya craftsman fabricating a steel railing frame"
+              alt="Metal Work Nepal craftsman fabricating an architectural steel frame"
               loading="lazy"
               width={1400}
               height={1000}
@@ -31,14 +31,14 @@ export function TrustSection() {
           </Reveal>
           <Reveal delay={0.05}>
             <h2 className="mt-5 text-3xl leading-[1.05] tracking-tight sm:text-4xl md:text-5xl">
-              Crafted by House of Shakya.
+              Crafted by Metal Work Nepal.
             </h2>
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-              House of Shakya is an interior design and construction company specializing in the
-              design, fabrication and execution of architectural spaces and elements. Every railing
-              is measured, fabricated and installed by our own team.
+              Metal Work Nepal specializes in precision architectural metal fabrication, engineering,
+              and execution. Every project is custom engineered, fabricated in-house, and installed with
+              rigorous quality standards.
             </p>
           </Reveal>
           <ul className="mt-10 grid gap-px border border-hairline bg-hairline sm:grid-cols-2">

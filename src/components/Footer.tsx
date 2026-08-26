@@ -9,12 +9,12 @@ export function Footer() {
     <footer className="border-t border-hairline bg-sand">
       <div className="mx-auto grid max-w-[1440px] gap-12 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr] md:px-10 md:py-24">
         <div>
-          <p className="text-sm font-extrabold tracking-[0.28em] uppercase">House of Shakya</p>
-          <p className="mt-2 text-[0.7rem] tracking-[0.32em] text-bronze uppercase">
-            Railing Studio
+          <p className="text-sm font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
+          <p className="mt-2 text-[0.7rem] tracking-[0.3em] text-bronze uppercase">
+            Architectural Studio
           </p>
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Interior Design | Construction | Fabrication
+            Architectural Metalwork | Railings | Stairs | Custom Fabrication
           </p>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {settings.address} · {settings.phone}
@@ -62,7 +62,7 @@ export function Footer() {
       </div>
       <div className="border-t border-hairline">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-5 py-6 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase md:flex-row md:items-center md:justify-between md:px-10">
-          <p>© {new Date().getFullYear()} House of Shakya. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Metal Work Nepal. All rights reserved.</p>
           <p>Estimates are indicative and confirmed after site review.</p>
         </div>
       </div>

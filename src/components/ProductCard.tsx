@@ -35,7 +35,7 @@ export function ProductCard({
       <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         <img
           src={product.image}
-          alt={`${product.name} by House of Shakya`}
+          alt={`${product.name} by Metal Work Nepal`}
           loading="lazy"
           width={1024}
           height={1280}

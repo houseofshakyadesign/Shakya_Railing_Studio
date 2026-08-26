@@ -3,9 +3,9 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { TrustSection } from "@/components/TrustSection";
 
-const title = "About | House of Shakya Railing Studio";
+const title = "About | Metal Work Nepal";
 const description =
-  "House of Shakya is an interior design and construction company specializing in the design, fabrication and execution of architectural spaces and elements.";
+  "Metal Work Nepal specializes in the design, engineering and precision fabrication of architectural metalwork systems — including custom boundary railings, staircases, and bespoke metal elements.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({
@@ -34,7 +34,7 @@ function AboutPage() {
         <SectionHeading
           label="About the studio"
           title="We design, fabricate and install — end to end."
-          intro="House of Shakya works across interiors, construction and metal fabrication. Railing Studio is our dedicated catalogue for architectural railing systems, built so clients can price a requirement themselves before speaking to us."
+          intro="Metal Work Nepal delivers precision architectural metal fabrication. We provide a streamlined digital platform so homeowners, architects, and builders can calculate exact estimates and customize metalwork projects seamlessly."
         />
         <div className="mt-16 grid gap-px border border-hairline bg-hairline sm:grid-cols-3">
           {STATS.map((s, i) => (

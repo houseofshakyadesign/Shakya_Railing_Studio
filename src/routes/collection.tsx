@@ -16,9 +16,9 @@ import { calculateRailingEstimate, formatArea, formatPanels } from "@/utils/calc
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Railing Collection | House of Shakya";
+const title = "Railing Collection | Metal Work Nepal";
 const description =
-  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from House of Shakya.";
+  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from Metal Work Nepal.";
 
 export const Route = createFileRoute("/collection")({
   head: () => ({
@@ -686,7 +686,7 @@ function CollectionPage() {
                     </div>
 
                     <p className="mt-5 text-[0.68rem] leading-relaxed text-muted-foreground">
-                      Directly connected to House of Shakya Supabase studio database. WhatsApp opens
+                      Directly connected to Metal Work Nepal Supabase studio database. WhatsApp opens
                       with your customized calculation pre-filled.
                     </p>
                   </div>

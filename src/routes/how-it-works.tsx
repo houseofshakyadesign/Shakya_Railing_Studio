@@ -3,9 +3,9 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 
-const title = "How It Works | House of Shakya Railing Studio";
+const title = "How It Works | Metal Work Nepal";
 const description =
-  "Select, measure, estimate and enquire. See how the House of Shakya Railing Studio takes you from design to an instant boundary railing calculation in minutes.";
+  "Select, measure, estimate and enquire. See how Metal Work Nepal takes you from design to an instant architectural estimation in minutes.";
 
 export const Route = createFileRoute("/how-it-works")({
   head: () => ({

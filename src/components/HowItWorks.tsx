@@ -12,7 +12,7 @@ const STEPS = [
     title: "Estimate",
     copy: "Instant automatic calculation of area, estimated panels, and transparent pricing.",
   },
-  { n: "04", title: "Send", copy: "Send your custom requirement straight to House of Shakya via WhatsApp." },
+  { n: "04", title: "Send", copy: "Send your custom requirement straight to Metal Work Nepal via WhatsApp." },
 ];
 
 export function HowItWorks() {

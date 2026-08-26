@@ -43,20 +43,20 @@ export function Navbar() {
           scrolled ? "h-16" : "h-20 md:h-24"
         }`}
       >
-        <Link to="/" className="group leading-none" aria-label="House of Shakya — Railing Studio">
+        <Link to="/" className="group leading-none" aria-label="Metal Work Nepal">
           <span
-            className={`block text-[0.84rem] font-extrabold tracking-[0.28em] uppercase transition-colors duration-300 ${
+            className={`block text-[0.88rem] font-extrabold tracking-[0.24em] uppercase transition-colors duration-300 ${
               isDarkHero ? "text-ivory" : "text-foreground"
             }`}
           >
-            House of Shakya
+            Metal Work Nepal
           </span>
           <span
-            className={`mt-1 block text-[0.62rem] font-bold tracking-[0.34em] uppercase transition-colors duration-300 ${
+            className={`mt-1 block text-[0.6rem] font-bold tracking-[0.32em] uppercase transition-colors duration-300 ${
               isDarkHero ? "text-bronze-soft" : "text-bronze"
             }`}
           >
-            Railing Studio
+            Architectural Studio
           </span>
         </Link>
 

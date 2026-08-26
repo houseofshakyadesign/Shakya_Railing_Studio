@@ -1,22 +1,22 @@
-# House of Shakya — Railing Studio
+# Metal Work Nepal
 
-An architectural railing studio catalogue, price calculator, and quotation web application for House of Shakya (Imadole, Mahalaxmi, Nepal).
+An architectural metalwork, railing catalogue, price calculator, and quotation web application for Metal Work Nepal (Imadole, Mahalaxmi, Nepal).
 
 ## Features
 
-- **Architectural Railing Catalogue**: Curated selection of steel, glass, cable, wood, and bespoke railing systems with specifications and high-resolution imagery.
-- **Interactive Price Calculator**: Instant area (`sq.ft.`) × quantity × rate estimation with animated visual breakdown.
-- **WhatsApp Integration**: Generates structured project quotation requirements sent directly to the House of Shakya studio team.
-- **Local Admin Dashboard**: Manage railing products, track and update customer quotation statuses, and export data to CSV.
+- **Architectural Catalogue**: Curated selection of steel, glass, cable, wood, and bespoke railing systems with specifications and high-resolution imagery. Expandable to future architectural metalwork systems.
+- **Interactive Boundary Railing Calculator**: Instant area (`sq.ft.`), estimated panels, and rate estimation (with 13% VAT calculated into total).
+- **WhatsApp Integration**: Generates structured project quotation requirements sent directly to the Metal Work Nepal engineering team.
+- **Cloud Admin Dashboard**: Manage products, direct image uploads to Supabase Storage, review enquiries, and export data to CSV.
 
 ## Tech Stack
 
 - **Framework**: React 19 + Vite 8
+- **Backend / Database**: Supabase (PostgreSQL + Auth + Storage)
 - **Routing**: TanStack Router / TanStack Start
 - **Styling**: Tailwind CSS v4 (OKLCH design system)
 - **Animations**: Framer Motion
 - **Icons**: Lucide React
-- **State Management**: React Context with client-side state
 
 ## Getting Started
 
@@ -36,18 +36,4 @@ npm run dev
 
 # Build for production
 npm run build
-```
-
-## Project Structure
-
-```
-├── public/               # Static assets & railing imagery
-├── src/
-│   ├── components/       # UI components, layout, and sections
-│   ├── config/           # Central studio settings & configuration
-│   ├── data/             # Product catalog specifications
-│   ├── hooks/            # Studio context and custom React hooks
-│   ├── routes/           # File-based application routes
-│   ├── utils/            # Calculation, currency, CSV, and WhatsApp helpers
-│   └── styles.css        # Tailwind CSS design system tokens
 ```

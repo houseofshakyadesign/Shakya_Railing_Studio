@@ -34,7 +34,7 @@ export function Hero() {
           transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
           className="label-xs text-bronze-soft"
         >
-          House of Shakya · Railing Studio
+          Metal Work Nepal · Architectural Studio
         </motion.p>
 
         <motion.h1

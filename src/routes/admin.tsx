@@ -15,15 +15,15 @@ import { supabase, isSupabaseConfigured } from "@/lib/supabase";
 export const Route = createFileRoute("/admin")({
   head: () => ({
     meta: [
-      { title: "Studio Admin | House of Shakya Railing Studio" },
+      { title: "Studio Admin | Metal Work Nepal" },
       {
         name: "description",
         content:
-          "Studio admin dashboard for House of Shakya Railing Studio — manage railings, review enquiries, and update cloud settings.",
+          "Studio admin dashboard for Metal Work Nepal — manage catalog, review enquiries, and update cloud settings.",
       },
       { name: "robots", content: "noindex" },
-      { property: "og:title", content: "Studio Admin | House of Shakya" },
-      { property: "og:description", content: "Studio admin dashboard for Railing Studio." },
+      { property: "og:title", content: "Studio Admin | Metal Work Nepal" },
+      { property: "og:description", content: "Studio admin dashboard for Metal Work Nepal." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],

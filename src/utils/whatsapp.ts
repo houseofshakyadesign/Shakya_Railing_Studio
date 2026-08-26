@@ -4,8 +4,8 @@ import type { Enquiry } from "@/hooks/useStudio";
 
 export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
   const lines = [
-    "Hello House of Shakya,",
-    "I would like to enquire about a railing.",
+    "Hello Metal Work Nepal,",
+    "I would like to enquire about an architectural railing / metalwork project.",
     "",
     "RAILING",
     `${e.productCode} — ${e.productName}`,

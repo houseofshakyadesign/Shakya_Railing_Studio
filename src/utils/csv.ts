@@ -50,7 +50,7 @@ export function enquiriesToCSV(enquiries: Enquiry[]): string {
   return [HEADERS.map(cell).join(","), ...rows].join("\r\n");
 }
 
-export function downloadCSV(enquiries: Enquiry[], filename = "house-of-shakya-enquiries.csv") {
+export function downloadCSV(enquiries: Enquiry[], filename = "metal-work-nepal-enquiries.csv") {
   const blob = new Blob(["\uFEFF" + enquiriesToCSV(enquiries)], {
     type: "text/csv;charset=utf-8;",
   });

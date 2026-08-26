@@ -3,9 +3,9 @@ import { Instagram, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { useStudio } from "@/hooks/useStudio";
 
-const title = "Contact | House of Shakya Railing Studio";
+const title = "Contact | Metal Work Nepal";
 const description =
-  "Talk to House of Shakya about your railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, fabrication and installation.";
+  "Talk to Metal Work Nepal about your architectural metalwork and railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, precision fabrication and installation.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({
@@ -30,7 +30,7 @@ function ContactPage() {
     { icon: Phone, label: "Phone", value: settings.phone, href: `tel:${settings.phone}` },
     { icon: Mail, label: "Email", value: settings.email, href: `mailto:${settings.email}` },
     { icon: MapPin, label: "Studio", value: settings.address, href: undefined },
-    { icon: Instagram, label: "Instagram", value: "@houseofshakya", href: settings.instagram },
+    { icon: Instagram, label: "Instagram", value: "@metalworknepal", href: settings.instagram },
   ];
 
   return (

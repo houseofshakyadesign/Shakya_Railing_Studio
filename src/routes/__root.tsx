@@ -79,15 +79,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "House of Shakya | Railing Studio" },
+      { title: "Metal Work Nepal | Architectural Metalwork & Railings" },
       {
         name: "description",
         content:
-          "Explore premium railing designs by House of Shakya. Select a railing, calculate your estimated cost per sq.ft. and send your requirement directly to our team.",
+          "Explore architectural metalwork and premium railing systems by Metal Work Nepal. Select a design, calculate your instant estimate and connect directly with our engineering team.",
       },
-      { name: "author", content: "House of Shakya" },
+      { name: "author", content: "Metal Work Nepal" },
       { name: "theme-color", content: "#f6f3ec" },
-      { property: "og:site_name", content: "House of Shakya — Railing Studio" },
+      { property: "og:site_name", content: "Metal Work Nepal" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
