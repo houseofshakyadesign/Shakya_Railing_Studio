@@ -179,10 +179,12 @@ function ProjectDetailPage() {
                 poster={videoMedia.thumbnailUrl || project.coverImage}
                 controls
                 playsInline
-                preload="metadata"
+                preload="auto"
                 className="h-full w-full object-cover"
               >
-                <source src={videoMedia.mediaUrl} type={videoMedia.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                <source src={videoMedia.mediaUrl} type="video/mp4" />
+                <source src={videoMedia.mediaUrl.replace(/\.mov$/, ".mp4")} type="video/mp4" />
+                <source src={videoMedia.mediaUrl} type="video/quicktime" />
                 Your browser does not support the video tag.
               </video>
             </div>

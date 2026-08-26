@@ -271,7 +271,7 @@ export const INITIAL_PROJECTS: Project[] = [
         id: "pm-06-v",
         projectId: "proj-06",
         mediaType: "video",
-        mediaUrl: "/videos/railings/skylight-time.mov",
+        mediaUrl: "/videos/railings/skylight-time.mp4",
         thumbnailUrl: "/images/railings/r06.jpg",
         caption: "Skylight Structural Steel Video",
         displayOrder: 0,

@@ -72,8 +72,9 @@ export function ProjectCard({ project }: ProjectCardProps) {
               onError={() => setVideoError(true)}
               className="h-full w-full object-cover object-center transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.02]"
             >
-              <source src={videoMedia.mediaUrl} type={videoMedia.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
               <source src={videoMedia.mediaUrl} type="video/mp4" />
+              <source src={videoMedia.mediaUrl.replace(/\.mov$/, ".mp4")} type="video/mp4" />
+              <source src={videoMedia.mediaUrl} type="video/quicktime" />
             </video>
           ) : (
             <img

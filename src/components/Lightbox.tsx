@@ -102,7 +102,9 @@ export function Lightbox({
                 preload="auto"
                 className="max-h-[75vh] max-w-full object-contain shadow-lift"
               >
-                <source src={current.mediaUrl} type={current.mediaUrl.endsWith(".mov") ? "video/quicktime" : "video/mp4"} />
+                <source src={current.mediaUrl} type="video/mp4" />
+                <source src={current.mediaUrl.replace(/\.mov$/, ".mp4")} type="video/mp4" />
+                <source src={current.mediaUrl} type="video/quicktime" />
                 Your browser does not support the video tag.
               </video>
             ) : (
