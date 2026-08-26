@@ -18,26 +18,36 @@ export function ProjectCard({ project }: ProjectCardProps) {
   useEffect(() => {
     if (!videoMedia || videoError || !videoRef.current || !containerRef.current) return;
 
+    const vid = videoRef.current;
+    vid.defaultMuted = true;
+    vid.muted = true;
+
+    const startPlayback = () => {
+      const playPromise = vid.play();
+      if (playPromise !== undefined) {
+        playPromise.catch(() => {
+          /* Autoplay handled */
+        });
+      }
+    };
+
     const observer = new IntersectionObserver(
       (entries) => {
         const entry = entries[0];
-        if (!entry || !videoRef.current) return;
+        if (!entry) return;
 
         if (entry.isIntersecting) {
-          const playPromise = videoRef.current.play();
-          if (playPromise !== undefined) {
-            playPromise.catch(() => {
-              /* Autoplay prevented or handled */
-            });
-          }
+          startPlayback();
         } else {
-          videoRef.current.pause();
+          vid.pause();
         }
       },
-      { threshold: 0.15, rootMargin: "50px" }
+      { threshold: 0.1, rootMargin: "80px" }
     );
 
     observer.observe(containerRef.current);
+    startPlayback();
+
     return () => observer.disconnect();
   }, [videoMedia, videoError]);
 
@@ -63,13 +73,12 @@ export function ProjectCard({ project }: ProjectCardProps) {
               muted
               loop
               playsInline
-              preload="metadata"
+              preload="auto"
               onError={() => setVideoError(true)}
               className="h-full w-full object-cover object-center transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:scale-[1.03]"
             >
               <source src={videoMedia.mediaUrl} type="video/mp4" />
               <source src={videoMedia.mediaUrl.replace(/\.mov$/, ".mp4")} type="video/mp4" />
-              <source src={videoMedia.mediaUrl} type="video/quicktime" />
             </video>
           ) : (
             <img
