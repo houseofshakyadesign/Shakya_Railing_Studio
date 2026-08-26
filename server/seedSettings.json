@@ -1,16 +1,17 @@
 [
   {
     "id": "default",
-    "company_name": "House of Shakya",
+    "company_name": "Metal Work Nepal",
     "studio_name": "Railing Studio",
     "whatsapp_number": "9779843935689",
     "phone": "+977 984-3935689",
-    "email": "studio@houseofshakya.com",
+    "email": "info@metalworknepal.com",
     "address": "Imadole, Mahalaxmi, Nepal",
     "currency": "NPR",
     "currency_locale": "en-IN",
-    "instagram": "https://instagram.com/houseofshakya",
-    "website": "https://houseofshakya.com",
-    "updated_at": "2026-08-25T10:31:36.562963+00:00"
+    "instagram": "https://www.instagram.com/metalwork.nepal?igsi=MWg2cTdxNzY1NmFnag==",
+    "tiktok": "https://www.tiktok.com/@metalworknepal?_r=1&_t=ZS-99CUIO2Y89o",
+    "website": "https://metalworknepal.com",
+    "updated_at": "2026-08-26T10:31:36.562963+00:00"
   }
 ]

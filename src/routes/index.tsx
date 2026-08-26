@@ -7,9 +7,9 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { TrustSection } from "@/components/TrustSection";
 
-const title = "House of Shakya | Architectural Metalwork & Railings";
+const title = "Metal Work Nepal | Architectural Metalwork & Railings";
 const description =
-  "Explore architectural metalwork and premium railing systems by House of Shakya. Select a railing design, calculate your instant estimate and send your requirement directly to our team.";
+  "Explore architectural metalwork and premium railing systems by Metal Work Nepal. Select a railing design, calculate your instant estimate and send your requirement directly to our team.";
 
 export const Route = createFileRoute("/")({
   head: () => ({

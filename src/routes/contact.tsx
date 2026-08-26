@@ -3,9 +3,9 @@ import { Instagram, Mail, MapPin, MessageCircle, Phone, Video } from "lucide-rea
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { useStudio } from "@/hooks/useStudio";
 
-const title = "Contact | House of Shakya";
+const title = "Contact | Metal Work Nepal";
 const description =
-  "Talk to House of Shakya about your architectural metalwork and railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, precision fabrication and installation.";
+  "Talk to Metal Work Nepal about your architectural metalwork and railing project — WhatsApp, phone or email. Imadole, Mahalaxmi based design, precision fabrication and installation.";
 
 export const Route = createFileRoute("/contact")({
   head: () => ({

@@ -50,13 +50,13 @@ export function Navbar() {
         <Link
           to="/"
           className="group flex items-center gap-3.5 leading-none"
-          aria-label="House of Shakya Railing Studio"
+          aria-label="Metal Work Nepal — Railing Studio"
         >
           {/* Logo container with smooth crossfade between light and dark variants */}
           <div className="relative h-10 w-10 md:h-12 md:w-12 shrink-0 overflow-hidden rounded-sm transition-transform duration-300 group-hover:scale-105">
             <img
               src="/logo/house-of-shakya-logo-light.png"
-              alt=""
+              alt="Metal Work Nepal"
               aria-hidden="true"
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
                 isDarkHero ? "opacity-100" : "pointer-events-none opacity-0"
@@ -64,7 +64,7 @@ export function Navbar() {
             />
             <img
               src="/logo/house-of-shakya-logo-dark.png"
-              alt=""
+              alt="Metal Work Nepal"
               aria-hidden="true"
               className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
                 isDarkHero ? "pointer-events-none opacity-0" : "opacity-100"
@@ -78,7 +78,7 @@ export function Navbar() {
                 isDarkHero ? "text-ivory" : "text-foreground"
               }`}
             >
-              House of Shakya
+              Metal Work Nepal
             </span>
             <span
               className={`mt-1 block text-[0.58rem] font-bold tracking-[0.3em] uppercase transition-colors duration-300 sm:text-[0.6rem] sm:tracking-[0.32em] ${

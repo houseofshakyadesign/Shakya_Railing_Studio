@@ -1,4 +1,4 @@
-# House of Shakya — Railing Studio
+# Metal Work Nepal — Railing Studio
 
 Guidelines for AI agents working in this repository:
 

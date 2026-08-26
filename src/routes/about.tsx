@@ -3,9 +3,9 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { TrustSection } from "@/components/TrustSection";
 
-const title = "About | House of Shakya";
+const title = "About | Metal Work Nepal";
 const description =
-  "House of Shakya specializes in the design, engineering and precision fabrication of architectural metalwork systems — including custom boundary railings, staircases, and bespoke metal elements.";
+  "Metal Work Nepal specializes in the design, engineering and precision fabrication of architectural metalwork systems — including custom boundary railings, staircases, and bespoke metal elements.";
 
 export const Route = createFileRoute("/about")({
   head: () => ({

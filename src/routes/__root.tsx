@@ -82,30 +82,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "House of Shakya | Railing Studio" },
+      { title: "Metal Work Nepal | Railing Studio" },
       {
         name: "description",
         content:
-          "Explore architectural metalwork and bespoke railing systems by House of Shakya. Select a design, calculate your instant estimate and connect directly with our studio.",
+          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal. Select a design, calculate your instant estimate and connect directly with our studio.",
       },
-      { name: "author", content: "House of Shakya" },
+      { name: "author", content: "Metal Work Nepal" },
       { name: "theme-color", content: "#f6f3ec" },
-      { property: "og:site_name", content: "House of Shakya — Railing Studio" },
+      { property: "og:site_name", content: "Metal Work Nepal — Railing Studio" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "House of Shakya | Railing Studio" },
+      { property: "og:title", content: "Metal Work Nepal | Railing Studio" },
       {
         property: "og:description",
         content:
-          "Explore architectural metalwork and bespoke railing systems by House of Shakya.",
+          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
       },
       { property: "og:image", content: "/images/railings/hero.jpg" },
       { property: "og:url", content: "https://shakya-railing-studio.vercel.app" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "House of Shakya | Railing Studio" },
+      { name: "twitter:title", content: "Metal Work Nepal | Railing Studio" },
       {
         name: "twitter:description",
         content:
-          "Explore architectural metalwork and bespoke railing systems by House of Shakya.",
+          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
       },
       { name: "twitter:image", content: "/images/railings/hero.jpg" },
     ],
@@ -168,7 +168,7 @@ function RootComponent() {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "LocalBusiness",
-              name: "House of Shakya",
+              name: "Metal Work Nepal",
               description: "Architectural metalwork and bespoke railing systems",
               url: "https://shakya-railing-studio.vercel.app",
               telephone: "+977-984-3935689",

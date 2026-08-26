@@ -129,7 +129,7 @@ function ProjectDetailPage() {
 
               <div>
                 <dt className="label-xs text-muted-foreground uppercase">Fabrication Studio</dt>
-                <dd className="mt-1 font-semibold text-foreground">House of Shakya</dd>
+                <dd className="mt-1 font-semibold text-foreground">Metal Work Nepal</dd>
               </div>
             </dl>
 

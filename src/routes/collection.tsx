@@ -16,9 +16,9 @@ import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Railing Collection | House of Shakya";
+const title = "Railing Collection | Metal Work Nepal";
 const description =
-  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from House of Shakya.";
+  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from Metal Work Nepal.";
 
 export const Route = createFileRoute("/collection")({
   head: () => ({

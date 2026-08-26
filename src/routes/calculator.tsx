@@ -13,9 +13,9 @@ import { calculateRailingEstimate, formatArea, type RailingTypeSlug } from "@/ut
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Price Calculator | House of Shakya";
+const title = "Price Calculator | Metal Work Nepal";
 const description =
-  "Instant area and price calculation for Balcony and Staircase boundary railings from House of Shakya.";
+  "Instant area and price calculation for Balcony and Staircase boundary railings from Metal Work Nepal.";
 
 export const Route = createFileRoute("/calculator")({
   head: () => ({
@@ -316,7 +316,7 @@ function CalculatorPage() {
       </div>
 
       <div className="max-w-3xl">
-        <p className="label-xs text-bronze">House of Shakya — Railing Studio</p>
+        <p className="label-xs text-bronze">Metal Work Nepal — Railing Studio</p>
         <h1 className="mt-3 text-3xl leading-[1.1] tracking-tight md:text-5xl">
           CALCULATE YOUR RAILING ESTIMATE
         </h1>
@@ -756,7 +756,7 @@ function CalculatorPage() {
               <p className="font-semibold text-foreground tracking-wider uppercase text-[0.65rem] mb-1">
                 ESTIMATE ONLY
               </p>
-              Final pricing and measurements will be confirmed by House of Shakya after reviewing the project and taking final site measurements.
+              Final pricing and measurements will be confirmed by Metal Work Nepal after reviewing the project and taking final site measurements.
             </div>
 
             {/* Primary Action Button */}

@@ -300,7 +300,7 @@ async function createTables() {
     await query(`
       CREATE TABLE IF NOT EXISTS settings (
         id TEXT PRIMARY KEY DEFAULT 'default',
-        company_name TEXT NOT NULL DEFAULT 'House of Shakya',
+        company_name TEXT NOT NULL DEFAULT 'Metal Work Nepal',
         studio_name TEXT NOT NULL DEFAULT 'Railing Studio',
         whatsapp_number TEXT NOT NULL DEFAULT '9779843935689',
         phone TEXT NOT NULL DEFAULT '+977 984-3935689',
@@ -376,7 +376,7 @@ async function seedInitialData() {
     // 2. Seed Admin
     const admins = await query("SELECT id FROM admins LIMIT 1");
     if (!admins || admins.length === 0) {
-      const defaultPassword = process.env.ADMIN_PASSWORD || "ShakyaAdmin2026!";
+      const defaultPassword = process.env.ADMIN_PASSWORD || "MetalAdmin2026!";
       const passwordHash = await bcrypt.hash(defaultPassword, 10);
       await query(
         "INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)",
@@ -393,7 +393,7 @@ async function seedInitialData() {
          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [
           "default",
-          "House of Shakya",
+          "Metal Work Nepal",
           "Railing Studio",
           "9779843935689",
           "+977 984-3935689",
@@ -407,6 +407,8 @@ async function seedInitialData() {
         ]
       );
       console.log("Default settings initialized.");
+    } else {
+      await query("UPDATE settings SET company_name = 'Metal Work Nepal' WHERE id = 'default' AND company_name = 'House of Shakya'");
     }
 
     // 4. Seed Products from JSON file

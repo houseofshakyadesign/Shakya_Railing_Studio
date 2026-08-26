@@ -1,6 +1,6 @@
-# Vercel Deployment Guide — House of Shakya Railing Studio
+# Vercel Deployment Guide — Metal Work Nepal Railing Studio
 
-This document provides quick reference instructions for deploying and managing the **House of Shakya — Railing Studio** on Vercel.
+This document provides quick reference instructions for deploying and managing the **Metal Work Nepal — Railing Studio** on Vercel.
 
 ---
 

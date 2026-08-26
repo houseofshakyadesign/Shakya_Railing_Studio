@@ -7,9 +7,9 @@ import { Reveal, EASE } from "@/components/Reveal";
 import { ProjectCard } from "@/components/ProjectCard";
 import { FinalCTA } from "@/components/FinalCTA";
 
-const title = "Completed Projects | House of Shakya Railing Studio";
+const title = "Completed Projects | Metal Work Nepal — Railing Studio";
 const description =
-  "Explore completed railing and architectural metalwork projects crafted by House of Shakya across Nepal. High-end balcony, staircase, and custom fabrication installations.";
+  "Explore completed railing and architectural metalwork projects crafted by Metal Work Nepal across Nepal. High-end balcony, staircase, and custom fabrication installations.";
 
 export const Route = createFileRoute("/projects/")({
   head: () => ({
@@ -40,7 +40,7 @@ function ProjectsPage() {
         <div className="absolute inset-0">
           <img
             src="/images/railings/hero.jpg"
-            alt="House of Shakya Completed Projects"
+            alt="Metal Work Nepal Completed Projects"
             className="h-full w-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-charcoal via-charcoal/65 to-charcoal/25" />
@@ -72,7 +72,7 @@ function ProjectsPage() {
             className="mt-5 max-w-xl text-sm leading-relaxed text-ivory/70 sm:text-base"
           >
             Selected architectural metalwork and custom railing installations engineered and executed by
-            House of Shakya across private residences and contemporary spaces.
+            Metal Work Nepal across private residences and contemporary spaces.
           </motion.p>
 
           <motion.div

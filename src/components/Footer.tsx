@@ -12,11 +12,11 @@ export function Footer() {
           <div className="flex items-center gap-3.5">
             <img
               src="/logo/house-of-shakya-logo-dark.png"
-              alt="House of Shakya Railing Studio"
+              alt="Metal Work Nepal — Railing Studio"
               className="h-10 w-10 shrink-0 rounded-sm object-contain"
             />
             <div>
-              <p className="text-sm font-extrabold tracking-[0.24em] uppercase">House of Shakya</p>
+              <p className="text-sm font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
               <p className="mt-0.5 text-[0.65rem] font-bold tracking-[0.3em] text-bronze uppercase">
                 Railing Studio
               </p>
@@ -82,7 +82,7 @@ export function Footer() {
       </div>
       <div className="border-t border-hairline">
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-5 py-6 text-[0.7rem] tracking-[0.14em] text-muted-foreground uppercase md:flex-row md:items-center md:justify-between md:px-10">
-          <p>© {new Date().getFullYear()} House of Shakya. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} Metal Work Nepal. All rights reserved.</p>
           <p>Estimates are indicative and confirmed after site review.</p>
         </div>
       </div>
