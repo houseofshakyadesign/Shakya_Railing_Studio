@@ -99,7 +99,7 @@ export function Lightbox({
                 controls
                 autoPlay
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="max-h-[75vh] max-w-full object-contain shadow-lift"
               >
                 <source src={current.mediaUrl} type="video/mp4" />

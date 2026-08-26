@@ -179,7 +179,7 @@ function ProjectDetailPage() {
                 poster={videoMedia.thumbnailUrl || project.coverImage}
                 controls
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="h-full w-full object-cover"
               >
                 <source src={videoMedia.mediaUrl} type="video/mp4" />
