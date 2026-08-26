@@ -375,12 +375,13 @@ async function seedInitialData() {
     // 2. Seed Admin
     const admins = await query("SELECT id FROM admins LIMIT 1");
     if (!admins || admins.length === 0) {
-      const passwordHash = await bcrypt.hash("ShakyaAdmin2026!", 10);
+      const defaultPassword = process.env.ADMIN_PASSWORD || "ShakyaAdmin2026!";
+      const passwordHash = await bcrypt.hash(defaultPassword, 10);
       await query(
         "INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)",
         ["admin-01", "admin@metalworknepal.com", passwordHash]
       );
-      console.log("👤 Default Admin created: admin@metalworknepal.com / ShakyaAdmin2026!");
+      console.log("👤 Default Admin created: admin@metalworknepal.com");
     }
 
     // 3. Seed Settings

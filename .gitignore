@@ -34,6 +34,8 @@ dist-ssr
 .vercel
 .env
 .env*.local
+server/.env
+server/.env*.local
 
 # Large media files
 *.mp4

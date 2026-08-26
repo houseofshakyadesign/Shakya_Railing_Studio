@@ -146,6 +146,34 @@ export const api = {
   },
 
   upload: {
+    media: async (file: File): Promise<{ success: boolean; url: string; filename: string; mediaType: "image" | "video" }> => {
+      const url = `${API_BASE}/upload`;
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const headers: Record<string, string> = {
+        ...getAuthHeader(),
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      if (!res.ok) {
+        let errorMsg = `Upload failed: ${res.statusText}`;
+        try {
+          const json = await res.json();
+          if (json.error) errorMsg = json.error;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(errorMsg);
+      }
+
+      return res.json();
+    },
     image: async (file: File): Promise<{ success: boolean; url: string; filename: string }> => {
       const url = `${API_BASE}/upload`;
       const formData = new FormData();
@@ -163,6 +191,34 @@ export const api = {
 
       if (!res.ok) {
         let errorMsg = `Upload failed: ${res.statusText}`;
+        try {
+          const json = await res.json();
+          if (json.error) errorMsg = json.error;
+        } catch {
+          /* ignore */
+        }
+        throw new Error(errorMsg);
+      }
+
+      return res.json();
+    },
+    video: async (file: File): Promise<{ success: boolean; url: string; filename: string }> => {
+      const url = `${API_BASE}/upload`;
+      const formData = new FormData();
+      formData.append("video", file);
+
+      const headers: Record<string, string> = {
+        ...getAuthHeader(),
+      };
+
+      const res = await fetch(url, {
+        method: "POST",
+        headers,
+        body: formData,
+      });
+
+      if (!res.ok) {
+        let errorMsg = `Video upload failed: ${res.statusText}`;
         try {
           const json = await res.json();
           if (json.error) errorMsg = json.error;

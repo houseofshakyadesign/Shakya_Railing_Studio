@@ -4,7 +4,10 @@ import jwt from "jsonwebtoken";
 import { query } from "../db.js";
 
 export const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || "metalwork_nepal_jwt_secret_key_2026";
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error("FATAL: JWT_SECRET environment variable is not set. Authentication will not work.");
+}
 
 // Middleware to protect admin routes
 export function requireAuth(req, res, next) {
@@ -47,7 +50,7 @@ router.post("/login", async (req, res) => {
     const token = jwt.sign(
       { id: admin.id, email: admin.email },
       JWT_SECRET,
-      { expiresIn: "7d" }
+      { expiresIn: "24h" }
     );
 
     return res.json({

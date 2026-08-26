@@ -17,7 +17,6 @@ export type Settings = {
   instagram: string;
   tiktok: string;
   website: string;
-  adminPassword: string;
 };
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -32,7 +31,6 @@ export const DEFAULT_SETTINGS: Settings = {
   instagram: "https://www.instagram.com/metalwork.nepal?igsi=MWg2cTdxNzY1NmFnag==",
   tiktok: "https://www.tiktok.com/@metalworknepal?_r=1&_t=ZS-99CUIO2Y89o",
   website: "https://metalworknepal.com",
-  adminPassword: "shakya2026",
 };
 
 export const STORAGE_KEYS = {

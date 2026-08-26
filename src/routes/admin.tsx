@@ -80,21 +80,13 @@ function AdminPage() {
       if (res?.token) {
         localStorage.setItem("metalWorkNepal_adminToken", res.token);
         sessionStorage.setItem("metalWorkNepal_adminToken", res.token);
-        sessionStorage.setItem(STORAGE_KEYS.admin, "1");
         setCurrentUserEmail(res.admin?.email || email);
         setUnlocked(true);
         toast.success("Welcome, Studio Admin");
         void studio.refreshFromCloud();
       }
     } catch (err: any) {
-      if (pw === studio.settings.adminPassword || pw === "ShakyaAdmin2026!") {
-        sessionStorage.setItem(STORAGE_KEYS.admin, "1");
-        setCurrentUserEmail(email);
-        setUnlocked(true);
-        toast.success("Welcome, Studio Admin");
-      } else {
-        setPwError(err?.message || "Invalid credentials.");
-      }
+      setPwError(err?.message || "Invalid credentials.");
     } finally {
       setLoggingIn(false);
     }
@@ -842,12 +834,30 @@ function ProjectEditor({
 }) {
   const [draft, setDraft] = useState<import("@/data/projects").Project | null>(project);
   const [saving, setSaving] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
+  const [uploadingGallery, setUploadingGallery] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string>("");
+  const [videoUrlInput, setVideoUrlInput] = useState("");
   const [newMediaUrl, setNewMediaUrl] = useState("");
   const [newMediaCaption, setNewMediaCaption] = useState("");
   const [newMediaType, setNewMediaType] = useState<"image" | "video">("image");
+  
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
+
+  const PRELOADED_VIDEOS = [
+    { label: "Budhanilkantha Railing (H.264 FastStart)", url: "/videos/railings/budhanilkantha-railing.mp4" },
+    { label: "Imadole Railing (H.264 FastStart)", url: "/videos/railings/imadole-railing.mp4" },
+    { label: "Skylight Time (H.264 FastStart)", url: "/videos/railings/skylight-time.mp4" },
+    { label: "Bhaisepati Railing (4K / H.264)", url: "/videos/railings/bhaisepati-railing.mp4" },
+    { label: "Naxal Railing (4K / H.264)", url: "/videos/railings/naxal-railing.mp4" },
+    { label: "Dhapasi Railing (Staircase / H.264)", url: "/videos/railings/dhapasi-railing.mp4" },
+  ];
+
+  const currentVideo = draft?.media?.find((m) => m.mediaType === "video");
 
   useEffect(() => {
     setDraft(project);
@@ -855,6 +865,8 @@ function ProjectEditor({
     setPreviewUrl(project?.coverImage || "");
     setNewMediaUrl("");
     setNewMediaCaption("");
+    const existingVideo = project?.media?.find((m) => m.mediaType === "video");
+    setVideoUrlInput(existingVideo?.mediaUrl || "");
   }, [project]);
 
   if (!project || !draft) return null;
@@ -862,13 +874,99 @@ function ProjectEditor({
   const set = <K extends keyof import("@/data/projects").Project>(k: K, v: import("@/data/projects").Project[K]) =>
     setDraft((d) => (d ? { ...d, [k]: v } : d));
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setSelectedFile(file);
     const objectUrl = URL.createObjectURL(file);
     setPreviewUrl(objectUrl);
-    toast.success("Cover image selected for upload");
+    toast.success("Cover image selected");
+  };
+
+  const handleVideoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadingVideo(true);
+    toast.loading("Uploading project video...", { id: "video-upload" });
+
+    try {
+      const res = await api.upload.video(file);
+      if (res?.url) {
+        setProjectVideo(res.url, `${draft.title || "Project"} Live Video`);
+        setVideoUrlInput(res.url);
+        toast.success("Video uploaded and linked to project!", { id: "video-upload" });
+      }
+    } catch (err: any) {
+      console.error("Video upload error:", err);
+      toast.error(err.message || "Failed to upload video file", { id: "video-upload" });
+    } finally {
+      setUploadingVideo(false);
+      if (videoInputRef.current) videoInputRef.current.value = "";
+    }
+  };
+
+  const handleGalleryPhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setUploadingGallery(true);
+    toast.loading(`Uploading ${files.length} gallery photo(s)...`, { id: "gallery-upload" });
+
+    try {
+      const newItems: import("@/data/projects").ProjectMedia[] = [];
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        if (!file) continue;
+        const res = await api.upload.image(file);
+        if (res?.url) {
+          newItems.push({
+            id: `pm-${draft.id}-${Date.now()}-${i}`,
+            projectId: draft.id,
+            mediaType: "image",
+            mediaUrl: res.url,
+            thumbnailUrl: res.url,
+            caption: file.name.replace(/\.[^/.]+$/, "").replace(/[-_]/g, " "),
+            displayOrder: (draft.media?.length || 0) + i + 1,
+          });
+        }
+      }
+
+      setDraft((prev) => (prev ? { ...prev, media: [...(prev.media || []), ...newItems] } : prev));
+      toast.success("Gallery photos added successfully!", { id: "gallery-upload" });
+    } catch (err: any) {
+      toast.error(err.message || "Failed to upload gallery images", { id: "gallery-upload" });
+    } finally {
+      setUploadingGallery(false);
+      if (galleryInputRef.current) galleryInputRef.current.value = "";
+    }
+  };
+
+  const setProjectVideo = (url: string, caption = "") => {
+    if (!url.trim()) return;
+    const cleanUrl = url.trim();
+    const otherMedia = (draft.media || []).filter((m) => m.mediaType !== "video");
+    const videoItem: import("@/data/projects").ProjectMedia = {
+      id: currentVideo?.id || `pm-v-${draft.id}-${Date.now()}`,
+      projectId: draft.id,
+      mediaType: "video",
+      mediaUrl: cleanUrl,
+      thumbnailUrl: draft.coverImage || previewUrl,
+      caption: caption || currentVideo?.caption || `${draft.title} Walkthrough Video`,
+      displayOrder: 0,
+    };
+
+    setDraft((prev) => (prev ? { ...prev, media: [videoItem, ...otherMedia] } : prev));
+    setVideoUrlInput(cleanUrl);
+    toast.success("Project video updated");
+  };
+
+  const removeProjectVideo = () => {
+    setDraft((prev) =>
+      prev ? { ...prev, media: (prev.media || []).filter((m) => m.mediaType !== "video") } : prev
+    );
+    setVideoUrlInput("");
+    toast.info("Video removed from project");
   };
 
   const handleAddMedia = () => {
@@ -932,7 +1030,7 @@ function ProjectEditor({
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed inset-0 z-[80] overflow-y-auto bg-charcoal/55 p-4 backdrop-blur-sm"
+        className="fixed inset-0 z-[80] overflow-y-auto bg-charcoal/60 p-4 backdrop-blur-sm"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -944,29 +1042,35 @@ function ProjectEditor({
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: 16 }}
           transition={{ duration: 0.28, ease: EASE }}
-          className="mx-auto my-12 w-full max-w-3xl bg-background p-8 shadow-lift"
+          className="mx-auto my-8 w-full max-w-4xl bg-background p-6 md:p-10 shadow-lift border border-hairline"
         >
-          <div className="flex items-start justify-between">
+          <div className="flex items-start justify-between border-b border-hairline pb-4">
             <div>
-              <h2 className="text-xl tracking-tight">
+              <span className="label-xs text-bronze uppercase">Portfolio Editor</span>
+              <h2 className="text-xl font-bold tracking-tight md:text-2xl mt-1">
                 {draft.title ? `Edit ${draft.title}` : "New Portfolio Project"}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Manage project metadata, cover photography, and attached media.
+                Manage project metadata, live autoplay videos, and architectural photo documentation.
               </p>
             </div>
-            <button type="button" onClick={onClose} aria-label="Close">
-              <X className="h-4 w-4" />
+            <button
+              type="button"
+              onClick={onClose}
+              className="p-2 text-muted-foreground hover:text-foreground"
+              aria-label="Close"
+            >
+              <X className="h-5 w-5" />
             </button>
           </div>
 
-          <div className="mt-8 grid gap-5 sm:grid-cols-2">
+          <div className="mt-7 grid gap-6 sm:grid-cols-2">
             <Field id="pr-title" label="Project Title *">
               <input
                 className={inputClass}
                 value={draft.title}
                 onChange={(e) => set("title", e.target.value)}
-                placeholder="e.g. Bhaisepati Railing"
+                placeholder="e.g. Budhanilkantha Railing"
                 required
               />
             </Field>
@@ -976,7 +1080,7 @@ function ProjectEditor({
                 className={inputClass}
                 value={draft.slug}
                 onChange={(e) => set("slug", e.target.value)}
-                placeholder="e.g. bhaisepati-railing"
+                placeholder="e.g. budhanilkantha-railing"
                 required
               />
             </Field>
@@ -986,7 +1090,7 @@ function ProjectEditor({
                 className={inputClass}
                 value={draft.location}
                 onChange={(e) => set("location", e.target.value)}
-                placeholder="e.g. Bhaisepati, Lalitpur"
+                placeholder="e.g. Budhanilkantha, Kathmandu"
               />
             </Field>
 
@@ -1029,10 +1133,144 @@ function ProjectEditor({
               </Field>
             </div>
 
+            {/* 🎥 DEDICATED PROJECT VIDEO MANAGEMENT SECTION */}
+            <div className="sm:col-span-2 border border-bronze/40 bg-card p-5 sm:p-6">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-hairline/60 pb-3">
+                <div className="flex items-center gap-2">
+                  <div className="flex h-8 w-8 items-center justify-center bg-bronze text-ivory">
+                    <VideoIcon className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-bold uppercase tracking-wider">Project Video & Autoplay Stream</h3>
+                    <p className="text-[0.68rem] text-muted-foreground">
+                      This video autoplays in the 4:3 catalogue card and displays as the live walkthrough video.
+                    </p>
+                  </div>
+                </div>
+
+                {currentVideo ? (
+                  <span className="inline-flex items-center gap-1.5 border border-success/40 bg-success/10 px-2.5 py-1 text-[0.62rem] font-bold text-success uppercase">
+                    <span className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />
+                    Live Video Active
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1.5 border border-hairline bg-sand/60 px-2.5 py-1 text-[0.62rem] text-muted-foreground uppercase">
+                    No Video (Cover Image Only)
+                  </span>
+                )}
+              </div>
+
+              {/* Video Player Preview & Controls */}
+              <div className="mt-5 grid gap-5 md:grid-cols-12 items-start">
+                <div className="md:col-span-5 aspect-[4/3] bg-charcoal relative overflow-hidden border border-hairline">
+                  {currentVideo ? (
+                    <video
+                      key={currentVideo.mediaUrl}
+                      src={currentVideo.mediaUrl}
+                      poster={draft.coverImage || previewUrl}
+                      controls
+                      muted
+                      playsInline
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <div className="h-full w-full flex flex-col items-center justify-center p-4 text-center text-ivory/60 bg-charcoal/80">
+                      <VideoIcon className="h-8 w-8 text-bronze/60 mb-2" />
+                      <p className="text-xs font-semibold text-ivory">No Video Attached</p>
+                      <p className="text-[0.68rem] text-ivory/50 mt-1">
+                        Upload or select a video below to enable continuous autoplay.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="md:col-span-7 space-y-4">
+                  {/* Option A: Direct Video Upload */}
+                  <div>
+                    <label className="block text-[0.68rem] font-bold tracking-[0.16em] uppercase text-bronze mb-1.5">
+                      1. Upload Video File (MP4, MOV, WebM up to 250MB)
+                    </label>
+                    <input
+                      ref={videoInputRef}
+                      type="file"
+                      accept="video/mp4,video/quicktime,video/webm"
+                      onChange={handleVideoUpload}
+                      className="hidden"
+                    />
+                    <div className="flex flex-wrap items-center gap-3">
+                      <button
+                        type="button"
+                        disabled={uploadingVideo}
+                        onClick={() => videoInputRef.current?.click()}
+                        className="inline-flex items-center gap-2 bg-charcoal text-ivory px-4 py-2.5 text-[0.68rem] font-bold tracking-[0.16em] uppercase hover:bg-bronze transition-colors disabled:opacity-50"
+                      >
+                        <Upload className="h-3.5 w-3.5" />
+                        {uploadingVideo ? "Uploading Video..." : currentVideo ? "Replace Video File" : "Upload Video File"}
+                      </button>
+                      {currentVideo && (
+                        <button
+                          type="button"
+                          onClick={removeProjectVideo}
+                          className="inline-flex items-center gap-1.5 border border-destructive/40 text-destructive px-3 py-2 text-[0.65rem] tracking-[0.14em] uppercase hover:bg-destructive/10 transition-colors"
+                        >
+                          <Trash2 className="h-3 w-3" /> Remove Video
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Option B: Preloaded Railing Video Quick Select */}
+                  <div className="pt-2 border-t border-hairline/60">
+                    <label className="block text-[0.68rem] font-bold tracking-[0.16em] uppercase text-muted-foreground mb-1.5">
+                      2. Or Select from Preloaded Studio Videos
+                    </label>
+                    <select
+                      className={inputClass}
+                      value={currentVideo?.mediaUrl || ""}
+                      onChange={(e) => {
+                        if (e.target.value) {
+                          setProjectVideo(e.target.value);
+                        }
+                      }}
+                    >
+                      <option value="">-- Choose Preloaded Studio Video --</option>
+                      {PRELOADED_VIDEOS.map((pv) => (
+                        <option key={pv.url} value={pv.url}>
+                          {pv.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  {/* Option C: Direct URL / CDN Input */}
+                  <div className="pt-2 border-t border-hairline/60">
+                    <label className="block text-[0.68rem] font-bold tracking-[0.16em] uppercase text-muted-foreground mb-1.5">
+                      3. Or Enter Custom Video URL / CDN Link
+                    </label>
+                    <div className="flex gap-2">
+                      <input
+                        className={inputClass}
+                        value={videoUrlInput}
+                        onChange={(e) => setVideoUrlInput(e.target.value)}
+                        placeholder="https://... or /videos/railings/your-video.mp4"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setProjectVideo(videoUrlInput)}
+                        className="bg-charcoal text-ivory px-4 py-2 text-[0.65rem] font-bold tracking-[0.16em] uppercase hover:bg-bronze shrink-0"
+                      >
+                        Apply
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             {/* Cover Image Upload */}
             <div className="sm:col-span-2">
-              <label className="mb-2 block text-[0.68rem] tracking-[0.16em] uppercase text-muted-foreground">
-                Cover Image
+              <label className="mb-2 block text-[0.68rem] tracking-[0.16em] uppercase text-muted-foreground font-bold">
+                Cover Photo (Poster Image)
               </label>
               <div className="flex flex-col sm:flex-row gap-5 items-start border border-hairline bg-card p-4">
                 <div className="relative w-full sm:w-44 h-36 shrink-0 bg-background border border-hairline overflow-hidden">
@@ -1045,12 +1283,12 @@ function ProjectEditor({
                     </div>
                   )}
                 </div>
-                <div className="flex-1 space-y-3">
+                <div className="flex-1 space-y-3 w-full">
                   <input
                     ref={fileInputRef}
                     type="file"
                     accept="image/*"
-                    onChange={handleFileChange}
+                    onChange={handleCoverFileChange}
                     className="hidden"
                   />
                   <button
@@ -1073,14 +1311,37 @@ function ProjectEditor({
               </div>
             </div>
 
-            {/* Project Media Management */}
+            {/* Project Photo Gallery & Media Management */}
             <div className="sm:col-span-2 border-t border-hairline pt-6">
-              <p className="label-xs text-bronze uppercase">Project Media & Gallery ({draft.media?.length || 0})</p>
-              <p className="mt-1 text-xs text-muted-foreground">
-                Images and videos strictly associated with this project.
-              </p>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="label-xs text-bronze uppercase">Photo Gallery Documentation ({draft.media?.length || 0})</p>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    High-resolution photos displayed in the project lightbox gallery.
+                  </p>
+                </div>
+                <div>
+                  <input
+                    ref={galleryInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleGalleryPhotoUpload}
+                    className="hidden"
+                  />
+                  <button
+                    type="button"
+                    disabled={uploadingGallery}
+                    onClick={() => galleryInputRef.current?.click()}
+                    className="inline-flex items-center gap-2 border border-bronze/60 bg-bronze/10 text-bronze px-4 py-2 text-[0.68rem] tracking-[0.16em] uppercase hover:bg-bronze hover:text-ivory transition-colors disabled:opacity-50"
+                  >
+                    <Upload className="h-3.5 w-3.5" />
+                    {uploadingGallery ? "Uploading Photos..." : "Upload Gallery Photos"}
+                  </button>
+                </div>
+              </div>
 
-              {/* Add New Media Row */}
+              {/* Add Custom Media Row (Manual URL) */}
               <div className="mt-4 grid gap-3 sm:grid-cols-12 bg-card border border-hairline p-4">
                 <div className="sm:col-span-3">
                   <select
@@ -1113,7 +1374,7 @@ function ProjectEditor({
                     type="button"
                     onClick={handleAddMedia}
                     className="w-full h-full bg-charcoal text-ivory flex items-center justify-center hover:bg-bronze"
-                    title="Add Media"
+                    title="Add Media Item"
                   >
                     <Plus className="h-4 w-4" />
                   </button>
@@ -1122,7 +1383,7 @@ function ProjectEditor({
 
               {/* Current Media List */}
               {draft.media && draft.media.length > 0 ? (
-                <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto p-1 border border-hairline/40">
                   {draft.media.map((m) => (
                     <div key={m.id} className="flex items-center gap-3 border border-hairline bg-background p-3">
                       {m.mediaType === "video" ? (
@@ -1133,8 +1394,13 @@ function ProjectEditor({
                         <img src={m.mediaUrl} alt="" className="h-14 w-14 shrink-0 object-cover" />
                       )}
                       <div className="min-w-0 flex-1">
-                        <span className="label-xs text-bronze uppercase">{m.mediaType}</span>
-                        <p className="truncate text-xs">{m.caption || m.mediaUrl}</p>
+                        <div className="flex items-center gap-2">
+                          <span className="label-xs text-bronze uppercase">{m.mediaType}</span>
+                          {m.displayOrder === 0 && (
+                            <span className="text-[0.6rem] bg-bronze/10 text-bronze px-1 font-bold">HERO</span>
+                          )}
+                        </div>
+                        <p className="truncate text-xs mt-0.5">{m.caption || m.mediaUrl}</p>
                       </div>
                       <button
                         type="button"
@@ -1151,7 +1417,7 @@ function ProjectEditor({
             </div>
           </div>
 
-          <div className="mt-6 flex items-center gap-6">
+          <div className="mt-6 flex items-center gap-6 border-t border-hairline pt-4">
             <label className="flex items-center gap-3 text-sm">
               <input
                 type="checkbox"
