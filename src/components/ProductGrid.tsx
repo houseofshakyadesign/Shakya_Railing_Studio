@@ -50,8 +50,8 @@ export function ProductGrid({
     if (onAfterSelect) {
       onAfterSelect(p);
     } else {
-      toast.success(`${p.code} selected`, { description: "Opening calculator..." });
-      navigate({ to: "/calculator" });
+      toast.success(`${p.code} selected`, { description: "Opening calculation section..." });
+      navigate({ to: "/collection", hash: "calculator" });
     }
   }, [handleSelect, onAfterSelect, navigate]);
 
@@ -154,7 +154,7 @@ export function ProductGrid({
           if (onAfterSelect) {
             onAfterSelect(p);
           } else {
-            navigate({ to: "/calculator" });
+            navigate({ to: "/collection", hash: "calculator" });
           }
         }}
       />

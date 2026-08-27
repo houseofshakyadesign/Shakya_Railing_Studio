@@ -135,6 +135,29 @@ function CollectionPage() {
     );
   }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
 
+  // Auto-select fallback if none selected
+  useEffect(() => {
+    if (!selectedId && products.length > 0) {
+      const active = products.find((p) => p.isActive !== false) || products[0];
+      if (active) selectProduct(active.id);
+    }
+  }, [selectedId, products, selectProduct]);
+
+  // Handle #calculator hash navigation
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.location.hash === "#calculator") {
+      setTimeout(() => {
+        const el = document.getElementById("calculator");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        setTimeout(() => {
+          lengthInputRef.current?.focus();
+        }, 400);
+      }, 250);
+    }
+  }, [selectedProduct]);
+
   // Called when a product card's "Select & Calculate" is clicked
   const handleAfterSelect = useCallback((p: Product) => {
     selectProduct(p.id);
