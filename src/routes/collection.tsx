@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Send, ArrowRight } from "lucide-react";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -135,24 +135,13 @@ function CollectionPage() {
     );
   }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
 
+  const navigate = useNavigate();
+
   // Called when a product card's "Select & Calculate" is clicked
   const handleAfterSelect = useCallback((p: Product) => {
-    setLength("20");
-    setErrors({});
-    setSubmitted(null);
-
-    // Show inline confirmation
-    setJustSelected(true);
-    setTimeout(() => setJustSelected(false), 4500);
-
-    // Smooth-scroll to calculator section
-    setTimeout(() => {
-      calcRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(() => {
-        lengthInputRef.current?.focus();
-      }, 500);
-    }, 150);
-  }, []);
+    selectProduct(p.id);
+    navigate({ to: "/calculator" });
+  }, [selectProduct, navigate]);
 
   const setField = (k: keyof FormState, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));

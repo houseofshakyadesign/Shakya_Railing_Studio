@@ -7,6 +7,7 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 
 const NAV = [
   { label: "Collection", to: "/collection" },
+  { label: "Calculator", to: "/calculator" },
   { label: "Projects", to: "/projects" },
   { label: "How It Works", to: "/how-it-works" },
   { label: "About", to: "/about" },
