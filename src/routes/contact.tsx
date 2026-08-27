@@ -433,7 +433,7 @@ function ContactPage() {
                               onChange={(e) => setField("location", e.target.value)}
                               maxLength={120}
                               className={errors.location ? errorInputClass : inputClass}
-                              placeholder="e.g. Bhaisepati, Lalitpur"
+                              placeholder="Project Location / Area"
                             />
                           </Field>
                         </div>
