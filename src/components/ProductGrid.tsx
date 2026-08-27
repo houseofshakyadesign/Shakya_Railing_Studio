@@ -46,19 +46,14 @@ export function ProductGrid({
   }, [selectProduct]);
 
   const handleCardSelect = useCallback((p: Product) => {
-    if (p.id === selectedId) {
-      selectProduct(null);
-      toast.success(`${p.code} deselected`);
-      return;
-    }
     handleSelect(p);
     if (onAfterSelect) {
       onAfterSelect(p);
     } else {
-      toast.success(`${p.code} selected`, { description: p.name });
+      toast.success(`${p.code} selected`, { description: "Opening calculator..." });
       navigate({ to: "/calculator" });
     }
-  }, [selectedId, selectProduct, handleSelect, onAfterSelect, navigate]);
+  }, [handleSelect, onAfterSelect, navigate]);
 
   if (baseProducts.length === 0) {
     return (

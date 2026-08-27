@@ -113,20 +113,19 @@ export const ProductCard = memo(function ProductCard({
             aria-pressed={selected}
             className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
               selected
-                ? "bg-bronze text-ivory hover:bg-destructive"
+                ? "bg-bronze text-ivory hover:bg-charcoal"
                 : "bg-charcoal text-ivory hover:bg-bronze"
             }`}
           >
             {selected ? (
               <>
-                <Check className="h-3 w-3 transition-transform duration-200 group-hover/sel:hidden" strokeWidth={2.5} />
-                <span className="hidden h-3 w-3 items-center justify-center text-[0.6rem] leading-none group-hover/sel:flex">✕</span>
-                <span className="group-hover/sel:hidden">Selected</span>
-                <span className="hidden group-hover/sel:inline">Deselect</span>
+                <Check className="h-3 w-3" strokeWidth={2.5} />
+                <span>Calculate Price</span>
+                <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/sel:translate-x-0.5" />
               </>
             ) : (
               <>
-                Select & Calculate
+                <span>Select & Calculate</span>
                 <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/sel:translate-x-0.5" />
               </>
             )}
