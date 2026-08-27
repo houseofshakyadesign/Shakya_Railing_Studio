@@ -27,11 +27,10 @@ export const ProductCard = memo(function ProductCard({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.55, delay: (index % 3) * 0.07, ease: EASE }}
       whileHover={{ y: -6 }}
-      className={`group relative flex flex-col border bg-card transition-[border-color,box-shadow] duration-300 ${
-        selected
+      className={`group relative flex flex-col border bg-card transition-[border-color,box-shadow] duration-300 ${selected
           ? "border-bronze shadow-lift"
           : "border-hairline shadow-soft hover:border-foreground/25 hover:shadow-lift"
-      }`}
+        }`}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         <img
@@ -111,21 +110,21 @@ export const ProductCard = memo(function ProductCard({
             type="button"
             onClick={() => onSelect(product)}
             aria-pressed={selected}
-            className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
-              selected
-                ? "bg-bronze text-ivory hover:bg-charcoal"
+            className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${selected
+                ? "bg-bronze text-ivory hover:bg-destructive"
                 : "bg-charcoal text-ivory hover:bg-bronze"
-            }`}
+              }`}
           >
             {selected ? (
               <>
-                <Check className="h-3 w-3" strokeWidth={2.5} />
-                <span>Calculate Price</span>
-                <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/sel:translate-x-0.5" />
+                <Check className="h-3 w-3 transition-transform duration-200 group-hover/sel:hidden" strokeWidth={2.5} />
+                <span className="hidden h-3 w-3 items-center justify-center text-[0.6rem] leading-none group-hover/sel:flex">✕</span>
+                <span className="group-hover/sel:hidden">Selected</span>
+                <span className="hidden group-hover/sel:inline">Deselect</span>
               </>
             ) : (
               <>
-                <span>Select & Calculate</span>
+                Select & Calculate
                 <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/sel:translate-x-0.5" />
               </>
             )}

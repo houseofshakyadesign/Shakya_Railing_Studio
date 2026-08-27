@@ -73,8 +73,7 @@ export function Hero() {
             Explore Collection
           </Link>
           <Link
-            to="/collection"
-            hash="calculator"
+            to="/calculator"
             className="border border-ivory/35 px-9 py-4 text-center text-[0.72rem] tracking-[0.22em] text-ivory uppercase transition-colors duration-300 hover:border-ivory hover:bg-ivory/10"
           >
             Calculate Price

@@ -46,14 +46,19 @@ export function ProductGrid({
   }, [selectProduct]);
 
   const handleCardSelect = useCallback((p: Product) => {
+    if (p.id === selectedId) {
+      selectProduct(null);
+      toast.success(`${p.code} deselected`);
+      return;
+    }
     handleSelect(p);
     if (onAfterSelect) {
       onAfterSelect(p);
     } else {
-      toast.success(`${p.code} selected`, { description: "Opening calculation section..." });
-      navigate({ to: "/collection", hash: "calculator" });
+      toast.success(`${p.code} selected`, { description: p.name });
+      navigate({ to: "/calculator" });
     }
-  }, [handleSelect, onAfterSelect, navigate]);
+  }, [selectedId, selectProduct, handleSelect, onAfterSelect, navigate]);
 
   if (baseProducts.length === 0) {
     return (
@@ -85,11 +90,10 @@ export function ProductGrid({
                       key={f.id}
                       type="button"
                       onClick={() => setActiveFilter(f.id)}
-                      className={`shrink-0 px-4 py-2.5 text-[0.68rem] tracking-[0.18em] uppercase transition-all duration-300 font-medium ${
-                        isActive
+                      className={`shrink-0 px-4 py-2.5 text-[0.68rem] tracking-[0.18em] uppercase transition-all duration-300 font-medium ${isActive
                           ? "bg-charcoal text-ivory shadow-sm border border-charcoal"
                           : "bg-transparent text-foreground/75 border border-hairline hover:border-foreground/40 hover:text-foreground"
-                      }`}
+                        }`}
                     >
                       {f.label}
                     </button>
@@ -154,7 +158,7 @@ export function ProductGrid({
           if (onAfterSelect) {
             onAfterSelect(p);
           } else {
-            navigate({ to: "/collection", hash: "calculator" });
+            navigate({ to: "/calculator" });
           }
         }}
       />

@@ -35,9 +35,6 @@ export function Footer() {
           <Link to="/collection" className="w-fit hover:text-bronze">
             Collection
           </Link>
-          <Link to="/calculator" className="w-fit hover:text-bronze">
-            Price Calculator
-          </Link>
           <Link to="/projects" className="w-fit hover:text-bronze">
             Projects
           </Link>

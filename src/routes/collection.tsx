@@ -1,7 +1,7 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import { Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Send, ArrowRight } from "lucide-react";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
 import { FinalCTA } from "@/components/FinalCTA";
@@ -98,6 +98,25 @@ function CollectionPage() {
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const [justSelected, setJustSelected] = useState(false);
 
+  // Active products filter
+  const activeProducts = useMemo(
+    () => products.filter((p) => p.isActive !== false),
+    [products]
+  );
+
+  // Auto-select fallback if none selected
+  const productToUse = useMemo(() => {
+    if (selectedProduct) return selectedProduct;
+    if (activeProducts.length > 0) return activeProducts[0];
+    return null;
+  }, [selectedProduct, activeProducts]);
+
+  useEffect(() => {
+    if (!selectedId && activeProducts.length > 0) {
+      selectProduct(activeProducts[0].id);
+    }
+  }, [selectedId, activeProducts, selectProduct]);
+
   // Measurements
   const [length, setLength] = useState<string>(() => {
     if (typeof window !== "undefined") {
@@ -119,11 +138,11 @@ function CollectionPage() {
   const [submitted, setSubmitted] = useState<Enquiry | null>(null);
 
   const numLength = parseFloat(length);
-  const isCustom = Boolean(selectedProduct?.isCustom);
+  const isCustom = Boolean(productToUse?.isCustom);
 
   const estimate = useMemo(() => {
     const validLength = Number.isFinite(numLength) && numLength > 0 ? numLength : 0;
-    const rate = selectedProduct?.pricePerSqft ?? 0;
+    const rate = productToUse?.pricePerSqft ?? 0;
     const typeLabel = railingType === "staircase" ? "Staircase Railing" : "Balcony Railing";
 
     return calculateRailingEstimate(
@@ -133,17 +152,9 @@ function CollectionPage() {
       isCustom,
       typeLabel,
     );
-  }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
+  }, [numLength, currentStandardHeight, productToUse, isCustom, railingType]);
 
-  // Auto-select fallback if none selected
-  useEffect(() => {
-    if (!selectedId && products.length > 0) {
-      const active = products.find((p) => p.isActive !== false) || products[0];
-      if (active) selectProduct(active.id);
-    }
-  }, [selectedId, products, selectProduct]);
-
-  // Handle #calculator hash navigation
+  // Handle #calculator hash navigation on mount or URL change
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash === "#calculator") {
       setTimeout(() => {
@@ -156,7 +167,7 @@ function CollectionPage() {
         }, 400);
       }, 250);
     }
-  }, [selectedProduct]);
+  }, []);
 
   // Called when a product card's "Select & Calculate" is clicked
   const handleAfterSelect = useCallback((p: Product) => {
@@ -210,7 +221,7 @@ function CollectionPage() {
   }
 
   function buildEnquiry(): Omit<Enquiry, "id" | "createdAt" | "status"> | null {
-    if (!selectedProduct) return null;
+    if (!productToUse) return null;
     return {
       customerName: form.customerName.trim(),
       phone: form.phone.trim(),
@@ -218,15 +229,15 @@ function CollectionPage() {
       location: form.location.trim(),
       projectType: form.projectType,
       railingType: railingType === "staircase" ? "Staircase Railing" : "Balcony Railing",
-      productId: selectedProduct.id,
-      productCode: selectedProduct.code,
-      productName: selectedProduct.name,
-      material: selectedProduct.material,
+      productId: productToUse.id,
+      productCode: productToUse.code,
+      productName: productToUse.name,
+      material: productToUse.material,
       isCustom,
       lengthFt: estimate.length,
       heightFt: currentStandardHeight,
       estimatedAreaSqft: estimate.area,
-      rate: isCustom ? 0 : selectedProduct.pricePerSqft,
+      rate: isCustom ? 0 : productToUse.pricePerSqft,
       estimatedPrice: isCustom ? 0 : estimate.total,
       estimatedTotal: isCustom ? 0 : estimate.total,
       additionalRequirements: form.additionalRequirements.trim(),
@@ -280,7 +291,7 @@ function CollectionPage() {
         className="scroll-mt-24 border-t border-hairline bg-sand/40"
       >
         <div className="mx-auto max-w-[1440px] px-5 py-20 md:px-10 md:py-28">
-          {!selectedProduct ? (
+          {!productToUse ? (
             /* Empty state: prompt to select */
             <div className="mx-auto max-w-xl border border-dashed border-hairline bg-background px-8 py-20 text-center">
               <p className="label-xs text-bronze">01 SELECT</p>
@@ -324,7 +335,7 @@ function CollectionPage() {
                         Great choice. Let's calculate your railing.
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {selectedProduct.code} — {selectedProduct.name}
+                        {productToUse.code} — {productToUse.displayName || productToUse.name}
                       </p>
                     </div>
                   </motion.div>
@@ -341,7 +352,7 @@ function CollectionPage() {
                 </p>
               </div>
 
-              {/* Application Type Selector in Collection Page */}
+              {/* Application Type Selector */}
               <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-xl">
                 <button
                   type="button"
@@ -391,55 +402,60 @@ function CollectionPage() {
               <div className="mt-12 grid gap-10 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
                 {/* LEFT: selected railing + measurements + form */}
                 <div>
-                  {/* Selected railing card */}
-                  <div className="flex gap-5 border border-hairline bg-background p-5">
+                  {/* Selected railing card with model switcher */}
+                  <div className="flex flex-col gap-4 border border-hairline bg-background p-5 sm:flex-row sm:gap-5">
                     <img
-                      src={selectedProduct.image}
-                      alt={selectedProduct.name}
+                      src={productToUse.image}
+                      alt={productToUse.name}
                       loading="lazy"
                       className="h-28 w-24 shrink-0 object-cover"
                     />
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center justify-between">
-                        <p className="label-xs text-bronze">{selectedProduct.code}</p>
+                        <p className="label-xs text-bronze">{productToUse.code}</p>
                         <span className="text-[0.62rem] tracking-wider text-muted-foreground uppercase">
                           {railingType === "staircase" ? "Staircase" : "Balcony"}
                         </span>
                       </div>
-                      {selectedProduct.nepaliName ? (
-                        <p className="mt-1 text-xs font-medium text-bronze">{selectedProduct.nepaliName}</p>
+                      {productToUse.nepaliName ? (
+                        <p className="mt-1 text-xs font-medium text-bronze">{productToUse.nepaliName}</p>
                       ) : null}
                       <h3 className="mt-0.5 text-lg leading-snug tracking-tight">
-                        {selectedProduct.displayName || selectedProduct.name}
+                        {productToUse.displayName || productToUse.name}
                       </h3>
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {selectedProduct.material}
+                        {productToUse.material}
                       </p>
                       <p className="mt-3 text-sm font-semibold">
                         {isCustom
                           ? "Custom Quote"
-                          : `${formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.`}
+                          : `${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`}
                       </p>
-                      <div className="mt-3 flex items-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-                          className="text-[0.68rem] tracking-[0.18em] text-muted-foreground uppercase underline-offset-4 hover:text-bronze hover:underline"
-                        >
-                          Change railing
-                        </button>
-                        <span className="text-hairline">|</span>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            selectProduct(null);
-                            window.scrollTo({ top: 0, behavior: "smooth" });
-                            toast.success("Selection cleared");
-                          }}
-                          className="text-[0.68rem] tracking-[0.18em] text-destructive/70 uppercase underline-offset-4 hover:text-destructive hover:underline"
-                        >
-                          Deselect
-                        </button>
+
+                      {/* In-place Model Switcher */}
+                      <div className="mt-4 border-t border-hairline/80 pt-3">
+                        <label htmlFor="col-model-select" className="block text-[0.65rem] font-bold tracking-wider uppercase text-muted-foreground">
+                          SWITCH RAILING MODEL:
+                        </label>
+                        <div className="relative mt-1.5">
+                          <select
+                            id="col-model-select"
+                            value={productToUse.id}
+                            onChange={(e) => {
+                              selectProduct(e.target.value);
+                              setSubmitted(null);
+                              toast.success("Railing model switched");
+                            }}
+                            className="w-full appearance-none border border-hairline bg-sand/30 px-3 py-2.5 pr-8 text-xs font-medium text-foreground focus:border-bronze focus:outline-none"
+                          >
+                            {activeProducts.map((p) => (
+                              <option key={p.id} value={p.id}>
+                                {p.code} — {p.displayName || p.name} ({p.isCustom ? "Custom Quote" : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`})
+                              </option>
+                            ))}
+                          </select>
+                          <ChevronDown className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -477,95 +493,96 @@ function CollectionPage() {
                                 setErrors((x) => ({ ...x, length: "" }));
                               }}
                               placeholder="e.g. 20"
-                              className={`w-full border bg-background px-4 py-3.5 pr-12 text-xl font-medium tracking-tight tabular-nums outline-none transition-colors ${
-                                errors.length
-                                  ? "border-destructive focus:border-destructive"
-                                  : "border-hairline focus:border-bronze"
-                              }`}
+                              className={`w-full border bg-background px-4 py-3.5 pr-12 text-lg font-semibold tracking-tight ${
+                                errors.length ? "border-destructive text-destructive" : "border-hairline"
+                              } focus:border-bronze focus:outline-none`}
                             />
-                            <span className="pointer-events-none absolute right-4 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                              ft
+                            <span className="pointer-events-none absolute right-4 text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                              FT
                             </span>
                           </div>
-                          {errors.length ? (
+                          {errors.length && (
                             <p className="mt-2 text-xs text-destructive">{errors.length}</p>
-                          ) : null}
+                          )}
                         </div>
                       </div>
 
-                      {/* Standard Height (Automatic) */}
-                      <div className="flex flex-col justify-between border border-hairline bg-card p-5">
+                      {/* Standard Height (Auto-calculated, read-only) */}
+                      <div className="flex flex-col justify-between border border-hairline bg-card/60 p-5">
                         <div>
-                          <label
-                            className="block text-[0.72rem] font-medium tracking-[0.16em] text-foreground uppercase"
-                          >
-                            STANDARD HEIGHT
-                          </label>
-                          <p className="mt-1 text-[0.7rem] text-bronze/90">
+                          <div className="flex items-center justify-between">
+                            <span className="block text-[0.72rem] font-medium tracking-[0.16em] text-foreground uppercase">
+                              STANDARD HEIGHT
+                            </span>
+                            <span className="inline-flex items-center gap-1 rounded-sm bg-sand px-2 py-0.5 text-[0.62rem] font-bold tracking-wider text-bronze uppercase">
+                              <Check className="h-3 w-3" /> Auto
+                            </span>
+                          </div>
+                          <p className="mt-1 text-[0.7rem] text-muted-foreground">
                             Standard height used for this estimate.
                           </p>
                         </div>
-                        <div className="mt-4">
-                          <div className="flex items-center justify-between border border-hairline bg-background/70 px-4 py-3.5">
-                            <span className="text-xl font-medium tracking-tight text-foreground">
-                              {currentStandardHeight} ft
-                            </span>
-                            <span className="text-[0.65rem] tracking-wider text-muted-foreground uppercase">
-                              {railingType === "staircase" ? "Staircase" : "Balcony"}
-                            </span>
-                          </div>
+                        <div className="mt-4 flex items-center justify-between border border-hairline/60 bg-background/80 px-4 py-3.5">
+                          <span className="text-lg font-semibold tracking-tight text-foreground">
+                            {currentStandardHeight}
+                          </span>
+                          <span className="text-xs font-medium tracking-wider text-muted-foreground uppercase">
+                            FT
+                          </span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Expandable Formula */}
+                    {/* Formula Explanation Accordion */}
                     <div className="mt-6 border-t border-hairline pt-4">
                       <button
                         type="button"
-                        onClick={() => setShowFormula((s) => !s)}
-                        aria-expanded={showFormula}
-                        className="flex items-center gap-2 text-[0.68rem] tracking-[0.16em] text-muted-foreground uppercase hover:text-foreground"
+                        onClick={() => setShowFormula(!showFormula)}
+                        className="flex w-full items-center justify-between text-left text-xs font-medium text-muted-foreground hover:text-foreground"
                       >
-                        <HelpCircle className="h-3.5 w-3.5 text-bronze" />
-                        How is this calculated?
+                        <span className="inline-flex items-center gap-1.5">
+                          <HelpCircle className="h-3.5 w-3.5 text-bronze" />
+                          How is the price calculated?
+                        </span>
                         {showFormula ? (
-                          <ChevronUp className="h-3.5 w-3.5" />
+                          <ChevronUp className="h-4 w-4" />
                         ) : (
-                          <ChevronDown className="h-3.5 w-3.5" />
+                          <ChevronDown className="h-4 w-4" />
                         )}
                       </button>
 
-                      <AnimatePresence>
-                        {showFormula ? (
-                          <motion.div
-                            initial={{ opacity: 0, height: 0 }}
-                            animate={{ opacity: 1, height: "auto" }}
-                            exit={{ opacity: 0, height: 0 }}
-                            transition={{ duration: 0.25, ease: EASE }}
-                            className="mt-3 overflow-hidden rounded-none border border-dashed border-hairline bg-sand/30 p-4 text-xs leading-relaxed text-muted-foreground"
-                          >
+                      {showFormula && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: "auto" }}
+                          className="mt-3 rounded-sm bg-sand/60 p-4 text-xs text-muted-foreground leading-relaxed space-y-2"
+                        >
+                          <p>
+                            <strong>Area Formula:</strong> {estimate.length || 0} ft (Length) ×{" "}
+                            {currentStandardHeight} ft (Standard Height) ={" "}
+                            <strong>{formatArea(estimate.area)}</strong>
+                          </p>
+                          {!isCustom && (
                             <p>
-                              <strong>Area Formula:</strong> {estimate.length || 0} ft (Length) ×{" "}
-                              {currentStandardHeight} ft (Height) ={" "}
-                              <strong>{formatArea(estimate.area)}</strong>
+                              <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(productToUse.pricePerSqft, settings.currency)} = <strong>{formatNPR(estimate.total, settings.currency)}</strong>
                             </p>
-                            {!isCustom && (
-                              <p className="mt-1.5">
-                                <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(selectedProduct.pricePerSqft, settings.currency)} = <strong>{formatNPR(estimate.total, settings.currency)}</strong>
-                              </p>
-                            )}
-                          </motion.div>
-                        ) : null}
-                      </AnimatePresence>
+                          )}
+                          <p className="text-[0.68rem] text-muted-foreground/80 italic">
+                            * Final exact measurements and site conditions will be reviewed during site inspection.
+                          </p>
+                        </motion.div>
+                      )}
                     </div>
                   </div>
 
-                  {/* QUOTATION REQUEST FORM */}
-                  <div className="mt-14">
-                    <h3 className="text-2xl tracking-tight md:text-3xl">Request a quotation</h3>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Provide your project details to receive a formal quotation and installation schedule.
+                  {/* ENQUIRY FORM */}
+                  <div className="mt-8 border border-hairline bg-background p-7 md:p-9">
+                    <p className="label-xs text-bronze">03 YOUR DETAILS</p>
+                    <h3 className="mt-2 text-2xl tracking-tight">Project Information</h3>
+                    <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
+                      Enter your details below to receive a formal schedule or enquire instantly on WhatsApp.
                     </p>
+
                     <div className="mt-8 grid gap-6 sm:grid-cols-2">
                       <Field id="col-name" label="Full name" required error={errors.customerName}>
                         <input
@@ -606,7 +623,7 @@ function CollectionPage() {
                           onChange={(e) => setField("location", e.target.value)}
                           maxLength={120}
                           className={errors.location ? errorInputClass : inputClass}
-                          placeholder="Kathmandu"
+                          placeholder="Kathmandu / Area"
                         />
                       </Field>
                       <Field id="col-type" label="Project type" required error={errors.projectType}>
@@ -648,35 +665,38 @@ function CollectionPage() {
 
                     {/* ESTIMATED AREA */}
                     <div className="mt-7 border-t border-hairline pt-6">
-                      <p className="text-[0.68rem] tracking-[0.18em] text-muted-foreground uppercase">
-                        ESTIMATED AREA
-                      </p>
-                      <p className="mt-1.5 text-3xl font-semibold tracking-tight tabular-nums">
-                        {formatArea(estimate.area)}
-                      </p>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {estimate.length} ft × {currentStandardHeight} ft ({railingType === "staircase" ? "Staircase" : "Balcony"})
-                      </p>
-                    </div>
+                      <div className="rounded-sm border border-hairline bg-sand/40 p-4">
+                        <span className="block text-[0.68rem] font-bold tracking-[0.18em] text-muted-foreground uppercase">
+                          ESTIMATED AREA
+                        </span>
+                        <p className="mt-1 text-2xl font-light tracking-tight text-foreground sm:text-3xl font-mono">
+                          {formatArea(estimate.area)}
+                        </p>
+                        <p className="mt-1 text-xs text-muted-foreground">
+                          {estimate.length} ft × {currentStandardHeight} ft ({railingType === "staircase" ? "Staircase" : "Balcony"})
+                        </p>
+                      </div>
 
-                    {/* ESTIMATED PRICE */}
-                    <div className="mt-6 border-t border-hairline pt-6">
-                      <p className="text-[0.68rem] tracking-[0.18em] text-muted-foreground uppercase">
-                        ESTIMATED PRICE
-                      </p>
-                      <div className="mt-2">
+                      {/* ESTIMATED PRICE */}
+                      <div className="mt-4 rounded-sm border border-hairline bg-card p-4">
+                        <span className="block text-[0.68rem] font-bold tracking-[0.18em] text-muted-foreground uppercase">
+                          ESTIMATED PRICE
+                        </span>
                         {isCustom ? (
-                          <div>
-                            <span className="text-2xl font-semibold tracking-tight text-foreground">
-                              CUSTOM QUOTE
-                            </span>
-                            <p className="mt-2 text-[0.7rem] leading-relaxed text-muted-foreground">
-                              Pricing depends on the final design, materials, dimensions and fabrication requirements.
+                          <div className="mt-2">
+                            <p className="text-xl font-medium tracking-tight text-bronze">Price on Request</p>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              Custom profile fabricated to exact site requirements.
                             </p>
                           </div>
                         ) : (
-                          <div className="text-3xl font-semibold tracking-tight md:text-4xl">
-                            <AnimatedTotal value={estimate.total} currency={settings.currency} />
+                          <div className="mt-2">
+                            <div className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">
+                              <AnimatedTotal value={estimate.total} currency={settings.currency} />
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground">
+                              {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft. · 13% VAT added into the total amount seamlessly.
+                            </p>
                           </div>
                         )}
                       </div>
@@ -685,8 +705,8 @@ function CollectionPage() {
                     {/* Detailed Parameters List */}
                     <dl className="mt-7 space-y-3 border-t border-hairline pt-6 text-sm">
                       <Row label="Railing Type" value={railingType === "staircase" ? "Staircase Railing" : "Balcony Railing"} />
-                      <Row label="Railing" value={`${selectedProduct.code} — ${selectedProduct.name}`} />
-                      <Row label="Material" value={selectedProduct.material} />
+                      <Row label="Railing" value={`${productToUse.code} — ${productToUse.displayName || productToUse.name}`} />
+                      <Row label="Material" value={productToUse.material} />
                       <Row label="Length" value={`${estimate.length || 0} ft`} />
                       <Row label="Standard Height" value={`${currentStandardHeight} ft`} />
                       <Row
@@ -694,7 +714,7 @@ function CollectionPage() {
                         value={
                           isCustom
                             ? "Custom Quote"
-                            : `${formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.`
+                            : `${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`
                         }
                       />
                       <Row label="Customer" value={form.customerName || "—"} />

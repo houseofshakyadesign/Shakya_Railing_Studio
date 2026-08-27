@@ -79,8 +79,8 @@ function ContactPage() {
       search.type === "staircase"
         ? "Staircase Railing"
         : search.type === "balcony"
-        ? "Balcony / Loft Railing"
-        : "Staircase Railing",
+          ? "Balcony / Loft Railing"
+          : "Staircase Railing",
     location: "",
     message: "",
   });
@@ -270,7 +270,7 @@ function ContactPage() {
       <section className="border-t border-hairline bg-sand/30 py-16 md:py-24">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.18fr_0.82fr] lg:gap-12 xl:gap-16 items-start">
-            
+
             {/* LEFT COLUMN: PRIMARY ENQUIRY FORM */}
             <div>
               <div className="border border-hairline bg-background p-7 sm:p-10 md:p-12 shadow-soft">
@@ -372,7 +372,7 @@ function ContactPage() {
                           START YOUR PROJECT
                         </p>
                         <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                          Send an Enquiry
+                          Request an Estimate
                         </h2>
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
                           Fill out the essential project details below and our team will get in touch directly.
@@ -389,7 +389,7 @@ function ContactPage() {
                               onChange={(e) => setField("fullName", e.target.value)}
                               maxLength={100}
                               className={errors.fullName ? errorInputClass : inputClass}
-                              placeholder="Your Full Name"
+                              placeholder="e.g. Sajan Shakya"
                             />
                           </Field>
 
@@ -433,7 +433,7 @@ function ContactPage() {
                               onChange={(e) => setField("location", e.target.value)}
                               maxLength={120}
                               className={errors.location ? errorInputClass : inputClass}
-                              placeholder="Project Location / Area"
+                              placeholder="e.g. Bhaisepati, Lalitpur"
                             />
                           </Field>
                         </div>
@@ -491,7 +491,7 @@ function ContactPage() {
 
             {/* RIGHT COLUMN: STUDIO INFO & INTERACTIVE MAP */}
             <div className="flex flex-col space-y-6 w-full">
-              
+
               {/* Studio Information Box */}
               <div className="border border-hairline bg-background p-7 sm:p-8">
                 <div className="flex items-center gap-2.5">
@@ -609,33 +609,33 @@ function ContactPage() {
         </div>
       </section>
 
-      {/* ── 04 "EXPLORE DESIGNS" CTA ── */}
+      {/* ── 04 "FASTEST ROUTE" CALCULATOR CTA ── */}
       <section className="mx-auto max-w-[1440px] px-5 pb-20 md:px-10 md:pb-28">
         <div className="relative overflow-hidden border border-hairline bg-charcoal p-8 sm:p-12 md:p-16 text-ivory">
           <div className="relative z-10 max-w-2xl">
             <p className="label-xs text-bronze-soft font-semibold uppercase tracking-[0.24em]">
-              PORTFOLIO & DESIGNS
+              FASTEST ROUTE
             </p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl uppercase leading-tight">
-              EXPLORE DESIGNS.
+              CALCULATE FIRST.
               <br />
               ENQUIRE WITH CONFIDENCE.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-ivory/70 sm:text-base">
-              Browse our bespoke railing collection or view completed installations across Nepal to find inspiration for your project.
+              Enter your railing type and approximate length to get an instant per-sq.ft. price breakdown before sending your enquiry.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/collection"
+                to="/calculator"
                 className="inline-flex items-center gap-2.5 bg-ivory px-8 py-4 text-[0.72rem] font-bold tracking-[0.2em] text-charcoal uppercase transition-all duration-300 hover:bg-bronze hover:text-ivory"
               >
-                EXPLORE COLLECTION →
+                CALCULATE YOUR ESTIMATE →
               </Link>
               <Link
-                to="/projects"
+                to="/collection"
                 className="inline-flex items-center gap-2 border border-ivory/30 px-6 py-4 text-[0.72rem] font-bold tracking-[0.18em] text-ivory uppercase transition-colors hover:border-ivory"
               >
-                View Completed Projects
+                Browse Collection
               </Link>
             </div>
           </div>

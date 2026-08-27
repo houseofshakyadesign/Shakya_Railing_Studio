@@ -112,37 +112,30 @@ function CalculatorPage() {
 
   // Form State
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
-  // Active products & Auto-select fallback
-  const activeProducts = useMemo(() => products.filter((p) => p.isActive !== false), [products]);
-  const productToUse = selectedProduct || activeProducts[0] || null;
-
-  useEffect(() => {
-    if (!selectedId && activeProducts.length > 0) {
-      selectProduct(activeProducts[0].id);
-    }
-  }, [selectedId, activeProducts, selectProduct]);
+  const [errors, setErrors] = useState<Errors>({});
+  const [submitted, setSubmitted] = useState<Enquiry | null>(null);
 
   // Focus length input when product or railing type changes
   useEffect(() => {
-    if (productToUse) {
+    if (selectedProduct) {
       setTimeout(() => {
         lengthInputRef.current?.focus();
       }, 300);
     }
-  }, [productToUse?.id, railingType]);
+  }, [selectedProduct?.id, railingType]);
 
   const numLength = parseFloat(length);
   const isCustom = Boolean(
-    productToUse?.isCustom ||
-    productToUse?.pricePerSqft === null ||
-    productToUse?.pricePerSqft === undefined ||
-    productToUse?.pricePerSqft === 0
+    selectedProduct?.isCustom ||
+    selectedProduct?.pricePerSqft === null ||
+    selectedProduct?.pricePerSqft === undefined ||
+    selectedProduct?.pricePerSqft === 0
   );
 
   // Clean calculation: Area = Length × Standard Height, Price = Area × Rate
   const estimate = useMemo(() => {
     const validLength = Number.isFinite(numLength) && numLength > 0 ? numLength : 0;
-    const rate = productToUse?.pricePerSqft ?? 0;
+    const rate = selectedProduct?.pricePerSqft ?? 0;
     const typeLabel = railingType === "staircase" ? "Staircase Railing" : "Balcony Railing";
 
     return calculateRailingEstimate(
@@ -152,7 +145,7 @@ function CalculatorPage() {
       isCustom,
       typeLabel,
     );
-  }, [numLength, currentStandardHeight, productToUse, isCustom, railingType]);
+  }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
 
   const setField = (k: keyof FormState, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -161,11 +154,11 @@ function CalculatorPage() {
 
   // Steps Progress State
   const currentStep = useMemo(() => {
-    if (!productToUse) return 1;
+    if (!selectedProduct) return 1;
     if (submitted) return 4;
     if (estimate.length > 0) return 3;
     return 2;
-  }, [productToUse, submitted, estimate]);
+  }, [selectedProduct, submitted, estimate]);
 
   function validate(): boolean {
     const next: Errors = {};
@@ -193,7 +186,7 @@ function CalculatorPage() {
   }
 
   function buildEnquiry(): Omit<Enquiry, "id" | "createdAt" | "status"> | null {
-    if (!productToUse) return null;
+    if (!selectedProduct) return null;
     return {
       customerName: form.customerName.trim(),
       phone: form.phone.trim(),
@@ -201,15 +194,15 @@ function CalculatorPage() {
       location: form.location.trim(),
       projectType: form.projectType,
       railingType: railingType === "staircase" ? "Staircase Railing" : "Balcony Railing",
-      productId: productToUse.id,
-      productCode: productToUse.code,
-      productName: productToUse.name,
-      material: productToUse.material,
+      productId: selectedProduct.id,
+      productCode: selectedProduct.code,
+      productName: selectedProduct.name,
+      material: selectedProduct.material,
       isCustom,
       lengthFt: estimate.length,
       heightFt: currentStandardHeight,
       estimatedAreaSqft: estimate.area,
-      rate: isCustom ? 0 : productToUse.pricePerSqft,
+      rate: isCustom ? 0 : selectedProduct.pricePerSqft,
       estimatedPrice: isCustom ? 0 : estimate.total,
       estimatedTotal: isCustom ? 0 : estimate.total,
       additionalRequirements: form.additionalRequirements.trim(),
@@ -246,7 +239,7 @@ function CalculatorPage() {
     enquirySectionRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  if (!productToUse && (!ready || products.length === 0)) {
+  if (selectedId && !selectedProduct && (!ready || products.length === 0)) {
     return (
       <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-32 md:px-10 md:pt-48">
         <div className="mx-auto max-w-xl border border-hairline bg-card p-12 text-center">
@@ -259,7 +252,7 @@ function CalculatorPage() {
     );
   }
 
-  if (!productToUse) {
+  if (!selectedProduct) {
     return (
       <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-32 md:px-10 md:pt-48">
         <div className="mx-auto max-w-xl border border-dashed border-hairline px-8 py-20 text-center">
@@ -285,7 +278,7 @@ function CalculatorPage() {
       <div className="mb-10 border-b border-hairline pb-8">
         <div className="flex flex-wrap items-center justify-between gap-4">
           {[
-            { num: "01", name: "SELECT", completed: Boolean(productToUse) },
+            { num: "01", name: "SELECT", completed: Boolean(selectedProduct) },
             { num: "02", name: "MEASURE", completed: estimate.length > 0 },
             { num: "03", name: "ESTIMATE", completed: estimate.area > 0 },
             { num: "04", name: "SEND", completed: Boolean(submitted) },
@@ -299,24 +292,22 @@ function CalculatorPage() {
             return (
               <div key={step.name} className="flex items-center gap-3">
                 <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[0.62rem] font-medium tracking-wider transition-colors ${
-                    step.completed
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[0.62rem] font-medium tracking-wider transition-colors ${step.completed
                       ? "bg-bronze text-ivory"
                       : isActive
                         ? "border border-foreground text-foreground"
                         : "border border-hairline text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {step.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : step.num}
                 </span>
                 <span
-                  className={`text-[0.7rem] tracking-[0.2em] uppercase transition-colors ${
-                    isActive
+                  className={`text-[0.7rem] tracking-[0.2em] uppercase transition-colors ${isActive
                       ? "font-semibold text-foreground"
                       : step.completed
                         ? "text-foreground/90"
                         : "text-muted-foreground"
-                  }`}
+                    }`}
                 >
                   {step.name}
                 </span>
@@ -357,11 +348,10 @@ function CalculatorPage() {
                   setRailingType("balcony");
                   toast.success("Selected Balcony Railing", { description: "Standard height: 3 ft" });
                 }}
-                className={`relative flex flex-col p-5 text-left transition-all ${
-                  railingType === "balcony"
+                className={`relative flex flex-col p-5 text-left transition-all ${railingType === "balcony"
                     ? "border-2 border-bronze bg-bronze/5 shadow-sm"
                     : "border border-hairline bg-card hover:border-foreground/30"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
@@ -383,11 +373,10 @@ function CalculatorPage() {
                   setRailingType("staircase");
                   toast.success("Selected Staircase Railing", { description: "Standard height: 2.8 ft" });
                 }}
-                className={`relative flex flex-col p-5 text-left transition-all ${
-                  railingType === "staircase"
+                className={`relative flex flex-col p-5 text-left transition-all ${railingType === "staircase"
                     ? "border-2 border-bronze bg-bronze/5 shadow-sm"
                     : "border border-hairline bg-card hover:border-foreground/30"
-                }`}
+                  }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
@@ -404,7 +393,7 @@ function CalculatorPage() {
             </div>
           </div>
 
-          {/* STEP 02: SELECTED RAILING CARD & MODEL SWITCHER */}
+          {/* STEP 02: SELECTED RAILING CARD */}
           <div>
             <div className="mb-4 flex items-center justify-between">
               <span className="label-xs text-bronze">STEP 02</span>
@@ -413,57 +402,36 @@ function CalculatorPage() {
               </span>
             </div>
 
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-start border border-hairline bg-card p-5">
+            <div className="flex gap-5 border border-hairline bg-card p-5">
               <img
-                src={productToUse.image}
-                alt={productToUse.name}
+                src={selectedProduct.image}
+                alt={selectedProduct.name}
                 loading="lazy"
                 className="h-28 w-24 shrink-0 object-cover"
               />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center justify-between">
-                  <p className="label-xs text-bronze">{productToUse.code}</p>
+                  <p className="label-xs text-bronze">{selectedProduct.code}</p>
                   <span className="text-[0.62rem] tracking-wider text-muted-foreground uppercase">
                     {railingType === "staircase" ? "Staircase" : "Balcony"}
                   </span>
                 </div>
-                {productToUse.nepaliName ? (
-                  <p className="mt-1 text-xs font-medium text-bronze">{productToUse.nepaliName}</p>
+                {selectedProduct.nepaliName ? (
+                  <p className="mt-1 text-xs font-medium text-bronze">{selectedProduct.nepaliName}</p>
                 ) : null}
-                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">{productToUse.displayName || productToUse.name}</h2>
-                <p className="mt-1 text-xs text-muted-foreground truncate">{productToUse.material}</p>
-                
-                {/* Model switcher dropdown */}
-                <div className="mt-3">
-                  <label htmlFor="select-railing-model" className="sr-only">Switch Railing Model</label>
-                  <select
-                    id="select-railing-model"
-                    value={productToUse.id}
-                    onChange={(e) => {
-                      selectProduct(e.target.value);
-                      toast.success("Railing design updated");
-                    }}
-                    className="w-full border border-hairline bg-background px-3 py-1.5 text-xs text-foreground focus:border-bronze focus:outline-none"
-                  >
-                    {activeProducts.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.code} — {p.displayName || p.name} ({p.isCustom ? "Custom" : formatNPR(p.pricePerSqft, settings.currency) + "/sq.ft"})
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
+                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">{selectedProduct.displayName || selectedProduct.name}</h2>
+                <p className="mt-1 text-xs text-muted-foreground truncate">{selectedProduct.material}</p>
                 <div className="mt-3 flex items-center justify-between border-t border-hairline pt-3">
                   <span className="text-xs font-medium text-foreground">
                     {isCustom
                       ? "Price on Request"
-                      : `${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`}
+                      : `${formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.`}
                   </span>
                   <Link
                     to="/collection"
                     className="text-[0.65rem] tracking-[0.15em] text-bronze uppercase underline-offset-4 hover:underline"
                   >
-                    Browse Full Gallery →
+                    Change Railing
                   </Link>
                 </div>
               </div>
@@ -499,9 +467,8 @@ function CalculatorPage() {
                     value={length}
                     onChange={(e) => setLength(e.target.value)}
                     placeholder="20"
-                    className={`w-full border bg-background px-4 py-3.5 font-mono text-lg transition-colors focus:border-bronze focus:outline-none ${
-                      errors.length ? "border-destructive" : "border-hairline"
-                    }`}
+                    className={`w-full border bg-background px-4 py-3.5 font-mono text-lg transition-colors focus:border-bronze focus:outline-none ${errors.length ? "border-destructive" : "border-hairline"
+                      }`}
                   />
                   <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs tracking-wider text-muted-foreground uppercase">
                     FT
@@ -522,11 +489,10 @@ function CalculatorPage() {
                       setLength(preset.toString());
                       toast.success(`Set length to ${preset} ft`);
                     }}
-                    className={`border px-3.5 py-1.5 font-mono text-xs transition-colors ${
-                      length === preset.toString()
+                    className={`border px-3.5 py-1.5 font-mono text-xs transition-colors ${length === preset.toString()
                         ? "border-bronze bg-bronze/10 text-bronze font-semibold"
                         : "border-hairline bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                    }`}
+                      }`}
                   >
                     {preset} ft
                   </button>
@@ -690,7 +656,7 @@ function CalculatorPage() {
                       <AnimatedTotal value={estimate.total} currency={settings.currency} />
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      Calculated at {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.
+                      Calculated at {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
                     </p>
                   </div>
                 )}
@@ -708,7 +674,7 @@ function CalculatorPage() {
               <div className="flex justify-between py-1 border-b border-hairline/60">
                 <span className="text-muted-foreground">Selected Railing</span>
                 <span className="font-medium text-foreground truncate max-w-[200px]">
-                  {productToUse.code} — {productToUse.name}
+                  {selectedProduct.code} — {selectedProduct.name}
                 </span>
               </div>
               <div className="flex justify-between py-1 border-b border-hairline/60">
@@ -727,7 +693,7 @@ function CalculatorPage() {
                 <div className="flex justify-between py-1 border-b border-hairline/60">
                   <span className="text-muted-foreground">Rate</span>
                   <span className="font-medium text-foreground">
-                    {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.
+                    {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
                   </span>
                 </div>
               )}
@@ -757,7 +723,7 @@ function CalculatorPage() {
                     </p>
                     {!isCustom && (
                       <p className="mt-1">
-                        <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(productToUse.pricePerSqft, settings.currency)} = {formatNPR(estimate.total, settings.currency)}
+                        <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(selectedProduct.pricePerSqft, settings.currency)} = {formatNPR(estimate.total, settings.currency)}
                       </p>
                     )}
                   </motion.div>
