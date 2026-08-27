@@ -101,19 +101,10 @@ function CollectionPage() {
   // Active products filter
   const activeProducts = useMemo(() => products.filter((p) => p.isActive !== false), [products]);
 
-  // Auto-select fallback if none selected
+  // Selected railing to use in calculator (null if deselected)
   const productToUse = useMemo(() => {
-    if (selectedProduct) return selectedProduct;
-    if (activeProducts.length > 0) return activeProducts[0];
-    return null;
-  }, [selectedProduct, activeProducts]);
-
-  useEffect(() => {
-    const first = activeProducts[0];
-    if (!selectedId && first) {
-      selectProduct(first.id);
-    }
-  }, [selectedId, activeProducts, selectProduct]);
+    return selectedProduct;
+  }, [selectedProduct]);
 
   // Measurements
   const [length, setLength] = useState<string>(() => {

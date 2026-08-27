@@ -396,9 +396,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, [projects]);
 
   const selectedProduct = useMemo(() => {
-    if (!selectedId) return activeProducts[0] ?? null;
-    return products.find((p) => p.id === selectedId) ?? activeProducts[0] ?? null;
-  }, [products, selectedId, activeProducts]);
+    if (!selectedId) return null;
+    return products.find((p) => p.id === selectedId) ?? null;
+  }, [products, selectedId]);
 
   const value: StudioValue = useMemo(
     () => ({
