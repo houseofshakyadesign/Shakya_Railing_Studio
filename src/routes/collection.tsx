@@ -379,8 +379,11 @@ function CollectionPage() {
                           {railingType === "staircase" ? "Staircase" : "Balcony"}
                         </span>
                       </div>
-                      <h3 className="mt-1 text-lg leading-snug tracking-tight">
-                        {selectedProduct.name}
+                      {selectedProduct.nepaliName ? (
+                        <p className="mt-1 text-xs font-medium text-bronze">{selectedProduct.nepaliName}</p>
+                      ) : null}
+                      <h3 className="mt-0.5 text-lg leading-snug tracking-tight">
+                        {selectedProduct.displayName || selectedProduct.name}
                       </h3>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {selectedProduct.material}

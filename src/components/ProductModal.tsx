@@ -78,46 +78,38 @@ export function ProductModal({
                 />
               </div>
 
-              <div className="flex flex-col p-7 md:p-12">
-                <p className="label-xs text-bronze">{product.code}</p>
-                <h2 className="mt-4 text-2xl leading-tight tracking-tight md:text-4xl">
-                  {product.name}
-                </h2>
-                <p className="mt-5 text-sm leading-relaxed text-muted-foreground">
-                  {product.description}
-                </p>
-
-                <div className="mt-8 grid gap-7 border-t border-hairline pt-7 sm:grid-cols-2">
-                  <div>
-                    <p className="label-xs text-muted-foreground">Material</p>
-                    <p className="mt-2 text-sm">{product.material}</p>
-                  </div>
-                  <div>
-                    <p className="label-xs text-muted-foreground">Application</p>
-                    <ul className="mt-2 space-y-1 text-sm">
-                      {product.applications.map((a) => (
-                        <li key={a}>{a}</li>
-                      ))}
-                    </ul>
-                  </div>
-                  <div className="sm:col-span-2">
-                    <p className="label-xs text-muted-foreground">Features</p>
-                    <ul className="mt-2 space-y-1.5 text-sm">
-                      {product.features.map((f) => (
-                        <li key={f} className="flex gap-2.5">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-bronze" />
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
+              <div className="flex flex-col p-7 md:p-12 overflow-y-auto max-h-[85vh]">
+                <div className="flex items-center justify-between">
+                  <p className="label-xs text-bronze">{product.code}</p>
+                  {product.applications?.length || product.category ? (
+                    <span className="text-[0.68rem] tracking-[0.16em] uppercase text-muted-foreground">
+                      {product.applications?.[0] || product.category}
+                    </span>
+                  ) : null}
                 </div>
 
-                <div className="mt-8 border-t border-hairline pt-7">
+                <div className="mt-3">
+                  {product.nepaliName ? (
+                    <p className="text-xl font-medium tracking-wide text-bronze">
+                      {product.nepaliName}
+                    </p>
+                  ) : null}
+                  <h2 className="mt-1 text-2xl leading-tight tracking-tight md:text-3xl font-medium">
+                    {product.displayName || product.name}
+                  </h2>
+                  {product.englishName && product.englishName !== (product.displayName || product.name) ? (
+                    <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
+                      {product.englishName}
+                    </p>
+                  ) : null}
+                </div>
+
+                {/* Price Display */}
+                <div className="mt-5 border-y border-hairline py-4">
                   <p className="label-xs text-muted-foreground">Price</p>
-                  <p className="mt-2 text-2xl font-semibold tracking-tight">
-                    {product.isCustom ? (
-                      "Custom Quote"
+                  <p className="mt-1.5 text-2xl font-semibold tracking-tight">
+                    {product.pricePerSqft === null || product.pricePerSqft === undefined || product.pricePerSqft === 0 || product.isCustom ? (
+                      "Price on Request"
                     ) : (
                       <>
                         {formatNPR(product.pricePerSqft, currency)}
@@ -130,13 +122,97 @@ export function ProductModal({
                   </p>
                 </div>
 
+                {/* ABOUT THE DESIGN */}
+                <div className="mt-6">
+                  <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                    ABOUT THE DESIGN
+                  </p>
+                  <p className="mt-2 text-sm leading-relaxed text-foreground/90">
+                    {product.description}
+                  </p>
+                </div>
+
+                {/* SPECIFICATIONS GRID */}
+                <div className="mt-6 grid gap-5 border-t border-hairline pt-6 sm:grid-cols-2">
+                  <div>
+                    <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                      MATERIAL
+                    </p>
+                    <div className="mt-2 space-y-1 text-sm text-foreground/90">
+                      {product.material.includes(",") ? (
+                        product.material
+                          .split(/,\s*(?=[0-9"'])/)
+                          .map((item, idx) => (
+                            <p key={idx} className="leading-snug">
+                              {item.trim()}
+                            </p>
+                          ))
+                      ) : (
+                        <p className="leading-snug">{product.material}</p>
+                      )}
+                    </div>
+                  </div>
+
+                  {product.primer ? (
+                    <div>
+                      <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                        PRIMER
+                      </p>
+                      <p className="mt-2 text-sm text-foreground/90">{product.primer}</p>
+                    </div>
+                  ) : null}
+
+                  {product.finish ? (
+                    <div>
+                      <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                        FINISH
+                      </p>
+                      <p className="mt-2 text-sm text-foreground/90">{product.finish}</p>
+                    </div>
+                  ) : null}
+
+                  {product.construction ? (
+                    <div>
+                      <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                        CONSTRUCTION
+                      </p>
+                      <p className="mt-2 text-sm text-foreground/90">{product.construction}</p>
+                    </div>
+                  ) : null}
+
+                  {product.applications && product.applications.length > 0 ? (
+                    <div>
+                      <p className="label-xs text-muted-foreground uppercase tracking-widest font-semibold">
+                        APPLICATION
+                      </p>
+                      <ul className="mt-2 space-y-1 text-sm text-foreground/90">
+                        {product.applications.map((a) => (
+                          <li key={a}>{a}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  ) : null}
+                </div>
+
+                {/* IMPORTANT NOTE */}
+                {product.note ? (
+                  <div className="mt-6 border border-bronze/30 bg-sand/30 p-4">
+                    <p className="label-xs text-bronze uppercase tracking-widest font-semibold">
+                      NOTE
+                    </p>
+                    <p className="mt-1 text-xs leading-relaxed text-foreground/80">
+                      {product.note}
+                    </p>
+                  </div>
+                ) : null}
+
                 <div className="mt-8 flex flex-col gap-3">
                   <button
                     type="button"
                     onClick={() => onSelect(product)}
                     className="w-full bg-charcoal px-8 py-4 text-[0.72rem] tracking-[0.22em] text-ivory uppercase transition-colors duration-300 hover:bg-bronze"
                   >
-                    {selected ? "Selected — Calculate Price →" : "Select & Calculate →"}
+                    {selected ? "Selected — Calculate Price →" : "Select This Railing →"}
                   </button>
                   {selected && onDeselect ? (
                     <button

@@ -122,10 +122,20 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS \`products\` (
         \`id\` VARCHAR(64) PRIMARY KEY,
         \`code\` VARCHAR(32) NOT NULL UNIQUE,
+        \`slug\` VARCHAR(64),
         \`name\` VARCHAR(255) NOT NULL,
+        \`display_name\` VARCHAR(255),
+        \`nepali_name\` VARCHAR(255),
+        \`english_name\` VARCHAR(255),
+        \`category\` VARCHAR(128),
+        \`application\` VARCHAR(64),
+        \`primer\` VARCHAR(255),
+        \`finish\` VARCHAR(255),
+        \`construction\` TEXT,
+        \`note\` TEXT,
         \`description\` TEXT,
         \`material\` VARCHAR(128) NOT NULL,
-        \`price_per_sqft\` DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
+        \`price_per_sqft\` DECIMAL(10, 2) DEFAULT NULL,
         \`standard_module_width\` DECIMAL(5, 2) NOT NULL DEFAULT 4.00,
         \`standard_height\` DECIMAL(5, 2) NOT NULL DEFAULT 3.50,
         \`image\` TEXT NOT NULL,
@@ -139,6 +149,28 @@ async function createTables() {
         \`updated_at\` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
     `);
+
+    // Add new columns to products table if upgrading MySQL
+    const mysqlCols = [
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `slug` VARCHAR(64)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `display_name` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `nepali_name` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `english_name` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `category` VARCHAR(128)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `application` VARCHAR(64)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `primer` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `finish` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `construction` TEXT",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `note` TEXT",
+      "ALTER TABLE `products` MODIFY COLUMN `price_per_sqft` DECIMAL(10, 2) NULL DEFAULT NULL",
+    ];
+    for (const sql of mysqlCols) {
+      try {
+        await query(sql);
+      } catch {
+        /* ignore */
+      }
+    }
 
     // 3. Enquiries Table
     await query(`
@@ -253,10 +285,20 @@ async function createTables() {
       CREATE TABLE IF NOT EXISTS products (
         id TEXT PRIMARY KEY,
         code TEXT NOT NULL UNIQUE,
+        slug TEXT,
         name TEXT NOT NULL,
+        display_name TEXT,
+        nepali_name TEXT,
+        english_name TEXT,
+        category TEXT,
+        application TEXT,
+        primer TEXT,
+        finish TEXT,
+        construction TEXT,
+        note TEXT,
         description TEXT,
         material TEXT NOT NULL,
-        price_per_sqft REAL NOT NULL DEFAULT 0.00,
+        price_per_sqft REAL DEFAULT NULL,
         standard_module_width REAL NOT NULL DEFAULT 4.00,
         standard_height REAL NOT NULL DEFAULT 3.50,
         image TEXT NOT NULL,
@@ -270,6 +312,27 @@ async function createTables() {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
       );
     `);
+
+    // Add new columns to products table if upgrading SQLite
+    const sqliteCols = [
+      "ALTER TABLE products ADD COLUMN slug TEXT",
+      "ALTER TABLE products ADD COLUMN display_name TEXT",
+      "ALTER TABLE products ADD COLUMN nepali_name TEXT",
+      "ALTER TABLE products ADD COLUMN english_name TEXT",
+      "ALTER TABLE products ADD COLUMN category TEXT",
+      "ALTER TABLE products ADD COLUMN application TEXT",
+      "ALTER TABLE products ADD COLUMN primer TEXT",
+      "ALTER TABLE products ADD COLUMN finish TEXT",
+      "ALTER TABLE products ADD COLUMN construction TEXT",
+      "ALTER TABLE products ADD COLUMN note TEXT",
+    ];
+    for (const sql of sqliteCols) {
+      try {
+        await query(sql);
+      } catch {
+        /* column already exists */
+      }
+    }
 
     await query(`
       CREATE TABLE IF NOT EXISTS enquiries (
@@ -411,37 +474,78 @@ async function seedInitialData() {
       await query("UPDATE settings SET company_name = 'Metal Work Nepal' WHERE id = 'default' AND company_name = 'House of Shakya'");
     }
 
-    // 4. Seed Products from JSON file
-    const existingProducts = await query("SELECT id FROM products LIMIT 1");
-    if (!existingProducts || existingProducts.length === 0) {
-      const seedFile = path.join(__dirname, "seedProducts.json");
-      if (fs.existsSync(seedFile)) {
-        const seedProducts = JSON.parse(fs.readFileSync(seedFile, "utf-8"));
-        for (const p of seedProducts) {
+    // 4. Seed / Sync Products from JSON file
+    const seedFile = path.join(__dirname, "seedProducts.json");
+    if (fs.existsSync(seedFile)) {
+      const seedProducts = JSON.parse(fs.readFileSync(seedFile, "utf-8"));
+      for (const p of seedProducts) {
+        const exists = await query("SELECT id FROM products WHERE id = ? OR code = ? LIMIT 1", [p.id, p.code]);
+        if (!exists || exists.length === 0) {
           await query(
-            `INSERT INTO products (id, code, name, description, material, price_per_sqft, standard_module_width, standard_height, image, gallery, features, applications, is_custom, is_active, display_order)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+            `INSERT INTO products (id, code, slug, name, display_name, nepali_name, english_name, category, application, primer, finish, construction, note, description, material, price_per_sqft, standard_module_width, standard_height, image, gallery, features, applications, is_custom, is_active, display_order)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
             [
               p.id,
               p.code,
-              p.name,
-              p.description,
-              p.material,
-              p.price_per_sqft || 0,
+              p.slug || "",
+              p.display_name || p.name,
+              p.display_name || p.name,
+              p.nepali_name || "",
+              p.english_name || "",
+              p.category || "",
+              p.application || "",
+              p.primer || "",
+              p.finish || "",
+              p.construction || "",
+              p.note || "",
+              p.description || "",
+              p.material || "",
+              p.price_per_sqft === null || p.price_per_sqft === undefined ? null : Number(p.price_per_sqft),
               p.standard_module_width || 4.0,
               p.standard_height || 3.5,
-              p.image,
+              p.image || "",
               JSON.stringify(p.gallery || []),
               JSON.stringify(p.features || []),
               JSON.stringify(p.applications || []),
-              p.is_custom ? 1 : 0,
+              p.is_custom || p.price_per_sqft === null ? 1 : 0,
               p.is_active ? 1 : 0,
               p.display_order || 0,
             ]
           );
+        } else if (
+          ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14", "r15"].includes(p.id) ||
+          ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07", "R-08", "R-09", "R-10", "R-11", "R-12", "R-13", "R-14", "R-15"].includes(p.code)
+        ) {
+          // Update products 1 to 15 with authoritative client catalogue data
+          await query(
+            `UPDATE products
+             SET slug = ?, name = ?, display_name = ?, nepali_name = ?, english_name = ?, category = ?, application = ?, primer = ?, finish = ?, construction = ?, note = ?, description = ?, material = ?, price_per_sqft = ?, is_custom = ?, features = ?, applications = ?
+             WHERE id = ? OR code = ?`,
+            [
+              p.slug || "",
+              p.display_name || p.name,
+              p.display_name || p.name,
+              p.nepali_name || "",
+              p.english_name || "",
+              p.category || "",
+              p.application || "",
+              p.primer || "",
+              p.finish || "",
+              p.construction || "",
+              p.note || "",
+              p.description || "",
+              p.material || "",
+              p.price_per_sqft === null || p.price_per_sqft === undefined ? null : Number(p.price_per_sqft),
+              p.is_custom || p.price_per_sqft === null ? 1 : 0,
+              JSON.stringify(p.features || []),
+              JSON.stringify(p.applications || []),
+              p.id,
+              p.code,
+            ]
+          );
         }
-        console.log(`Seeded ${seedProducts.length} products into database.`);
       }
+      console.log(`Synchronized products into database.`);
     }
 
     // 5. Seed Authoritative 6 Projects & Project Media

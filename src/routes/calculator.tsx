@@ -125,7 +125,12 @@ function CalculatorPage() {
   }, [selectedProduct?.id, railingType]);
 
   const numLength = parseFloat(length);
-  const isCustom = Boolean(selectedProduct?.isCustom);
+  const isCustom = Boolean(
+    selectedProduct?.isCustom ||
+    selectedProduct?.pricePerSqft === null ||
+    selectedProduct?.pricePerSqft === undefined ||
+    selectedProduct?.pricePerSqft === 0
+  );
 
   // Clean calculation: Area = Length × Standard Height, Price = Area × Rate
   const estimate = useMemo(() => {
@@ -415,12 +420,15 @@ function CalculatorPage() {
                     {railingType === "staircase" ? "Staircase" : "Balcony"}
                   </span>
                 </div>
-                <h2 className="mt-1 font-serif text-lg tracking-tight truncate">{selectedProduct.name}</h2>
+                {selectedProduct.nepaliName ? (
+                  <p className="mt-1 text-xs font-medium text-bronze">{selectedProduct.nepaliName}</p>
+                ) : null}
+                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">{selectedProduct.displayName || selectedProduct.name}</h2>
                 <p className="mt-1 text-xs text-muted-foreground truncate">{selectedProduct.material}</p>
                 <div className="mt-3 flex items-center justify-between border-t border-hairline pt-3">
                   <span className="text-xs font-medium text-foreground">
                     {isCustom
-                      ? "Custom Quote"
+                      ? "Price on Request"
                       : `${formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.`}
                   </span>
                   <Link
@@ -446,91 +454,69 @@ function CalculatorPage() {
             <div className="space-y-6">
               {/* Length Input */}
               <div>
-                <label className="block text-xs font-semibold tracking-[0.15em] text-foreground uppercase">
-                  HOW LONG IS YOUR RAILING?
+                <label
+                  htmlFor="railing-length"
+                  className="mb-2 block text-xs tracking-wider text-muted-foreground uppercase"
+                >
+                  Length in Feet *
                 </label>
-                <div className="relative mt-2">
+                <div className="relative">
                   <input
                     ref={lengthInputRef}
-                    id="railing-length-input"
+                    id="railing-length"
                     type="number"
-                    step="0.1"
                     min="1"
                     max="10000"
+                    step="0.5"
                     value={length}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      setLength(val);
-                      writeJSON(STORAGE_KEYS.length, val);
-                    }}
-                    placeholder="e.g. 20"
-                    className={`w-full border bg-background px-4 py-3.5 pr-12 text-lg font-medium tracking-tight text-foreground transition-colors focus:border-foreground focus:outline-none ${
-                      errors.length ? "border-destructive text-destructive" : "border-hairline"
+                    onChange={(e) => setLength(e.target.value)}
+                    placeholder="20"
+                    className={`w-full border bg-background px-4 py-3.5 font-mono text-lg transition-colors focus:border-bronze focus:outline-none ${
+                      errors.length ? "border-destructive" : "border-hairline"
                     }`}
                   />
-                  <span className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+                  <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs tracking-wider text-muted-foreground uppercase">
                     FT
                   </span>
                 </div>
-                {errors.length ? (
+                {errors.length && (
                   <p className="mt-1.5 text-xs text-destructive">{errors.length}</p>
-                ) : railingType === "staircase" ? (
-                  <p className="mt-2 text-xs text-bronze">
-                    For staircase railing, enter the approximate length along the railing.
-                  </p>
-                ) : (
-                  <p className="mt-1.5 text-[0.72rem] text-muted-foreground">
-                    Enter the total run length in feet (decimals allowed, e.g. 22.5).
-                  </p>
                 )}
               </div>
 
-              {/* Automatic Standard Height Display */}
-              <div>
-                <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold tracking-[0.15em] text-foreground uppercase">
-                    STANDARD HEIGHT
-                  </label>
-                  <span className="text-[0.62rem] font-medium tracking-widest text-bronze uppercase">
-                    Automatic
-                  </span>
-                </div>
-                <div className="mt-2 flex items-center justify-between border border-hairline bg-muted/30 px-4 py-3.5">
-                  <span className="text-lg font-medium text-foreground">
-                    {currentStandardHeight} ft
-                  </span>
-                  <span className="text-xs text-muted-foreground uppercase">
-                    {railingType === "staircase" ? "Staircase Fixed" : "Balcony Fixed"}
-                  </span>
-                </div>
-                <p className="mt-1.5 text-[0.72rem] text-muted-foreground">
-                  Standard height used for this estimate.
-                </p>
+              {/* Quick Length Preset Buttons */}
+              <div className="flex flex-wrap gap-2 pt-1">
+                {LENGTH_PRESETS.map((preset) => (
+                  <button
+                    key={preset}
+                    type="button"
+                    onClick={() => {
+                      setLength(preset.toString());
+                      toast.success(`Set length to ${preset} ft`);
+                    }}
+                    className={`border px-3.5 py-1.5 font-mono text-xs transition-colors ${
+                      length === preset.toString()
+                        ? "border-bronze bg-bronze/10 text-bronze font-semibold"
+                        : "border-hairline bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground"
+                    }`}
+                  >
+                    {preset} ft
+                  </button>
+                ))}
               </div>
             </div>
           </div>
 
-          {/* STEP 04: CUSTOMER ENQUIRY FORM */}
+          {/* STEP 04: ENQUIRY / SUBMISSION FORM */}
           <div ref={enquirySectionRef} className="border border-hairline bg-card p-6 md:p-8">
             <div className="mb-6 flex items-center justify-between">
               <span className="label-xs text-bronze">STEP 04</span>
               <span className="text-[0.65rem] tracking-widest text-muted-foreground uppercase">
-                Submit Requirement
+                Send Your Requirement
               </span>
             </div>
 
-            <h3 className="text-xl tracking-tight">Request Official Quotation</h3>
-            <p className="mt-1 text-xs text-muted-foreground">
-              Submit your project details to receive a formal quotation and arrange a site visit.
-            </p>
-
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                handleSubmit(false);
-              }}
-              className="mt-6 space-y-4"
-            >
+            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(false); }} className="space-y-4">
               <Field id="enquiry-name" label="Full Name *" error={errors.customerName}>
                 <input
                   id="enquiry-name"
@@ -663,11 +649,11 @@ function CalculatorPage() {
               <div className="mt-2">
                 {isCustom ? (
                   <div>
-                    <span className="text-2xl font-medium tracking-tight text-bronze">
-                      CUSTOM QUOTE
+                    <span className="text-2xl font-medium tracking-tight text-bronze uppercase">
+                      PRICE ON REQUEST
                     </span>
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      Pricing will be confirmed based on the final design, materials and site requirements.
+                      Pricing will be confirmed based on the project dimensions, configuration and site requirements.
                     </p>
                   </div>
                 ) : (

@@ -49,11 +49,15 @@ export function Navbar() {
       >
         <Link
           to="/"
-          className="group flex items-center gap-3.5 leading-none"
-          aria-label="Metal Work Nepal — Railing Studio"
+          className="group flex items-center gap-3.5 sm:gap-4 leading-none"
+          aria-label="Metal Work Nepal"
         >
           {/* Logo container with smooth crossfade between light and dark variants */}
-          <div className="relative h-10 w-10 md:h-12 md:w-12 shrink-0 overflow-hidden rounded-sm transition-transform duration-300 group-hover:scale-105">
+          <div
+            className={`relative shrink-0 overflow-hidden rounded-sm transition-all duration-300 group-hover:scale-105 ${
+              scrolled ? "h-11 w-11 md:h-12 md:w-12" : "h-13 w-13 sm:h-14 sm:w-14 md:h-16 md:w-16"
+            }`}
+          >
             <img
               src="/logo/house-of-shakya-logo-light.png"
               alt="Metal Work Nepal"
@@ -72,22 +76,13 @@ export function Navbar() {
             />
           </div>
 
-          <div>
-            <span
-              className={`block text-[0.82rem] font-extrabold tracking-[0.22em] uppercase transition-colors duration-300 sm:text-[0.88rem] sm:tracking-[0.24em] ${
-                isDarkHero ? "text-ivory" : "text-foreground"
-              }`}
-            >
-              Metal Work Nepal
-            </span>
-            <span
-              className={`mt-1 block text-[0.58rem] font-bold tracking-[0.3em] uppercase transition-colors duration-300 sm:text-[0.6rem] sm:tracking-[0.32em] ${
-                isDarkHero ? "text-bronze-soft" : "text-bronze"
-              }`}
-            >
-              Railing Studio
-            </span>
-          </div>
+          <span
+            className={`text-[0.92rem] font-extrabold tracking-[0.22em] uppercase transition-colors duration-300 sm:text-[1.02rem] md:text-[1.08rem] sm:tracking-[0.24em] ${
+              isDarkHero ? "text-ivory" : "text-foreground"
+            }`}
+          >
+            Metal Work Nepal
+          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden items-center gap-9 lg:flex">

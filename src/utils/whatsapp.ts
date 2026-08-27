@@ -23,8 +23,8 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
     "",
   ];
 
-  if (e.isCustom) {
-    lines.push("Rate:", "Custom Quote", "", "Estimated Price:", "Pricing will be confirmed based on final design", "");
+  if (e.isCustom || !e.rate || e.rate === 0) {
+    lines.push("Rate:", "Price on Request", "", "Estimated Price:", "Pricing will be confirmed based on final design", "");
   } else {
     lines.push(
       "Rate:",

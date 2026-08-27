@@ -1,7 +1,9 @@
-# Ignore large video files over 100MB on Vercel deployment
-public/videos/railings/bhaisepati-railing.mp4
-public/videos/railings/dhapasi-railing.mp4
-public/videos/railings/naxal-railing.mp4
-media_storage/
-server/metalwork_nepal.sqlite
-server/metalwork_nepal.sqlite-journal
+.output
+.nitro
+.vinxi
+media_storage
+public/videos
+server/uploads
+server/*.sqlite
+server/*.sqlite-journal
+*.log

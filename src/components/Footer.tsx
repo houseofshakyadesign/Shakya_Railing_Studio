@@ -9,15 +9,15 @@ export function Footer() {
     <footer className="border-t border-hairline bg-sand">
       <div className="mx-auto grid max-w-[1440px] gap-12 px-5 py-16 md:grid-cols-[1.4fr_1fr_1fr] md:px-10 md:py-24">
         <div>
-          <div className="flex items-center gap-3.5">
+          <div className="flex items-center gap-4">
             <img
               src="/logo/house-of-shakya-logo-dark.png"
               alt="Metal Work Nepal — Railing Studio"
-              className="h-10 w-10 shrink-0 rounded-sm object-contain"
+              className="h-14 w-14 md:h-16 md:w-16 shrink-0 rounded-sm object-contain"
             />
             <div>
-              <p className="text-sm font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
-              <p className="mt-0.5 text-[0.65rem] font-bold tracking-[0.3em] text-bronze uppercase">
+              <p className="text-[0.98rem] md:text-base font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
+              <p className="mt-0.5 text-[0.66rem] font-bold tracking-[0.3em] text-bronze uppercase">
                 Railing Studio
               </p>
             </div>

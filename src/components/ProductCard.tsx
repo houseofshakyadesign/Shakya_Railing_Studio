@@ -60,19 +60,34 @@ export const ProductCard = memo(function ProductCard({
       </div>
 
       <div className="flex flex-1 flex-col p-6">
-        <h3 className="text-lg leading-snug tracking-tight">{product.name}</h3>
-        <p className="mt-3 pb-6 text-sm leading-relaxed text-muted-foreground">{product.description}</p>
+        <div>
+          {product.nepaliName ? (
+            <p className="text-sm font-medium tracking-wide text-bronze">
+              {product.nepaliName}
+            </p>
+          ) : null}
+          <h3 className="mt-1 text-lg font-medium leading-snug tracking-tight">
+            {product.displayName || product.name}
+          </h3>
+          {product.applications?.length || product.category ? (
+            <p className="mt-1.5 text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
+              {product.applications?.[0] || product.category}
+            </p>
+          ) : null}
+        </div>
 
-        <dl className="mt-auto flex items-end justify-between gap-4 border-t border-hairline pt-5">
-          <div>
+        <dl className="mt-auto flex items-end justify-between gap-4 border-t border-hairline pt-5 mt-6">
+          <div className="min-w-0 flex-1">
             <dt className="label-xs text-muted-foreground">Material</dt>
-            <dd className="mt-1.5 max-w-[9rem] text-xs leading-snug">{product.material}</dd>
+            <dd className="mt-1.5 text-xs leading-snug text-foreground line-clamp-2" title={product.material}>
+              {product.material}
+            </dd>
           </div>
-          <div className="text-right">
+          <div className="shrink-0 text-right">
             <dt className="label-xs text-muted-foreground">Rate</dt>
             <dd className="mt-1.5 text-sm font-semibold tracking-tight">
-              {product.isCustom ? (
-                "Custom Quote"
+              {product.pricePerSqft === null || product.pricePerSqft === undefined || product.pricePerSqft === 0 || product.isCustom ? (
+                "Price on Request"
               ) : (
                 <>
                   {formatNPR(product.pricePerSqft, currency)}

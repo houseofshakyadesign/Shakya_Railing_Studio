@@ -302,7 +302,15 @@ function Overview() {
 const BLANK_PRODUCT: Product = {
   id: "",
   code: "",
+  slug: "",
   name: "",
+  displayName: "",
+  nepaliName: "",
+  englishName: "",
+  category: "",
+  primer: "",
+  finish: "",
+  note: "",
   description: "",
   material: "",
   pricePerSqft: 0,
@@ -522,8 +530,14 @@ function ProductEditor({
             <Field id="p-code" label="Code">
               <input className={inputClass} value={draft.code} onChange={(e) => set("code", e.target.value)} />
             </Field>
-            <Field id="p-name" label="Name">
+            <Field id="p-name" label="Display Name">
               <input className={inputClass} value={draft.name} onChange={(e) => set("name", e.target.value)} />
+            </Field>
+            <Field id="p-nepali" label="Nepali Name">
+              <input className={inputClass} value={draft.nepaliName || ""} onChange={(e) => set("nepaliName", e.target.value)} placeholder="e.g. बसन्तपुर" />
+            </Field>
+            <Field id="p-english" label="English / Roman Name">
+              <input className={inputClass} value={draft.englishName || ""} onChange={(e) => set("englishName", e.target.value)} placeholder="e.g. Basantapur Bharyang" />
             </Field>
             <div className="sm:col-span-2">
               <Field id="p-desc" label="Description">
@@ -535,11 +549,65 @@ function ProductEditor({
                 />
               </Field>
             </div>
+            <Field id="p-category" label="Category">
+              <input
+                className={inputClass}
+                value={draft.category || ""}
+                onChange={(e) => set("category", e.target.value)}
+                placeholder="e.g. Wrought Iron Railing"
+              />
+            </Field>
+            <Field id="p-application" label="Application Classification">
+              <select
+                id="p-application"
+                className={inputClass}
+                value={draft.application || ""}
+                onChange={(e) => set("application", e.target.value)}
+              >
+                <option value="">-- Select Application --</option>
+                <option value="staircase">Staircase</option>
+                <option value="balcony">Balcony</option>
+                <option value="balcony_loft">Balcony / Loft</option>
+                <option value="grilles_gates">Grilles & Gates</option>
+              </select>
+            </Field>
             <Field id="p-mat" label="Material">
               <input
                 className={inputClass}
                 value={draft.material}
                 onChange={(e) => set("material", e.target.value)}
+              />
+            </Field>
+            <Field id="p-primer" label="Primer">
+              <input
+                className={inputClass}
+                value={draft.primer || ""}
+                onChange={(e) => set("primer", e.target.value)}
+                placeholder="e.g. Red oxide primer"
+              />
+            </Field>
+            <Field id="p-finish" label="Finish">
+              <input
+                className={inputClass}
+                value={draft.finish || ""}
+                onChange={(e) => set("finish", e.target.value)}
+                placeholder="e.g. Black matt deco paint"
+              />
+            </Field>
+            <Field id="p-construction" label="Construction">
+              <input
+                className={inputClass}
+                value={draft.construction || ""}
+                onChange={(e) => set("construction", e.target.value)}
+                placeholder="e.g. Reinforced door-frame construction"
+              />
+            </Field>
+            <Field id="p-note" label="Important Note">
+              <input
+                className={inputClass}
+                value={draft.note || ""}
+                onChange={(e) => set("note", e.target.value)}
+                placeholder="e.g. Wood handrail shown is not included"
               />
             </Field>
             <Field id="p-price" label="Price per sq.ft.">
