@@ -389,7 +389,7 @@ function ContactPage() {
                               onChange={(e) => setField("fullName", e.target.value)}
                               maxLength={100}
                               className={errors.fullName ? errorInputClass : inputClass}
-                              placeholder="e.g. Sajan Shakya"
+                              placeholder="Your Full Name"
                             />
                           </Field>
 
