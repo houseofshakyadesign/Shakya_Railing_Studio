@@ -368,14 +368,22 @@ function ContactPage() {
                       exit={{ opacity: 0 }}
                     >
                       <div>
-                        <p className="label-xs text-bronze uppercase tracking-[0.22em]">
-                          START YOUR PROJECT
-                        </p>
+                        <div className="flex items-center justify-between">
+                          <p className="label-xs text-bronze uppercase tracking-[0.22em]">
+                            START YOUR PROJECT
+                          </p>
+                          <Link
+                            to="/calculator"
+                            className="text-[0.68rem] font-bold tracking-wider text-bronze uppercase underline underline-offset-4 hover:text-foreground"
+                          >
+                            Calculate Estimate →
+                          </Link>
+                        </div>
                         <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
-                          Request an Estimate
+                          Send an Enquiry
                         </h2>
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                          Fill out the essential project details below and our team will get in touch directly.
+                          Fill out the essential project details below or use our calculator to get an instant estimate.
                         </p>
                       </div>
 
