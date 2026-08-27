@@ -22,9 +22,7 @@ export const Route = createFileRoute("/")({
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
-    links: [
-      { rel: "canonical", href: "https://shakya-railing-studio.vercel.app/" },
-    ],
+    links: [{ rel: "canonical", href: "https://shakya-railing-studio.vercel.app/" }],
   }),
   component: Index,
 });

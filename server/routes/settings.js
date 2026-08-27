@@ -50,24 +50,70 @@ router.get("/", async (req, res) => {
 // PUT /api/settings (admin only)
 router.put("/", requireAuth, async (req, res) => {
   try {
-    const s = req.body;
+    const s = req.body || {};
+    const existingRows = await query("SELECT * FROM settings WHERE id = 'default' LIMIT 1");
+    const existing = existingRows && existingRows.length > 0 ? existingRows[0] : {};
+
+    const companyName =
+      s.companyName !== undefined
+        ? s.companyName
+        : s.company_name !== undefined
+          ? s.company_name
+          : existing.company_name || "Metal Work Nepal";
+
+    const studioName =
+      s.studioName !== undefined
+        ? s.studioName
+        : s.studio_name !== undefined
+          ? s.studio_name
+          : existing.studio_name || "Architectural Studio";
+
+    const whatsappNumber =
+      s.whatsappNumber !== undefined
+        ? s.whatsappNumber
+        : s.whatsapp_number !== undefined
+          ? s.whatsapp_number
+          : existing.whatsapp_number || "9779843935689";
+
+    const phone = s.phone !== undefined ? s.phone : existing.phone || "+977 984-3935689";
+
+    const email = s.email !== undefined ? s.email : existing.email || "info@metalworknepal.com";
+
+    const address =
+      s.address !== undefined ? s.address : existing.address || "Imadole, Mahalaxmi, Nepal";
+
+    const currency = s.currency !== undefined ? s.currency : existing.currency || "NPR";
+
+    const currencyLocale =
+      s.currencyLocale !== undefined
+        ? s.currencyLocale
+        : s.currency_locale !== undefined
+          ? s.currency_locale
+          : existing.currency_locale || "en-IN";
+
+    const instagram = s.instagram !== undefined ? s.instagram : existing.instagram || "";
+
+    const tiktok = s.tiktok !== undefined ? s.tiktok : existing.tiktok || "";
+
+    const website = s.website !== undefined ? s.website : existing.website || "";
+
     await query(
       `UPDATE settings 
        SET company_name = ?, studio_name = ?, whatsapp_number = ?, phone = ?, email = ?, address = ?, currency = ?, currency_locale = ?, instagram = ?, tiktok = ?, website = ?
        WHERE id = 'default'`,
       [
-        s.companyName,
-        s.studioName,
-        s.whatsappNumber,
-        s.phone,
-        s.email,
-        s.address,
-        s.currency,
-        s.currencyLocale,
-        s.instagram,
-        s.tiktok,
-        s.website,
-      ]
+        companyName,
+        studioName,
+        whatsappNumber,
+        phone,
+        email,
+        address,
+        currency,
+        currencyLocale,
+        instagram,
+        tiktok,
+        website,
+      ],
     );
 
     const updated = await query("SELECT * FROM settings WHERE id = 'default' LIMIT 1");

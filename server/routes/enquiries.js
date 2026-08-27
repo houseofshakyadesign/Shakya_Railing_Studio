@@ -46,61 +46,85 @@ router.get("/", requireAuth, async (req, res) => {
 });
 
 // POST /api/enquiries (public customer quotation submission)
-router.post("/", rateLimit({ windowMs: 60000, max: 5, message: "Too many enquiries. Please try again later." }), async (req, res) => {
-  try {
-    const e = req.body;
-    const id = e.id || `enq_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`;
-    const estimatedPrice = Number(e.estimatedPrice || e.estimatedTotal) || 0;
+router.post(
+  "/",
+  rateLimit({ windowMs: 60000, max: 20, message: "Too many enquiries. Please try again later." }),
+  async (req, res) => {
+    try {
+      const e = req.body || {};
+      const id = e.id || `enq_${Date.now()}_${crypto.randomUUID().slice(0, 6)}`;
+      const estimatedPrice =
+        Number(e.estimatedPrice ?? e.estimated_price ?? e.estimatedTotal ?? e.estimated_total) || 0;
+      const customerName = e.customerName || e.customer_name || "Anonymous Customer";
+      const phone = e.phone || "";
+      const email = e.email || null;
+      const location = e.location || "";
+      const projectType = e.projectType || e.project_type || "Residential";
+      const railingType = e.railingType || e.railing_type || "Balcony Railing";
+      const productId = e.productId || e.product_id || "";
+      const productCode = e.productCode || e.product_code || "";
+      const productName = e.productName || e.product_name || "";
+      const material = e.material || "";
+      const isCustom = (e.isCustom !== undefined ? e.isCustom : e.is_custom) ? 1 : 0;
+      const lengthFt = Number(e.lengthFt ?? e.length_ft) || 0;
+      const heightFt = Number(e.heightFt ?? e.height_ft) || 3.0;
+      const estimatedAreaSqft = Number(e.estimatedAreaSqft ?? e.estimated_area_sqft) || 0;
+      const rate = Number(e.rate) || 0;
+      const status = e.status || "new";
+      const additionalRequirements = e.additionalRequirements || e.additional_requirements || "";
 
-    await query(
-      `INSERT INTO enquiries (
+      await query(
+        `INSERT INTO enquiries (
         id, customer_name, phone, email, location, project_type, railing_type,
         product_id, product_code, product_name, material, is_custom,
         length_ft, height_ft, estimated_area_sqft,
         rate, estimated_price, estimated_total, status, additional_requirements
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        id,
-        e.customerName || "Anonymous Customer",
-        e.phone || "",
-        e.email || null,
-        e.location || "",
-        e.projectType || "Residential",
-        e.railingType || "Balcony Railing",
-        e.productId || "",
-        e.productCode || "",
-        e.productName || "",
-        e.material || "",
-        e.isCustom ? 1 : 0,
-        e.lengthFt || 0,
-        e.heightFt || 3.0,
-        e.estimatedAreaSqft || 0,
-        e.rate || 0,
-        estimatedPrice,
-        estimatedPrice,
-        e.status || "new",
-        e.additionalRequirements || "",
-      ]
-    );
+        [
+          id,
+          customerName,
+          phone,
+          email,
+          location,
+          projectType,
+          railingType,
+          productId,
+          productCode,
+          productName,
+          material,
+          isCustom,
+          lengthFt,
+          heightFt,
+          estimatedAreaSqft,
+          rate,
+          estimatedPrice,
+          estimatedPrice,
+          status,
+          additionalRequirements,
+        ],
+      );
 
-    const created = await query("SELECT * FROM enquiries WHERE id = ? LIMIT 1", [id]);
-    return res.status(201).json(formatEnquiry(created[0]));
-  } catch (err) {
-    /* silent */
-    return res.status(500).json({ error: "Failed to record enquiry" });
-  }
-});
+      const created = await query("SELECT * FROM enquiries WHERE id = ? LIMIT 1", [id]);
+      return res.status(201).json(formatEnquiry(created[0]));
+    } catch (err) {
+      console.error("POST /api/enquiries error:", err);
+      return res.status(500).json({ error: "Failed to record enquiry" });
+    }
+  },
+);
 
 // PATCH /api/enquiries/:id/status (admin only)
 router.patch("/:id/status", requireAuth, async (req, res) => {
   try {
-    const { status } = req.body;
+    const { status } = req.body || {};
     if (!status) {
       return res.status(400).json({ error: "Status is required" });
     }
 
     if (!ALLOWED_STATUSES.includes(status)) {
-      return res.status(400).json({ error: `Invalid status. Allowed: ${ALLOWED_STATUSES.join(", ")}` });
+      return res
+        .status(400)
+        .json({ error: `Invalid status. Allowed: ${ALLOWED_STATUSES.join(", ")}` });
     }
 
     await query("UPDATE enquiries SET status = ? WHERE id = ?", [status, req.params.id]);
@@ -110,7 +134,7 @@ router.patch("/:id/status", requireAuth, async (req, res) => {
     }
     return res.json(formatEnquiry(updated[0]));
   } catch (err) {
-    /* silent */
+    console.error("PATCH /api/enquiries/:id/status error:", err);
     return res.status(500).json({ error: "Failed to update status" });
   }
 });
@@ -121,7 +145,7 @@ router.delete("/:id", requireAuth, async (req, res) => {
     await query("DELETE FROM enquiries WHERE id = ?", [req.params.id]);
     return res.json({ success: true, message: "Enquiry deleted" });
   } catch (err) {
-    /* silent */
+    console.error("DELETE /api/enquiries/:id error:", err);
     return res.status(500).json({ error: "Failed to delete enquiry" });
   }
 });

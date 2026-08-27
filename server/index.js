@@ -33,7 +33,7 @@ app.use(
     origin: (origin, callback) => {
       // Allow requests with no origin (like mobile apps, curl, or same-origin)
       if (!origin) return callback(null, true);
-      
+
       // Allow any localhost/127.0.0.1 during development
       if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
         return callback(null, true);
@@ -50,7 +50,7 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With", "Accept"],
     credentials: true,
     maxAge: 86400,
-  })
+  }),
 );
 
 app.options("*", cors());
@@ -68,12 +68,22 @@ app.use((_req, res, next) => {
   next();
 });
 
-// Static file serving for uploads directory
+app.enable("trust proxy");
+
+// Static file serving for uploads directory with CORS headers
 const uploadsPath = path.join(__dirname, "uploads");
 if (!fs.existsSync(uploadsPath)) {
   fs.mkdirSync(uploadsPath, { recursive: true });
 }
-app.use("/uploads", express.static(uploadsPath));
+app.use(
+  "/uploads",
+  (_req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(uploadsPath, { maxAge: "7d" }),
+);
 
 // Health check & status
 app.get("/api/health", (req, res) => {

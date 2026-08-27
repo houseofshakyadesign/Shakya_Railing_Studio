@@ -16,7 +16,9 @@ export function Footer() {
               className="h-14 w-14 md:h-16 md:w-16 shrink-0 rounded-sm object-contain"
             />
             <div>
-              <p className="text-[0.98rem] md:text-base font-extrabold tracking-[0.24em] uppercase">Metal Work Nepal</p>
+              <p className="text-[0.98rem] md:text-base font-extrabold tracking-[0.24em] uppercase">
+                Metal Work Nepal
+              </p>
               <p className="mt-0.5 text-[0.66rem] font-bold tracking-[0.3em] text-bronze uppercase">
                 Railing Studio
               </p>

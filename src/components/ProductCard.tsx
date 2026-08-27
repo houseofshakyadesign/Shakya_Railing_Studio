@@ -27,10 +27,11 @@ export const ProductCard = memo(function ProductCard({
       viewport={{ once: true, margin: "-60px" }}
       transition={{ duration: 0.55, delay: (index % 3) * 0.07, ease: EASE }}
       whileHover={{ y: -6 }}
-      className={`group relative flex flex-col border bg-card transition-[border-color,box-shadow] duration-300 ${selected
+      className={`group relative flex flex-col border bg-card transition-[border-color,box-shadow] duration-300 ${
+        selected
           ? "border-bronze shadow-lift"
           : "border-hairline shadow-soft hover:border-foreground/25 hover:shadow-lift"
-        }`}
+      }`}
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         <img
@@ -61,9 +62,7 @@ export const ProductCard = memo(function ProductCard({
       <div className="flex flex-1 flex-col p-6">
         <div>
           {product.nepaliName ? (
-            <p className="text-sm font-medium tracking-wide text-bronze">
-              {product.nepaliName}
-            </p>
+            <p className="text-sm font-medium tracking-wide text-bronze">{product.nepaliName}</p>
           ) : null}
           <h3 className="mt-1 text-lg font-medium leading-snug tracking-tight">
             {product.displayName || product.name}
@@ -78,14 +77,20 @@ export const ProductCard = memo(function ProductCard({
         <dl className="mt-auto flex items-end justify-between gap-4 border-t border-hairline pt-5 mt-6">
           <div className="min-w-0 flex-1">
             <dt className="label-xs text-muted-foreground">Material</dt>
-            <dd className="mt-1.5 text-xs leading-snug text-foreground line-clamp-2" title={product.material}>
+            <dd
+              className="mt-1.5 text-xs leading-snug text-foreground line-clamp-2"
+              title={product.material}
+            >
               {product.material}
             </dd>
           </div>
           <div className="shrink-0 text-right">
             <dt className="label-xs text-muted-foreground">Rate</dt>
             <dd className="mt-1.5 text-sm font-semibold tracking-tight">
-              {product.pricePerSqft === null || product.pricePerSqft === undefined || product.pricePerSqft === 0 || product.isCustom ? (
+              {product.pricePerSqft === null ||
+              product.pricePerSqft === undefined ||
+              product.pricePerSqft === 0 ||
+              product.isCustom ? (
                 "Price on Request"
               ) : (
                 <>
@@ -110,15 +115,21 @@ export const ProductCard = memo(function ProductCard({
             type="button"
             onClick={() => onSelect(product)}
             aria-pressed={selected}
-            className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${selected
+            className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
+              selected
                 ? "bg-bronze text-ivory hover:bg-destructive"
                 : "bg-charcoal text-ivory hover:bg-bronze"
-              }`}
+            }`}
           >
             {selected ? (
               <>
-                <Check className="h-3 w-3 transition-transform duration-200 group-hover/sel:hidden" strokeWidth={2.5} />
-                <span className="hidden h-3 w-3 items-center justify-center text-[0.6rem] leading-none group-hover/sel:flex">✕</span>
+                <Check
+                  className="h-3 w-3 transition-transform duration-200 group-hover/sel:hidden"
+                  strokeWidth={2.5}
+                />
+                <span className="hidden h-3 w-3 items-center justify-center text-[0.6rem] leading-none group-hover/sel:flex">
+                  ✕
+                </span>
                 <span className="group-hover/sel:hidden">Selected</span>
                 <span className="hidden group-hover/sel:inline">Deselect</span>
               </>

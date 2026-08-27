@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { FinalCTA } from "@/components/FinalCTA";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { EASE, Reveal, SectionHeading } from "@/components/Reveal";
-import { useStudio, type Enquiry } from "@/hooks/useStudio";
+import { ENQUIRY_STATUS_LABELS, useStudio, type Enquiry } from "@/hooks/useStudio";
 import { openWhatsApp } from "@/utils/whatsapp";
 
 const title = "Contact & Enquiry | Metal Work Nepal";
@@ -90,8 +90,10 @@ function ContactPage() {
   const [submittedEnquiry, setSubmittedEnquiry] = useState<Enquiry | null>(null);
 
   const waHref = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}`;
-  const mapSearchHref = "https://www.google.com/maps/search/?api=1&query=Sita+Complex+Imadole+Lalitpur+Nepal";
-  const mapEmbedUrl = "https://maps.google.com/maps?q=Sita%20Complex%2C%20Imadole%2C%20Lalitpur%2C%20Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed";
+  const mapSearchHref =
+    "https://www.google.com/maps/search/?api=1&query=Sita+Complex+Imadole+Lalitpur+Nepal";
+  const mapEmbedUrl =
+    "https://maps.google.com/maps?q=Sita%20Complex%2C%20Imadole%2C%20Lalitpur%2C%20Nepal&t=&z=16&ie=UTF8&iwloc=&output=embed";
 
   const directChannels = [
     {
@@ -246,10 +248,12 @@ function ContactPage() {
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight leading-[1.08] sm:text-5xl md:text-6xl uppercase">
               LET'S TALK ABOUT
               <br />
-              <span className="font-serif italic font-normal text-bronze lowercase">your</span> NEXT RAILING.
+              <span className="font-serif italic font-normal text-bronze lowercase">your</span> NEXT
+              RAILING.
             </h1>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
-              Tell us what you're planning. We'll help you choose the right design, calculate an accurate estimate, and coordinate fabrication from our Sita Complex studio.
+              Tell us what you're planning. We'll help you choose the right design, calculate an
+              accurate estimate, and coordinate fabrication from our Sita Complex studio.
             </p>
           </div>
 
@@ -270,7 +274,6 @@ function ContactPage() {
       <section className="border-t border-hairline bg-sand/30 py-16 md:py-24">
         <div className="mx-auto max-w-[1440px] px-5 md:px-10">
           <div className="grid grid-cols-1 gap-12 lg:grid-cols-[1.18fr_0.82fr] lg:gap-12 xl:gap-16 items-start">
-
             {/* LEFT COLUMN: PRIMARY ENQUIRY FORM */}
             <div>
               <div className="border border-hairline bg-background p-7 sm:p-10 md:p-12 shadow-soft">
@@ -301,7 +304,8 @@ function ContactPage() {
                         Thank you, {submittedEnquiry.customerName}.
                       </h2>
                       <p className="mx-auto mt-4 max-w-md text-sm leading-relaxed text-muted-foreground">
-                        We've received your project enquiry and will get back to you shortly with next steps and fabrication details.
+                        We've received your project enquiry and will get back to you shortly with
+                        next steps and fabrication details.
                       </p>
 
                       <div className="mx-auto mt-8 max-w-sm border border-hairline bg-card p-4 text-left text-xs">
@@ -321,7 +325,10 @@ function ContactPage() {
                         </div>
                         <div className="flex justify-between pt-2">
                           <span className="text-muted-foreground uppercase">Status</span>
-                          <span className="text-bronze font-bold uppercase">{submittedEnquiry.status}</span>
+                          <span className="text-bronze font-bold uppercase">
+                            {ENQUIRY_STATUS_LABELS[submittedEnquiry.status as Enquiry["status"]] ??
+                              submittedEnquiry.status}
+                          </span>
                         </div>
                       </div>
 
@@ -334,7 +341,13 @@ function ContactPage() {
                         </Link>
                         <button
                           type="button"
-                          onClick={() => openWhatsApp(submittedEnquiry, settings.whatsappNumber, settings.currency)}
+                          onClick={() =>
+                            openWhatsApp(
+                              submittedEnquiry,
+                              settings.whatsappNumber,
+                              settings.currency,
+                            )
+                          }
                           className="w-full sm:w-auto flex items-center justify-center gap-2.5 border border-hairline px-8 py-4 text-[0.72rem] font-bold tracking-[0.2em] uppercase transition-colors hover:border-bronze hover:text-bronze"
                         >
                           <MessageCircle className="h-4 w-4" />
@@ -375,14 +388,20 @@ function ContactPage() {
                           Request an Estimate
                         </h2>
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                          Fill out the essential project details below and our team will get in touch directly.
+                          Fill out the essential project details below and our team will get in
+                          touch directly.
                         </p>
                       </div>
 
                       <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                         <div className="grid gap-6 sm:grid-cols-2">
                           {/* Full Name */}
-                          <Field id="contact-name" label="Full Name" required error={errors.fullName}>
+                          <Field
+                            id="contact-name"
+                            label="Full Name"
+                            required
+                            error={errors.fullName}
+                          >
                             <input
                               id="contact-name"
                               value={form.fullName}
@@ -394,7 +413,12 @@ function ContactPage() {
                           </Field>
 
                           {/* Phone / WhatsApp */}
-                          <Field id="contact-phone" label="Phone / WhatsApp" required error={errors.phone}>
+                          <Field
+                            id="contact-phone"
+                            label="Phone / WhatsApp"
+                            required
+                            error={errors.phone}
+                          >
                             <input
                               id="contact-phone"
                               type="tel"
@@ -410,7 +434,12 @@ function ContactPage() {
 
                         <div className="grid gap-6 sm:grid-cols-2">
                           {/* Project Type */}
-                          <Field id="contact-type" label="Project Type" required error={errors.projectType}>
+                          <Field
+                            id="contact-type"
+                            label="Project Type"
+                            required
+                            error={errors.projectType}
+                          >
                             <select
                               id="contact-type"
                               value={form.projectType}
@@ -426,7 +455,12 @@ function ContactPage() {
                           </Field>
 
                           {/* Project Location */}
-                          <Field id="contact-loc" label="Project Location" required error={errors.location}>
+                          <Field
+                            id="contact-loc"
+                            label="Project Location"
+                            required
+                            error={errors.location}
+                          >
                             <input
                               id="contact-loc"
                               value={form.location}
@@ -439,7 +473,11 @@ function ContactPage() {
                         </div>
 
                         {/* Project Details / Message */}
-                        <Field id="contact-msg" label="Project Details / Notes" hint="Optional — design preference, length in ft, or questions">
+                        <Field
+                          id="contact-msg"
+                          label="Project Details / Notes"
+                          hint="Optional — design preference, length in ft, or questions"
+                        >
                           <textarea
                             id="contact-msg"
                             rows={4}
@@ -491,7 +529,6 @@ function ContactPage() {
 
             {/* RIGHT COLUMN: STUDIO INFO & INTERACTIVE MAP */}
             <div className="flex flex-col space-y-6 w-full">
-
               {/* Studio Information Box */}
               <div className="border border-hairline bg-background p-7 sm:p-8">
                 <div className="flex items-center gap-2.5">
@@ -548,13 +585,12 @@ function ContactPage() {
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-4 w-4 text-bronze shrink-0 mt-0.5" />
                   <p className="text-xs leading-relaxed text-muted-foreground">
-                    All hand-forged scrollwork, custom fitting, red-oxide primer, and matt deco finishes are fabricated in-house at our Sita Complex facility.
+                    All hand-forged scrollwork, custom fitting, red-oxide primer, and matt deco
+                    finishes are fabricated in-house at our Sita Complex facility.
                   </p>
                 </div>
               </div>
-
             </div>
-
           </div>
         </div>
       </section>
@@ -584,9 +620,7 @@ function ContactPage() {
                   </span>
                 </div>
 
-                <h4 className="mt-4 text-lg font-bold tracking-tight text-foreground">
-                  {c.title}
-                </h4>
+                <h4 className="mt-4 text-lg font-bold tracking-tight text-foreground">{c.title}</h4>
 
                 <p className="mt-1 text-sm font-semibold tracking-tight text-muted-foreground sm:text-base">
                   {c.value}
@@ -622,7 +656,8 @@ function ContactPage() {
               ENQUIRE WITH CONFIDENCE.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-ivory/70 sm:text-base">
-              Enter your railing type and approximate length to get an instant per-sq.ft. price breakdown before sending your enquiry.
+              Enter your railing type and approximate length to get an instant per-sq.ft. price
+              breakdown before sending your enquiry.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link

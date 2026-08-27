@@ -34,16 +34,18 @@ export function Navbar() {
 
   return (
     <header
-      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled
+      className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${
+        scrolled
           ? "border-b border-hairline bg-background/90 backdrop-blur-xl shadow-soft"
           : isDarkHero
             ? "border-b border-transparent bg-gradient-to-b from-charcoal/80 via-charcoal/30 to-transparent"
             : "border-b border-transparent bg-background/80 backdrop-blur-md"
-        }`}
+      }`}
     >
       <div
-        className={`mx-auto flex max-w-[1440px] items-center justify-between px-5 transition-all duration-300 md:px-10 ${scrolled ? "h-16" : "h-20 md:h-24"
-          }`}
+        className={`mx-auto flex max-w-[1440px] items-center justify-between px-5 transition-all duration-300 md:px-10 ${
+          scrolled ? "h-16" : "h-20 md:h-24"
+        }`}
       >
         <Link
           to="/"
@@ -52,28 +54,32 @@ export function Navbar() {
         >
           {/* Logo container with smooth crossfade between light and dark variants */}
           <div
-            className={`relative shrink-0 overflow-hidden rounded-sm transition-all duration-300 group-hover:scale-105 ${scrolled ? "h-11 w-11 md:h-12 md:w-12" : "h-13 w-13 sm:h-14 sm:w-14 md:h-16 md:w-16"
-              }`}
+            className={`relative shrink-0 overflow-hidden rounded-sm transition-all duration-300 group-hover:scale-105 ${
+              scrolled ? "h-11 w-11 md:h-12 md:w-12" : "h-13 w-13 sm:h-14 sm:w-14 md:h-16 md:w-16"
+            }`}
           >
             <img
               src="/logo/house-of-shakya-logo-light.png"
               alt="Metal Work Nepal"
               aria-hidden="true"
-              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${isDarkHero ? "opacity-100" : "pointer-events-none opacity-0"
-                }`}
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
+                isDarkHero ? "opacity-100" : "pointer-events-none opacity-0"
+              }`}
             />
             <img
               src="/logo/house-of-shakya-logo-dark.png"
               alt="Metal Work Nepal"
               aria-hidden="true"
-              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${isDarkHero ? "pointer-events-none opacity-0" : "opacity-100"
-                }`}
+              className={`absolute inset-0 h-full w-full object-contain transition-opacity duration-300 ${
+                isDarkHero ? "pointer-events-none opacity-0" : "opacity-100"
+              }`}
             />
           </div>
 
           <span
-            className={`text-[0.92rem] font-extrabold tracking-[0.22em] uppercase transition-colors duration-300 sm:text-[1.02rem] md:text-[1.08rem] sm:tracking-[0.24em] ${isDarkHero ? "text-ivory" : "text-foreground"
-              }`}
+            className={`text-[0.92rem] font-extrabold tracking-[0.22em] uppercase transition-colors duration-300 sm:text-[1.02rem] md:text-[1.08rem] sm:tracking-[0.24em] ${
+              isDarkHero ? "text-ivory" : "text-foreground"
+            }`}
           >
             Metal Work Nepal
           </span>
@@ -84,18 +90,22 @@ export function Navbar() {
             <Link
               key={item.to}
               to={item.to}
-              className={`group relative py-1 text-[0.8rem] font-bold tracking-[0.16em] uppercase transition-colors duration-300 ${isDarkHero
+              className={`group relative py-1 text-[0.8rem] font-bold tracking-[0.16em] uppercase transition-colors duration-300 ${
+                isDarkHero
                   ? "text-ivory/90 hover:text-ivory"
                   : "text-foreground/80 hover:text-foreground"
-                }`}
+              }`}
               activeProps={{
-                className: isDarkHero ? "text-ivory font-extrabold" : "text-foreground font-extrabold",
+                className: isDarkHero
+                  ? "text-ivory font-extrabold"
+                  : "text-foreground font-extrabold",
               }}
             >
               {item.label}
               <span
-                className={`absolute -bottom-0.5 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full ${isDarkHero ? "bg-bronze-soft" : "bg-bronze"
-                  }`}
+                className={`absolute -bottom-0.5 left-0 h-[2px] w-0 transition-all duration-300 group-hover:w-full ${
+                  isDarkHero ? "bg-bronze-soft" : "bg-bronze"
+                }`}
               />
             </Link>
           ))}
@@ -104,10 +114,11 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <Link
             to="/calculator"
-            className={`hidden px-6 py-3 text-[0.72rem] font-bold tracking-[0.2em] uppercase transition-colors duration-300 sm:inline-block ${isDarkHero
+            className={`hidden px-6 py-3 text-[0.72rem] font-bold tracking-[0.2em] uppercase transition-colors duration-300 sm:inline-block ${
+              isDarkHero
                 ? "bg-ivory text-charcoal hover:bg-bronze hover:text-ivory"
                 : "bg-charcoal text-ivory hover:bg-bronze"
-              }`}
+            }`}
           >
             Get a Quote
           </Link>
@@ -116,8 +127,9 @@ export function Navbar() {
             onClick={() => setOpen((v) => !v)}
             aria-label={open ? "Close menu" : "Open menu"}
             aria-expanded={open}
-            className={`-mr-2 grid h-11 w-11 place-items-center transition-colors duration-300 lg:hidden ${isDarkHero ? "text-ivory hover:text-white" : "text-foreground"
-              }`}
+            className={`-mr-2 grid h-11 w-11 place-items-center transition-colors duration-300 lg:hidden ${
+              isDarkHero ? "text-ivory hover:text-white" : "text-foreground"
+            }`}
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

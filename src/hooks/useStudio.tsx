@@ -11,21 +11,26 @@ import { type Product } from "@/data/products";
 import { type Project, type ProjectMedia, INITIAL_PROJECTS } from "@/data/projects";
 import { DEFAULT_SETTINGS, STORAGE_KEYS, type Settings } from "@/config/settings";
 import { isStorageAvailable, readJSON, writeJSON } from "@/utils/localStorage";
-import { DEFAULT_RAILING_TYPES, type RailingTypeConfig, type RailingTypeSlug } from "@/utils/calculations";
+import {
+  DEFAULT_RAILING_TYPES,
+  type RailingTypeConfig,
+  type RailingTypeSlug,
+} from "@/utils/calculations";
 import { api } from "@/lib/api";
 
 export type { Project, ProjectMedia };
 
-export const ENQUIRY_STATUSES = [
-  "NEW",
-  "CONTACTED",
-  "QUOTATION SENT",
-  "CONFIRMED",
-  "COMPLETED",
-  "CANCELLED",
-] as const;
+export const ENQUIRY_STATUSES = ["new", "in_review", "quoted", "confirmed", "archived"] as const;
 
 export type EnquiryStatus = (typeof ENQUIRY_STATUSES)[number];
+
+export const ENQUIRY_STATUS_LABELS: Record<EnquiryStatus, string> = {
+  new: "New",
+  in_review: "In Review",
+  quoted: "Quoted",
+  confirmed: "Confirmed",
+  archived: "Archived",
+};
 
 export type Enquiry = {
   id: string;
@@ -150,8 +155,8 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const refreshFromCloud = useCallback(async () => {
     const hasAdminToken = Boolean(
       typeof window !== "undefined" &&
-        (localStorage.getItem("metalWorkNepal_adminToken") ||
-          sessionStorage.getItem("metalWorkNepal_adminToken"))
+      (localStorage.getItem("metalWorkNepal_adminToken") ||
+        sessionStorage.getItem("metalWorkNepal_adminToken")),
     );
 
     const results = await Promise.allSettled([
@@ -164,21 +169,37 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
     const [typesResult, productsResult, projectsResult, settingsResult, enquiriesResult] = results;
 
-    if (typesResult.status === "fulfilled" && Array.isArray(typesResult.value) && typesResult.value.length > 0) {
+    if (
+      typesResult.status === "fulfilled" &&
+      Array.isArray(typesResult.value) &&
+      typesResult.value.length > 0
+    ) {
       setRailingTypes(typesResult.value);
     }
 
-    if (productsResult.status === "fulfilled" && Array.isArray(productsResult.value) && productsResult.value.length > 0) {
+    if (
+      productsResult.status === "fulfilled" &&
+      Array.isArray(productsResult.value) &&
+      productsResult.value.length > 0
+    ) {
       setProducts(productsResult.value);
       writeJSON(STORAGE_KEYS.products, productsResult.value);
     }
 
-    if (projectsResult.status === "fulfilled" && Array.isArray(projectsResult.value) && projectsResult.value.length > 0) {
+    if (
+      projectsResult.status === "fulfilled" &&
+      Array.isArray(projectsResult.value) &&
+      projectsResult.value.length > 0
+    ) {
       setProjects(projectsResult.value);
       writeJSON(STORAGE_KEYS.projects, projectsResult.value);
     }
 
-    if (settingsResult.status === "fulfilled" && settingsResult.value && settingsResult.value.companyName) {
+    if (
+      settingsResult.status === "fulfilled" &&
+      settingsResult.value &&
+      settingsResult.value.companyName
+    ) {
       const fullSettings: Settings = {
         ...DEFAULT_SETTINGS,
         ...settingsResult.value,
@@ -230,25 +251,22 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [products],
   );
 
-  const deleteProduct = useCallback(
-    async (id: string): Promise<boolean> => {
-      setProducts((prev) => {
-        const next = prev.filter((x) => x.id !== id);
-        writeJSON(STORAGE_KEYS.products, next);
-        return next;
-      });
-      setSelectedId((cur) => (cur === id ? null : cur));
+  const deleteProduct = useCallback(async (id: string): Promise<boolean> => {
+    setProducts((prev) => {
+      const next = prev.filter((x) => x.id !== id);
+      writeJSON(STORAGE_KEYS.products, next);
+      return next;
+    });
+    setSelectedId((cur) => (cur === id ? null : cur));
 
-      try {
-        await api.products.delete(id);
-        return true;
-      } catch {
-        /* silent */
-        return false;
-      }
-    },
-    [],
-  );
+    try {
+      await api.products.delete(id);
+      return true;
+    } catch {
+      /* silent */
+      return false;
+    }
+  }, []);
 
   const resetProducts = useCallback(() => {
     void refreshFromCloud();
@@ -279,24 +297,21 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     [projects],
   );
 
-  const deleteProject = useCallback(
-    async (id: string): Promise<boolean> => {
-      setProjects((prev) => {
-        const next = prev.filter((x) => x.id !== id);
-        writeJSON(STORAGE_KEYS.projects, next);
-        return next;
-      });
+  const deleteProject = useCallback(async (id: string): Promise<boolean> => {
+    setProjects((prev) => {
+      const next = prev.filter((x) => x.id !== id);
+      writeJSON(STORAGE_KEYS.projects, next);
+      return next;
+    });
 
-      try {
-        await api.projects.delete(id);
-        return true;
-      } catch {
-        /* silent */
-        return false;
-      }
-    },
-    [],
-  );
+    try {
+      await api.projects.delete(id);
+      return true;
+    } catch {
+      /* silent */
+      return false;
+    }
+  }, []);
 
   const addEnquiry = useCallback<StudioValue["addEnquiry"]>((data) => {
     const estimatedPrice = data.estimatedPrice || data.estimatedTotal || 0;
@@ -307,7 +322,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       estimatedTotal: estimatedPrice,
       id: `enq_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       createdAt: new Date().toISOString(),
-      status: "NEW",
+      status: "new",
     };
 
     setEnquiries((prev) => {
@@ -320,9 +335,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       try {
         const created = await api.enquiries.create(enquiry);
         if (created && created.id) {
-          setEnquiries((prev) =>
-            prev.map((item) => (item.id === enquiry.id ? created : item))
-          );
+          setEnquiries((prev) => prev.map((item) => (item.id === enquiry.id ? created : item)));
         }
       } catch {
         /* silent */
@@ -367,9 +380,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       await api.settings.update(patch);
       return true;
     } catch {
-        /* silent */
-        return false;
-      }
+      /* silent */
+      return false;
+    }
   }, []);
 
   const activeProducts = useMemo(() => {
@@ -387,40 +400,64 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return products.find((p) => p.id === selectedId) ?? activeProducts[0] ?? null;
   }, [products, selectedId, activeProducts]);
 
-  const value: StudioValue = useMemo(() => ({
-    ready,
-    isCloudConnected,
-    storageOk,
-    products,
-    activeProducts,
-    projects,
-    activeProjects,
-    settings,
-    enquiries,
-    railingTypes,
-    railingType,
-    setRailingType,
-    currentStandardHeight,
-    selectedId,
-    selectedProduct,
-    selectProduct,
-    saveProduct,
-    deleteProduct,
-    resetProducts,
-    saveProject,
-    deleteProject,
-    addEnquiry,
-    updateEnquiryStatus,
-    clearEnquiries,
-    updateSettings,
-    refreshFromCloud,
-  }), [
-    ready, isCloudConnected, storageOk, products, activeProducts, projects, activeProjects,
-    settings, enquiries, railingTypes, railingType, setRailingType, currentStandardHeight,
-    selectedId, selectedProduct, selectProduct, saveProduct, deleteProduct, resetProducts,
-    saveProject, deleteProject, addEnquiry, updateEnquiryStatus, clearEnquiries,
-    updateSettings, refreshFromCloud,
-  ]);
+  const value: StudioValue = useMemo(
+    () => ({
+      ready,
+      isCloudConnected,
+      storageOk,
+      products,
+      activeProducts,
+      projects,
+      activeProjects,
+      settings,
+      enquiries,
+      railingTypes,
+      railingType,
+      setRailingType,
+      currentStandardHeight,
+      selectedId,
+      selectedProduct,
+      selectProduct,
+      saveProduct,
+      deleteProduct,
+      resetProducts,
+      saveProject,
+      deleteProject,
+      addEnquiry,
+      updateEnquiryStatus,
+      clearEnquiries,
+      updateSettings,
+      refreshFromCloud,
+    }),
+    [
+      ready,
+      isCloudConnected,
+      storageOk,
+      products,
+      activeProducts,
+      projects,
+      activeProjects,
+      settings,
+      enquiries,
+      railingTypes,
+      railingType,
+      setRailingType,
+      currentStandardHeight,
+      selectedId,
+      selectedProduct,
+      selectProduct,
+      saveProduct,
+      deleteProduct,
+      resetProducts,
+      saveProject,
+      deleteProject,
+      addEnquiry,
+      updateEnquiryStatus,
+      clearEnquiries,
+      updateSettings,
+      refreshFromCloud,
+    ],
+  );
 
   return <StudioContext.Provider value={value}>{children}</StudioContext.Provider>;
 }

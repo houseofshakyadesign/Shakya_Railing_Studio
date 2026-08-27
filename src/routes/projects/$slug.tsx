@@ -1,12 +1,6 @@
 import { useMemo } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  ArrowRight,
-  MapPin,
-  MessageCircle,
-  Video as VideoIcon,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, MapPin, MessageCircle, Video as VideoIcon } from "lucide-react";
 import { useStudio } from "@/hooks/useStudio";
 
 export const Route = createFileRoute("/projects/$slug")({
@@ -43,13 +37,12 @@ function ProjectDetailPage() {
   const mediaList = project.media || [];
   const videoMedia = mediaList.find((m) => m.mediaType === "video");
   const waHref = `https://wa.me/${settings.whatsappNumber.replace(/\D/g, "")}?text=${encodeURIComponent(
-    `Hello Metal Work Nepal, I'm interested in the ${project.title} project (${project.location || "Nepal"}).`
+    `Hello Metal Work Nepal, I'm interested in the ${project.title} project (${project.location || "Nepal"}).`,
   )}`;
 
   return (
     <div className="min-h-screen bg-background pt-28 pb-20 md:pt-36 md:pb-28">
       <div className="mx-auto max-w-5xl px-5 md:px-10">
-        
         {/* Navigation Bar */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-hairline pb-6">
           <Link
@@ -128,7 +121,6 @@ function ProjectDetailPage() {
             Browse Other Projects →
           </Link>
         </div>
-
       </div>
     </div>
   );

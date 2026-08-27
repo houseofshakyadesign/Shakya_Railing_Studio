@@ -24,7 +24,14 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
   ];
 
   if (e.isCustom || !e.rate || e.rate === 0) {
-    lines.push("Rate:", "Price on Request", "", "Estimated Price:", "Pricing will be confirmed based on final design", "");
+    lines.push(
+      "Rate:",
+      "Price on Request",
+      "",
+      "Estimated Price:",
+      "Pricing will be confirmed based on final design",
+      "",
+    );
   } else {
     lines.push(
       "Rate:",
@@ -47,7 +54,8 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
     e.location,
     "",
     "Additional Requirements:",
-    e.additionalRequirements?.trim() || "Please provide the quotation and site measurement confirmation.",
+    e.additionalRequirements?.trim() ||
+      "Please provide the quotation and site measurement confirmation.",
   );
 
   return lines.join("\n");
@@ -55,9 +63,7 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
 
 export function buildWhatsAppUrl(e: Enquiry, number: string, currency = "NPR"): string {
   const digits = (number || "").replace(/\D/g, "");
-  return `https://wa.me/${digits}?text=${encodeURIComponent(
-    generateWhatsAppMessage(e, currency),
-  )}`;
+  return `https://wa.me/${digits}?text=${encodeURIComponent(generateWhatsAppMessage(e, currency))}`;
 }
 
 export function openWhatsApp(e: Enquiry, number: string, currency = "NPR"): boolean {

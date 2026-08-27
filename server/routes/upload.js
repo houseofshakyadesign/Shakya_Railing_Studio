@@ -20,11 +20,16 @@ const storage = multer.diskStorage({
     cb(null, uploadDir);
   },
   filename: function (req, file, cb) {
-    const ext = path.extname(file.originalname).toLowerCase() || (file.mimetype.startsWith("video/") ? ".mp4" : ".jpg");
-    const cleanName = path
-      .basename(file.originalname, ext)
+    const ext =
+      path.extname(file.originalname).toLowerCase() ||
+      (file.mimetype.startsWith("video/") ? ".mp4" : ".jpg");
+    const base = path.basename(file.originalname, ext);
+    let cleanName = base
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, "-");
+      .replace(/[^a-z0-9]/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-|-$/g, "");
+    if (!cleanName) cleanName = "upload";
     const uniqueSuffix = Date.now() + "-" + crypto.randomUUID().slice(0, 8);
     cb(null, `${cleanName}-${uniqueSuffix}${ext}`);
   },
@@ -62,7 +67,7 @@ router.post(
     const uploadSingle = upload.any();
     uploadSingle(req, res, (err) => {
       if (err) {
-        /* silent */
+        console.error("Multer upload error:", err);
         return res.status(400).json({ error: err.message || "File upload failed" });
       }
       next();
@@ -75,10 +80,12 @@ router.post(
         return res.status(400).json({ error: "No media file provided" });
       }
 
-      const host = req.get("host");
-      const protocol = req.protocol;
+      const host = req.get("host") || `localhost:${process.env.PORT || 5000}`;
+      const protocol = req.headers["x-forwarded-proto"] || req.protocol || "http";
       const mediaUrl = `${protocol}://${host}/uploads/${file.filename}`;
-      const isVideo = file.mimetype.startsWith("video/") || [".mp4", ".mov", ".webm", ".m4v"].includes(path.extname(file.filename).toLowerCase());
+      const isVideo =
+        file.mimetype.startsWith("video/") ||
+        [".mp4", ".mov", ".webm", ".m4v"].includes(path.extname(file.filename).toLowerCase());
 
       return res.json({
         success: true,
@@ -87,8 +94,8 @@ router.post(
         mediaType: isVideo ? "video" : "image",
       });
     } catch (err) {
-      /* silent */
+      console.error("Upload handler error:", err);
       return res.status(500).json({ error: "Failed to upload media file" });
     }
-  }
+  },
 );

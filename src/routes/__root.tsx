@@ -16,7 +16,6 @@ import { MobileSelectionBar } from "@/components/MobileSelectionBar";
 import { StudioProvider } from "@/hooks/useStudio";
 import { Toaster } from "@/components/ui/sonner";
 
-
 function NotFoundComponent() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -95,8 +94,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:title", content: "Metal Work Nepal | Railing Studio" },
       {
         property: "og:description",
-        content:
-          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
+        content: "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
       },
       { property: "og:image", content: "/images/railings/hero.jpg" },
       { property: "og:url", content: "https://shakya-railing-studio.vercel.app" },
@@ -104,8 +102,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "twitter:title", content: "Metal Work Nepal | Railing Studio" },
       {
         name: "twitter:description",
-        content:
-          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
+        content: "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
       },
       { name: "twitter:image", content: "/images/railings/hero.jpg" },
     ],
@@ -196,4 +193,3 @@ function RootComponent() {
     </QueryClientProvider>
   );
 }
-

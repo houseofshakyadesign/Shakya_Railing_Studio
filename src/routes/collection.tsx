@@ -1,6 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Send, ArrowRight } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+  MessageCircle,
+  Send,
+  ArrowRight,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
@@ -66,15 +74,7 @@ const EMPTY_FORM: FormState = {
 };
 
 type Errors = Partial<
-  Record<
-    | "customerName"
-    | "phone"
-    | "email"
-    | "location"
-    | "projectType"
-    | "length",
-    string
-  >
+  Record<"customerName" | "phone" | "email" | "location" | "projectType" | "length", string>
 >;
 
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
@@ -99,10 +99,7 @@ function CollectionPage() {
   const [justSelected, setJustSelected] = useState(false);
 
   // Active products filter
-  const activeProducts = useMemo(
-    () => products.filter((p) => p.isActive !== false),
-    [products]
-  );
+  const activeProducts = useMemo(() => products.filter((p) => p.isActive !== false), [products]);
 
   // Auto-select fallback if none selected
   const productToUse = useMemo(() => {
@@ -112,8 +109,9 @@ function CollectionPage() {
   }, [selectedProduct, activeProducts]);
 
   useEffect(() => {
-    if (!selectedId && activeProducts.length > 0) {
-      selectProduct(activeProducts[0].id);
+    const first = activeProducts[0];
+    if (!selectedId && first) {
+      selectProduct(first.id);
     }
   }, [selectedId, activeProducts, selectProduct]);
 
@@ -145,13 +143,7 @@ function CollectionPage() {
     const rate = productToUse?.pricePerSqft ?? 0;
     const typeLabel = railingType === "staircase" ? "Staircase Railing" : "Balcony Railing";
 
-    return calculateRailingEstimate(
-      validLength,
-      currentStandardHeight,
-      rate,
-      isCustom,
-      typeLabel,
-    );
+    return calculateRailingEstimate(validLength, currentStandardHeight, rate, isCustom, typeLabel);
   }, [numLength, currentStandardHeight, productToUse, isCustom, railingType]);
 
   // Handle #calculator hash navigation on mount or URL change
@@ -170,27 +162,30 @@ function CollectionPage() {
   }, []);
 
   // Called when a product card's "Select & Calculate" is clicked
-  const handleAfterSelect = useCallback((p: Product) => {
-    selectProduct(p.id);
-    setLength("20");
-    setErrors({});
-    setSubmitted(null);
+  const handleAfterSelect = useCallback(
+    (p: Product) => {
+      selectProduct(p.id);
+      setLength("20");
+      setErrors({});
+      setSubmitted(null);
 
-    // Show inline confirmation
-    setJustSelected(true);
-    setTimeout(() => setJustSelected(false), 4500);
+      // Show inline confirmation
+      setJustSelected(true);
+      setTimeout(() => setJustSelected(false), 4500);
 
-    // Smooth-scroll to calculator section
-    setTimeout(() => {
-      const el = document.getElementById("calculator");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth", block: "start" });
-      }
+      // Smooth-scroll to calculator section
       setTimeout(() => {
-        lengthInputRef.current?.focus();
-      }, 400);
-    }, 100);
-  }, [selectProduct]);
+        const el = document.getElementById("calculator");
+        if (el) {
+          el.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+        setTimeout(() => {
+          lengthInputRef.current?.focus();
+        }, 400);
+      }, 100);
+    },
+    [selectProduct],
+  );
 
   const setField = (k: keyof FormState, v: string) => {
     setForm((f) => ({ ...f, [k]: v }));
@@ -237,7 +232,7 @@ function CollectionPage() {
       lengthFt: estimate.length,
       heightFt: currentStandardHeight,
       estimatedAreaSqft: estimate.area,
-      rate: isCustom ? 0 : productToUse.pricePerSqft,
+      rate: isCustom ? 0 : (productToUse.pricePerSqft ?? 0),
       estimatedPrice: isCustom ? 0 : estimate.total,
       estimatedTotal: isCustom ? 0 : estimate.total,
       additionalRequirements: form.additionalRequirements.trim(),
@@ -348,7 +343,8 @@ function CollectionPage() {
                   TELL US YOUR RAILING DIMENSIONS
                 </h2>
                 <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Choose your application type and enter the approximate length. We automatically determine standard heights and calculate your estimate.
+                  Choose your application type and enter the approximate length. We automatically
+                  determine standard heights and calculate your estimate.
                 </p>
               </div>
 
@@ -395,7 +391,9 @@ function CollectionPage() {
                       </span>
                     )}
                   </div>
-                  <p className="mt-1 text-[0.7rem] text-muted-foreground">Standard height: 2.8 ft</p>
+                  <p className="mt-1 text-[0.7rem] text-muted-foreground">
+                    Standard height: 2.8 ft
+                  </p>
                 </button>
               </div>
 
@@ -418,14 +416,14 @@ function CollectionPage() {
                         </span>
                       </div>
                       {productToUse.nepaliName ? (
-                        <p className="mt-1 text-xs font-medium text-bronze">{productToUse.nepaliName}</p>
+                        <p className="mt-1 text-xs font-medium text-bronze">
+                          {productToUse.nepaliName}
+                        </p>
                       ) : null}
                       <h3 className="mt-0.5 text-lg leading-snug tracking-tight">
                         {productToUse.displayName || productToUse.name}
                       </h3>
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {productToUse.material}
-                      </p>
+                      <p className="mt-1 text-xs text-muted-foreground">{productToUse.material}</p>
                       <p className="mt-3 text-sm font-semibold">
                         {isCustom
                           ? "Custom Quote"
@@ -434,7 +432,10 @@ function CollectionPage() {
 
                       {/* In-place Model Switcher */}
                       <div className="mt-4 border-t border-hairline/80 pt-3">
-                        <label htmlFor="col-model-select" className="block text-[0.65rem] font-bold tracking-wider uppercase text-muted-foreground">
+                        <label
+                          htmlFor="col-model-select"
+                          className="block text-[0.65rem] font-bold tracking-wider uppercase text-muted-foreground"
+                        >
                           SWITCH RAILING MODEL:
                         </label>
                         <div className="relative mt-1.5">
@@ -450,7 +451,11 @@ function CollectionPage() {
                           >
                             {activeProducts.map((p) => (
                               <option key={p.id} value={p.id}>
-                                {p.code} — {p.displayName || p.name} ({p.isCustom ? "Custom Quote" : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`})
+                                {p.code} — {p.displayName || p.name} (
+                                {p.isCustom
+                                  ? "Custom Quote"
+                                  : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`}
+                                )
                               </option>
                             ))}
                           </select>
@@ -494,7 +499,9 @@ function CollectionPage() {
                               }}
                               placeholder="e.g. 20"
                               className={`w-full border bg-background px-4 py-3.5 pr-12 text-lg font-semibold tracking-tight ${
-                                errors.length ? "border-destructive text-destructive" : "border-hairline"
+                                errors.length
+                                  ? "border-destructive text-destructive"
+                                  : "border-hairline"
                               } focus:border-bronze focus:outline-none`}
                             />
                             <span className="pointer-events-none absolute right-4 text-xs font-medium tracking-wider text-muted-foreground uppercase">
@@ -564,11 +571,14 @@ function CollectionPage() {
                           </p>
                           {!isCustom && (
                             <p>
-                              <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(productToUse.pricePerSqft, settings.currency)} = <strong>{formatNPR(estimate.total, settings.currency)}</strong>
+                              <strong>Price:</strong> {formatArea(estimate.area)} ×{" "}
+                              {formatNPR(productToUse.pricePerSqft, settings.currency)} ={" "}
+                              <strong>{formatNPR(estimate.total, settings.currency)}</strong>
                             </p>
                           )}
                           <p className="text-[0.68rem] text-muted-foreground/80 italic">
-                            * Final exact measurements and site conditions will be reviewed during site inspection.
+                            * Final exact measurements and site conditions will be reviewed during
+                            site inspection.
                           </p>
                         </motion.div>
                       )}
@@ -580,7 +590,8 @@ function CollectionPage() {
                     <p className="label-xs text-bronze">03 YOUR DETAILS</p>
                     <h3 className="mt-2 text-2xl tracking-tight">Project Information</h3>
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                      Enter your details below to receive a formal schedule or enquire instantly on WhatsApp.
+                      Enter your details below to receive a formal schedule or enquire instantly on
+                      WhatsApp.
                     </p>
 
                     <div className="mt-8 grid gap-6 sm:grid-cols-2">
@@ -673,7 +684,8 @@ function CollectionPage() {
                           {formatArea(estimate.area)}
                         </p>
                         <p className="mt-1 text-xs text-muted-foreground">
-                          {estimate.length} ft × {currentStandardHeight} ft ({railingType === "staircase" ? "Staircase" : "Balcony"})
+                          {estimate.length} ft × {currentStandardHeight} ft (
+                          {railingType === "staircase" ? "Staircase" : "Balcony"})
                         </p>
                       </div>
 
@@ -684,7 +696,9 @@ function CollectionPage() {
                         </span>
                         {isCustom ? (
                           <div className="mt-2">
-                            <p className="text-xl font-medium tracking-tight text-bronze">Price on Request</p>
+                            <p className="text-xl font-medium tracking-tight text-bronze">
+                              Price on Request
+                            </p>
                             <p className="mt-1 text-xs text-muted-foreground">
                               Custom profile fabricated to exact site requirements.
                             </p>
@@ -695,7 +709,8 @@ function CollectionPage() {
                               <AnimatedTotal value={estimate.total} currency={settings.currency} />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft. · 13% VAT added into the total amount seamlessly.
+                              {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft. ·
+                              13% VAT added into the total amount seamlessly.
                             </p>
                           </div>
                         )}
@@ -704,8 +719,16 @@ function CollectionPage() {
 
                     {/* Detailed Parameters List */}
                     <dl className="mt-7 space-y-3 border-t border-hairline pt-6 text-sm">
-                      <Row label="Railing Type" value={railingType === "staircase" ? "Staircase Railing" : "Balcony Railing"} />
-                      <Row label="Railing" value={`${productToUse.code} — ${productToUse.displayName || productToUse.name}`} />
+                      <Row
+                        label="Railing Type"
+                        value={
+                          railingType === "staircase" ? "Staircase Railing" : "Balcony Railing"
+                        }
+                      />
+                      <Row
+                        label="Railing"
+                        value={`${productToUse.code} — ${productToUse.displayName || productToUse.name}`}
+                      />
                       <Row label="Material" value={productToUse.material} />
                       <Row label="Length" value={`${estimate.length || 0} ft`} />
                       <Row label="Standard Height" value={`${currentStandardHeight} ft`} />
@@ -743,7 +766,8 @@ function CollectionPage() {
                     </div>
 
                     <p className="mt-5 text-[0.68rem] leading-relaxed text-muted-foreground">
-                      Directly connected to Metal Work Nepal studio database. WhatsApp opens with your calculation pre-filled.
+                      Directly connected to Metal Work Nepal studio database. WhatsApp opens with
+                      your calculation pre-filled.
                     </p>
                   </div>
 

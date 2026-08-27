@@ -16,7 +16,7 @@ export type Product = {
   note?: string;
   pricePerSqft: number | null;
   standardModuleWidth: number; // in feet, e.g. 4
-  standardHeight: number;      // in feet, e.g. 3.5
+  standardHeight: number; // in feet, e.g. 3.5
   image: string;
   gallery: string[];
   features: string[];
@@ -42,7 +42,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "A grand staircase railing built around flowing spirals that curl and unfurl like a river bend. Every twist is heated over an open flame and beaten into shape by a Nepali karigar's hammer, one loop at a time - no two panels ever come out exactly alike. Made in Nepal, for Nepali homes that want a staircase people stop to admire.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -53,8 +53,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Staircase Railing"],
@@ -74,7 +74,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Grille",
     description:
       "A wide balcony grille built around a central lotus - Nepal's own symbol of grace - surrounded by hand-curled tendrils. Our karigars forge each petal and vine by hand over fire, then fit them into a single balanced panel. A handmade piece that turns a plain balcony into the face of the house.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -85,8 +85,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Balcony Grille"],
@@ -106,7 +106,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "Inspired by climbing vines, this railing is made of soft rounded curls that repeat gently up the staircase. Hand-forged and hand-hammered by Nepali artisans, then finished in matte black for a quiet, elegant look that suits both traditional and modern Nepali homes.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -117,8 +117,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Staircase Railing"],
@@ -138,7 +138,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "A staircase railing of repeating leaf-shaped scrolls, simple and rhythmic. Built by hand, piece by piece, over fire and hammer by our Nepali karigars - a design that fits comfortably into any home, from Kathmandu apartments to hillside houses.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -149,8 +149,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Staircase Railing"],
@@ -170,7 +170,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Grille",
     description:
       "A curved balcony railing with flowing scrolls and hanging floral drops, named for the era of Nepal's great craftsmen. Every curl is shaped by hand over open fire - a balcony grille built the old way, for a new home.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -181,8 +181,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Balcony Railing / Balcony Grille"],
@@ -202,7 +202,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "Paired with a wooden post, this railing's soft double-scroll pattern nods to the fine craft tradition of the Kathmandu Valley's Newa artisans. Hand heated, hand hammered, hand fitted - a railing that carries generations of Nepali metalwork into a modern home.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -213,8 +213,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Railing"],
@@ -234,7 +234,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "A loft and balcony railing with soft heart-shaped scrolls at its centre - maya means love and warmth in Nepali, and that's exactly what this design brings to an open, airy space. Fully hand-forged and finished in matte black by our karigars.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -245,8 +245,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Loft / Balcony Railing"],
@@ -266,7 +266,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "Tall, sweeping scrolls climb this staircase from bottom to top in one continuous rhythm, capped with a simple ball-top post. Every scroll is heated and hand-beaten by Nepali craftsmen - strong enough for daily use, beautiful enough to be the centrepiece of the home.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -277,8 +277,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Staircase Railing"],
@@ -298,7 +298,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Gate",
     description:
       "A pair of ornamental entrance doors, densely worked with scrolls and medallions - toran being the traditional Nepali word for a decorative entrance. Hand-forged from solid rod and flat bar, this gate is built to be both the first line of security and the first impression of the home.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     construction: "Reinforced door-frame construction for daily use as an entrance gate.",
@@ -310,8 +310,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
       "Reinforced door-frame construction for entrance gate",
     ],
@@ -332,7 +332,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "A grand curved staircase railing with dense, palace-style scrollwork, built for wide, sweeping stairways. Every panel is individually hand-forged to follow the curve of the staircase - a statement piece for homes that want a truly royal welcome.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -343,8 +343,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Curved Staircase Railing"],
@@ -364,7 +364,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "Named after Kathmandu's historic Basantapur square, this curved railing pairs a wooden handrail with detailed hand-forged scrollwork bands. A design that carries heritage character while fitting easily into a contemporary staircase.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -375,8 +375,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Staircase Railing"],
@@ -396,7 +396,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "A straight staircase railing with generous scrollwork, named for Bhaktapur - the city long known across Nepal for its master craftsmen. Hand-forged and hand-fitted panel by panel, built to match a staircase of any length.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -407,8 +407,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Straight Staircase Railing"],
@@ -428,7 +428,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Grille",
     description:
       "Jharokha is the traditional word for a projecting window balcony - and this design brings that old idea into hand-forged iron, framing a window with a full arched grille. Bent, curled, and hammered entirely by hand, it turns an ordinary window into a feature of the house front.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -439,8 +439,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Window Grille"],
@@ -460,7 +460,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Railing",
     description:
       "Named after the chautari - Nepal's traditional resting spot where neighbours gather - this slim, elegant balcony railing is built for a balcony you actually want to sit and relax on. Fine hand-forged scrolls, finished in matte black, light enough in look but strong enough for daily life.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -471,8 +471,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Balcony Railing"],
@@ -492,7 +492,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
     category: "Wrought Iron Grille",
     description:
       "Named after the aankhijhyal, the iconic 'eye window' of traditional Nepali architecture, this balcony grille reimagines that heritage detail in hand-forged iron scrollwork. A design that connects a modern home to Nepal's own architectural roots.",
-    material: "10mm MS rod (hand-forged scroll), 1\"x1\" MS pipe frame, 1\" MS flat bar (patti)",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
     primer: "Red oxide primer",
     finish: "Black matt deco paint finish",
     note: "Wood handrail shown is not included - iron scrollwork only.",
@@ -503,8 +503,8 @@ export const DEFAULT_PRODUCTS: Product[] = [
     gallery: [],
     features: [
       "10mm MS rod (hand-forged scroll)",
-      "1\"x1\" MS pipe frame",
-      "1\" MS flat bar (patti)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
     applications: ["Balcony Grille"],

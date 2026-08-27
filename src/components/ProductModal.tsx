@@ -97,7 +97,8 @@ export function ProductModal({
                   <h2 className="mt-1 text-2xl leading-tight tracking-tight md:text-3xl font-medium">
                     {product.displayName || product.name}
                   </h2>
-                  {product.englishName && product.englishName !== (product.displayName || product.name) ? (
+                  {product.englishName &&
+                  product.englishName !== (product.displayName || product.name) ? (
                     <p className="mt-1 text-xs uppercase tracking-[0.18em] text-muted-foreground">
                       {product.englishName}
                     </p>
@@ -108,7 +109,10 @@ export function ProductModal({
                 <div className="mt-5 border-y border-hairline py-4">
                   <p className="label-xs text-muted-foreground">Price</p>
                   <p className="mt-1.5 text-2xl font-semibold tracking-tight">
-                    {product.pricePerSqft === null || product.pricePerSqft === undefined || product.pricePerSqft === 0 || product.isCustom ? (
+                    {product.pricePerSqft === null ||
+                    product.pricePerSqft === undefined ||
+                    product.pricePerSqft === 0 ||
+                    product.isCustom ? (
                       "Price on Request"
                     ) : (
                       <>
@@ -140,13 +144,11 @@ export function ProductModal({
                     </p>
                     <div className="mt-2 space-y-1 text-sm text-foreground/90">
                       {product.material.includes(",") ? (
-                        product.material
-                          .split(/,\s*(?=[0-9"'])/)
-                          .map((item, idx) => (
-                            <p key={idx} className="leading-snug">
-                              {item.trim()}
-                            </p>
-                          ))
+                        product.material.split(/,\s*(?=[0-9"'])/).map((item, idx) => (
+                          <p key={idx} className="leading-snug">
+                            {item.trim()}
+                          </p>
+                        ))
                       ) : (
                         <p className="leading-snug">{product.material}</p>
                       )}

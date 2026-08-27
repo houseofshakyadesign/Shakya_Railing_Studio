@@ -40,25 +40,31 @@ export function ProductGrid({
     return baseProducts.filter((p) => p.application === activeFilter);
   }, [baseProducts, activeFilter, shouldShowFilter]);
 
-  const handleSelect = useCallback((p: Product, close = false) => {
-    selectProduct(p.id);
-    if (close) setOpenProduct(null);
-  }, [selectProduct]);
+  const handleSelect = useCallback(
+    (p: Product, close = false) => {
+      selectProduct(p.id);
+      if (close) setOpenProduct(null);
+    },
+    [selectProduct],
+  );
 
-  const handleCardSelect = useCallback((p: Product) => {
-    if (p.id === selectedId) {
-      selectProduct(null);
-      toast.success(`${p.code} deselected`);
-      return;
-    }
-    handleSelect(p);
-    if (onAfterSelect) {
-      onAfterSelect(p);
-    } else {
-      toast.success(`${p.code} selected`, { description: p.name });
-      navigate({ to: "/calculator" });
-    }
-  }, [selectedId, selectProduct, handleSelect, onAfterSelect, navigate]);
+  const handleCardSelect = useCallback(
+    (p: Product) => {
+      if (p.id === selectedId) {
+        selectProduct(null);
+        toast.success(`${p.code} deselected`);
+        return;
+      }
+      handleSelect(p);
+      if (onAfterSelect) {
+        onAfterSelect(p);
+      } else {
+        toast.success(`${p.code} selected`, { description: p.name });
+        navigate({ to: "/calculator" });
+      }
+    },
+    [selectedId, selectProduct, handleSelect, onAfterSelect, navigate],
+  );
 
   if (baseProducts.length === 0) {
     return (
@@ -90,10 +96,11 @@ export function ProductGrid({
                       key={f.id}
                       type="button"
                       onClick={() => setActiveFilter(f.id)}
-                      className={`shrink-0 px-4 py-2.5 text-[0.68rem] tracking-[0.18em] uppercase transition-all duration-300 font-medium ${isActive
+                      className={`shrink-0 px-4 py-2.5 text-[0.68rem] tracking-[0.18em] uppercase transition-all duration-300 font-medium ${
+                        isActive
                           ? "bg-charcoal text-ivory shadow-sm border border-charcoal"
                           : "bg-transparent text-foreground/75 border border-hairline hover:border-foreground/40 hover:text-foreground"
-                        }`}
+                      }`}
                     >
                       {f.label}
                     </button>
@@ -104,7 +111,8 @@ export function ProductGrid({
 
             {/* Result Count */}
             <p className="shrink-0 text-[0.68rem] tracking-[0.2em] uppercase text-muted-foreground font-mono">
-              {String(filteredProducts.length).padStart(2, "0")} {filteredProducts.length === 1 ? "PRODUCT" : "PRODUCTS"}
+              {String(filteredProducts.length).padStart(2, "0")}{" "}
+              {filteredProducts.length === 1 ? "PRODUCT" : "PRODUCTS"}
             </p>
           </div>
         </div>
@@ -114,9 +122,7 @@ export function ProductGrid({
       {filteredProducts.length === 0 ? (
         <div className="border border-dashed border-hairline px-6 py-20 text-center">
           <p className="label-xs text-bronze uppercase tracking-[0.2em]">NO PRODUCTS FOUND</p>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Please check another application.
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">Please check another application.</p>
         </div>
       ) : (
         <AnimatePresence mode="wait">

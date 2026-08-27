@@ -1,13 +1,32 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Download, Image as ImageIcon, Lock, LogOut, Plus, RefreshCw, ShieldCheck, Trash2, Upload, User, Video as VideoIcon, X } from "lucide-react";
+import {
+  Download,
+  Image as ImageIcon,
+  Lock,
+  LogOut,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  Trash2,
+  Upload,
+  User,
+  Video as VideoIcon,
+  X,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { STORAGE_KEYS } from "@/config/settings";
 import type { Product } from "@/data/products";
-import { ENQUIRY_STATUSES, useStudio, type Enquiry, type EnquiryStatus } from "@/hooks/useStudio";
+import {
+  ENQUIRY_STATUSES,
+  ENQUIRY_STATUS_LABELS,
+  useStudio,
+  type Enquiry,
+  type EnquiryStatus,
+} from "@/hooks/useStudio";
 import { formatNPR } from "@/utils/currency";
 import { downloadCSV } from "@/utils/csv";
 import { api } from "@/lib/api";
@@ -45,7 +64,10 @@ function AdminPage() {
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
   useEffect(() => {
-    const token = sessionStorage.getItem("metalWorkNepal_adminToken");
+    const token =
+      (typeof sessionStorage !== "undefined" &&
+        sessionStorage.getItem("metalWorkNepal_adminToken")) ||
+      (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminToken"));
 
     if (token) {
       void api.auth
@@ -58,6 +80,7 @@ function AdminPage() {
         })
         .catch(() => {
           sessionStorage.removeItem("metalWorkNepal_adminToken");
+          localStorage.removeItem("metalWorkNepal_adminToken");
           setUnlocked(false);
         });
     }
@@ -78,8 +101,8 @@ function AdminPage() {
         toast.success("Welcome, Studio Admin");
         void studio.refreshFromCloud();
       }
-    } catch (err: any) {
-      setPwError(err?.message || "Invalid credentials.");
+    } catch (err) {
+      setPwError(err instanceof Error ? err.message : "Invalid credentials.");
     } finally {
       setLoggingIn(false);
     }
@@ -205,7 +228,9 @@ function AdminPage() {
                 </span>
               ) : null}
             </div>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">Metal Work Nepal Dashboard</h1>
+            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
+              Metal Work Nepal Dashboard
+            </h1>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3">
@@ -244,7 +269,11 @@ function AdminPage() {
         </div>
       </div>
 
-      <nav role="tablist" aria-label="Admin sections" className="mt-10 flex flex-wrap gap-px border-b border-hairline">
+      <nav
+        role="tablist"
+        aria-label="Admin sections"
+        className="mt-10 flex flex-wrap gap-px border-b border-hairline"
+      >
         {tabs.map((t) => (
           <button
             key={t}
@@ -260,7 +289,10 @@ function AdminPage() {
           >
             {t}
             {tab === t ? (
-              <motion.span layoutId="admin-tab" className="absolute inset-x-0 -bottom-px h-px bg-bronze" />
+              <motion.span
+                layoutId="admin-tab"
+                className="absolute inset-x-0 -bottom-px h-px bg-bronze"
+              />
             ) : null}
           </button>
         ))}
@@ -284,7 +316,7 @@ function Overview() {
     { k: "Total railings", v: String(products.length) },
     { k: "Active railings", v: String(products.filter((p) => p.isActive).length) },
     { k: "Total enquiries", v: String(enquiries.length) },
-    { k: "New enquiries", v: String(enquiries.filter((e) => e.status === "NEW").length) },
+    { k: "New enquiries", v: String(enquiries.filter((e) => e.status === "new").length) },
     { k: "Estimated enquiry value", v: formatNPR(value, settings.currency) },
   ];
   return (
@@ -335,7 +367,13 @@ function Railings() {
         <button
           type="button"
           onClick={() =>
-            setEditing({ ...BLANK_PRODUCT, id: `p_${Date.now()}`, gallery: [], features: [], applications: [] })
+            setEditing({
+              ...BLANK_PRODUCT,
+              id: `p_${Date.now()}`,
+              gallery: [],
+              features: [],
+              applications: [],
+            })
           }
           className="flex items-center gap-2 bg-charcoal px-6 py-3 text-[0.7rem] tracking-[0.18em] text-ivory uppercase hover:bg-bronze"
         >
@@ -344,17 +382,27 @@ function Railings() {
       </div>
 
       {products.length === 0 ? (
-        <EmptyState title="No railings yet" copy="Add a railing design to publish it to the collection." />
+        <EmptyState
+          title="No railings yet"
+          copy="Add a railing design to publish it to the collection."
+        />
       ) : (
         <ul className="mt-8 grid gap-px border border-hairline bg-hairline md:grid-cols-2 xl:grid-cols-3">
           {products.map((p) => (
             <li key={p.id} className="flex gap-4 bg-background p-5">
-              <img src={p.image} alt={p.name} className="h-24 w-20 shrink-0 object-cover" loading="lazy" />
+              <img
+                src={p.image}
+                alt={p.name}
+                className="h-24 w-20 shrink-0 object-cover"
+                loading="lazy"
+              />
               <div className="min-w-0 flex-1">
                 <p className="label-xs text-bronze">{p.code}</p>
                 <p className="mt-1.5 truncate text-sm">{p.name}</p>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  {p.isCustom ? "Custom quote" : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`}
+                  {p.isCustom
+                    ? "Custom quote"
+                    : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   <button
@@ -370,7 +418,9 @@ function Railings() {
                       const updated = { ...p, isActive: !p.isActive };
                       const ok = await saveProduct(updated);
                       if (ok) {
-                        toast.success(`${p.code} ${updated.isActive ? "activated" : "deactivated"}`);
+                        toast.success(
+                          `${p.code} ${updated.isActive ? "activated" : "deactivated"}`,
+                        );
                       } else {
                         toast.error("Failed to update status in database");
                       }
@@ -528,16 +578,34 @@ function ProductEditor({
 
           <div className="mt-7 grid gap-5 sm:grid-cols-2">
             <Field id="p-code" label="Code">
-              <input className={inputClass} value={draft.code} onChange={(e) => set("code", e.target.value)} />
+              <input
+                className={inputClass}
+                value={draft.code}
+                onChange={(e) => set("code", e.target.value)}
+              />
             </Field>
             <Field id="p-name" label="Display Name">
-              <input className={inputClass} value={draft.name} onChange={(e) => set("name", e.target.value)} />
+              <input
+                className={inputClass}
+                value={draft.name}
+                onChange={(e) => set("name", e.target.value)}
+              />
             </Field>
             <Field id="p-nepali" label="Nepali Name">
-              <input className={inputClass} value={draft.nepaliName || ""} onChange={(e) => set("nepaliName", e.target.value)} placeholder="e.g. बसन्तपुर" />
+              <input
+                className={inputClass}
+                value={draft.nepaliName || ""}
+                onChange={(e) => set("nepaliName", e.target.value)}
+                placeholder="e.g. बसन्तपुर"
+              />
             </Field>
             <Field id="p-english" label="English / Roman Name">
-              <input className={inputClass} value={draft.englishName || ""} onChange={(e) => set("englishName", e.target.value)} placeholder="e.g. Basantapur Bharyang" />
+              <input
+                className={inputClass}
+                value={draft.englishName || ""}
+                onChange={(e) => set("englishName", e.target.value)}
+                placeholder="e.g. Basantapur Bharyang"
+              />
             </Field>
             <div className="sm:col-span-2">
               <Field id="p-desc" label="Description">
@@ -618,7 +686,11 @@ function ProductEditor({
                 onChange={(e) => set("pricePerSqft", Number(e.target.value) || 0)}
               />
             </Field>
-            <Field id="p-mod" label="Standard Module Width (ft)" hint="Used to calculate estimated panels (default 4 ft)">
+            <Field
+              id="p-mod"
+              label="Standard Module Width (ft)"
+              hint="Used to calculate estimated panels (default 4 ft)"
+            >
               <input
                 className={inputClass}
                 inputMode="decimal"
@@ -626,7 +698,11 @@ function ProductEditor({
                 onChange={(e) => set("standardModuleWidth", Number(e.target.value) || 4)}
               />
             </Field>
-            <Field id="p-std-height" label="Standard Height (ft)" hint="Pre-filled height for calculator (default 3.5 ft)">
+            <Field
+              id="p-std-height"
+              label="Standard Height (ft)"
+              hint="Pre-filled height for calculator (default 3.5 ft)"
+            >
               <input
                 className={inputClass}
                 inputMode="decimal"
@@ -660,7 +736,8 @@ function ProductEditor({
                   <div>
                     <p className="text-xs font-medium">Direct Photo Upload</p>
                     <p className="text-[0.7rem] text-muted-foreground mt-1 leading-relaxed">
-                      Upload high-resolution railing photos directly from your device. Supported formats: JPEG, PNG, WebP, AVIF.
+                      Upload high-resolution railing photos directly from your device. Supported
+                      formats: JPEG, PNG, WebP, AVIF.
                     </p>
                   </div>
 
@@ -771,7 +848,9 @@ const BLANK_PROJECT: import("@/data/projects").Project = {
 function ProjectsManager() {
   const { projects, saveProject, deleteProject } = useStudio();
   const [editing, setEditing] = useState<import("@/data/projects").Project | null>(null);
-  const [confirmDelete, setConfirmDelete] = useState<import("@/data/projects").Project | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<import("@/data/projects").Project | null>(
+    null,
+  );
 
   return (
     <div>
@@ -797,12 +876,20 @@ function ProjectsManager() {
       </div>
 
       {projects.length === 0 ? (
-        <EmptyState title="No projects yet" copy="Add a completed project to showcase in the portfolio." />
+        <EmptyState
+          title="No projects yet"
+          copy="Add a completed project to showcase in the portfolio."
+        />
       ) : (
         <ul className="mt-8 grid gap-px border border-hairline bg-hairline md:grid-cols-2 xl:grid-cols-3">
           {projects.map((pr) => (
             <li key={pr.id} className="flex gap-4 bg-background p-5">
-              <img src={pr.coverImage} alt="" className="h-24 w-24 shrink-0 object-cover" loading="lazy" />
+              <img
+                src={pr.coverImage}
+                alt=""
+                className="h-24 w-24 shrink-0 object-cover"
+                loading="lazy"
+              />
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2">
                   <span className="label-xs text-bronze">{pr.location || pr.projectType}</span>
@@ -908,13 +995,16 @@ function ProjectEditor({
   const [newMediaUrl, setNewMediaUrl] = useState("");
   const [newMediaCaption, setNewMediaCaption] = useState("");
   const [newMediaType, setNewMediaType] = useState<"image" | "video">("image");
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
   const videoInputRef = useRef<HTMLInputElement>(null);
   const galleryInputRef = useRef<HTMLInputElement>(null);
 
   const PRELOADED_VIDEOS = [
-    { label: "Budhanilkantha Railing (H.264 FastStart)", url: "/videos/railings/budhanilkantha-railing.mp4" },
+    {
+      label: "Budhanilkantha Railing (H.264 FastStart)",
+      url: "/videos/railings/budhanilkantha-railing.mp4",
+    },
     { label: "Imadole Railing (H.264 FastStart)", url: "/videos/railings/imadole-railing.mp4" },
     { label: "Skylight Time (H.264 FastStart)", url: "/videos/railings/skylight-time.mp4" },
     { label: "Bhaisepati Railing (4K / H.264)", url: "/videos/railings/bhaisepati-railing.mp4" },
@@ -936,8 +1026,10 @@ function ProjectEditor({
 
   if (!project || !draft) return null;
 
-  const set = <K extends keyof import("@/data/projects").Project>(k: K, v: import("@/data/projects").Project[K]) =>
-    setDraft((d) => (d ? { ...d, [k]: v } : d));
+  const set = <K extends keyof import("@/data/projects").Project>(
+    k: K,
+    v: import("@/data/projects").Project[K],
+  ) => setDraft((d) => (d ? { ...d, [k]: v } : d));
 
   const handleCoverFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -962,9 +1054,11 @@ function ProjectEditor({
         setVideoUrlInput(res.url);
         toast.success("Video uploaded and linked to project!", { id: "video-upload" });
       }
-    } catch (err: any) {
+    } catch (err) {
       console.error("Video upload error:", err);
-      toast.error(err.message || "Failed to upload video file", { id: "video-upload" });
+      toast.error(err instanceof Error ? err.message : "Failed to upload video file", {
+        id: "video-upload",
+      });
     } finally {
       setUploadingVideo(false);
       if (videoInputRef.current) videoInputRef.current.value = "";
@@ -999,8 +1093,10 @@ function ProjectEditor({
 
       setDraft((prev) => (prev ? { ...prev, media: [...(prev.media || []), ...newItems] } : prev));
       toast.success("Gallery photos added successfully!", { id: "gallery-upload" });
-    } catch (err: any) {
-      toast.error(err.message || "Failed to upload gallery images", { id: "gallery-upload" });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to upload gallery images", {
+        id: "gallery-upload",
+      });
     } finally {
       setUploadingGallery(false);
       if (galleryInputRef.current) galleryInputRef.current.value = "";
@@ -1028,7 +1124,7 @@ function ProjectEditor({
 
   const removeProjectVideo = () => {
     setDraft((prev) =>
-      prev ? { ...prev, media: (prev.media || []).filter((m) => m.mediaType !== "video") } : prev
+      prev ? { ...prev, media: (prev.media || []).filter((m) => m.mediaType !== "video") } : prev,
     );
     setVideoUrlInput("");
     toast.info("Video removed from project");
@@ -1058,7 +1154,7 @@ function ProjectEditor({
 
   const handleRemoveMedia = (mediaId: string) => {
     setDraft((prev) =>
-      prev ? { ...prev, media: (prev.media || []).filter((m) => m.id !== mediaId) } : prev
+      prev ? { ...prev, media: (prev.media || []).filter((m) => m.id !== mediaId) } : prev,
     );
     toast.info("Media item removed");
   };
@@ -1116,7 +1212,8 @@ function ProjectEditor({
                 {draft.title ? `Edit ${draft.title}` : "New Portfolio Project"}
               </h2>
               <p className="mt-1 text-xs text-muted-foreground">
-                Manage project metadata, live autoplay videos, and architectural photo documentation.
+                Manage project metadata, live autoplay videos, and architectural photo
+                documentation.
               </p>
             </div>
             <button
@@ -1206,9 +1303,12 @@ function ProjectEditor({
                     <VideoIcon className="h-4 w-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-bold uppercase tracking-wider">Project Video & Autoplay Stream</h3>
+                    <h3 className="text-sm font-bold uppercase tracking-wider">
+                      Project Video & Autoplay Stream
+                    </h3>
                     <p className="text-[0.68rem] text-muted-foreground">
-                      This video autoplays in the 4:3 catalogue card and displays as the live walkthrough video.
+                      This video autoplays in the 4:3 catalogue card and displays as the live
+                      walkthrough video.
                     </p>
                   </div>
                 </div>
@@ -1270,7 +1370,11 @@ function ProjectEditor({
                         className="inline-flex items-center gap-2 bg-charcoal text-ivory px-4 py-2.5 text-[0.68rem] font-bold tracking-[0.16em] uppercase hover:bg-bronze transition-colors disabled:opacity-50"
                       >
                         <Upload className="h-3.5 w-3.5" />
-                        {uploadingVideo ? "Uploading Video..." : currentVideo ? "Replace Video File" : "Upload Video File"}
+                        {uploadingVideo
+                          ? "Uploading Video..."
+                          : currentVideo
+                            ? "Replace Video File"
+                            : "Upload Video File"}
                       </button>
                       {currentVideo && (
                         <button
@@ -1340,7 +1444,11 @@ function ProjectEditor({
               <div className="flex flex-col sm:flex-row gap-5 items-start border border-hairline bg-card p-4">
                 <div className="relative w-full sm:w-44 h-36 shrink-0 bg-background border border-hairline overflow-hidden">
                   {previewUrl ? (
-                    <img src={previewUrl} alt="Cover preview" className="w-full h-full object-cover" />
+                    <img
+                      src={previewUrl}
+                      alt="Cover preview"
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center text-muted-foreground p-3 text-center">
                       <ImageIcon className="h-6 w-6 text-bronze/60 mb-1" />
@@ -1380,7 +1488,9 @@ function ProjectEditor({
             <div className="sm:col-span-2 border-t border-hairline pt-6">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <div>
-                  <p className="label-xs text-bronze uppercase">Photo Gallery Documentation ({draft.media?.length || 0})</p>
+                  <p className="label-xs text-bronze uppercase">
+                    Photo Gallery Documentation ({draft.media?.length || 0})
+                  </p>
                   <p className="mt-1 text-xs text-muted-foreground">
                     High-resolution photos displayed in the project lightbox gallery.
                   </p>
@@ -1450,7 +1560,10 @@ function ProjectEditor({
               {draft.media && draft.media.length > 0 ? (
                 <div className="mt-4 grid gap-3 sm:grid-cols-2 max-h-80 overflow-y-auto p-1 border border-hairline/40">
                   {draft.media.map((m) => (
-                    <div key={m.id} className="flex items-center gap-3 border border-hairline bg-background p-3">
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-3 border border-hairline bg-background p-3"
+                    >
                       {m.mediaType === "video" ? (
                         <div className="h-14 w-14 shrink-0 bg-charcoal flex items-center justify-center text-ivory">
                           <VideoIcon className="h-6 w-6 text-bronze" />
@@ -1462,7 +1575,9 @@ function ProjectEditor({
                         <div className="flex items-center gap-2">
                           <span className="label-xs text-bronze uppercase">{m.mediaType}</span>
                           {m.displayOrder === 0 && (
-                            <span className="text-[0.6rem] bg-bronze/10 text-bronze px-1 font-bold">HERO</span>
+                            <span className="text-[0.6rem] bg-bronze/10 text-bronze px-1 font-bold">
+                              HERO
+                            </span>
                           )}
                         </div>
                         <p className="truncate text-xs mt-0.5">{m.caption || m.mediaUrl}</p>
@@ -1562,7 +1677,7 @@ function Enquiries() {
                 </p>
               </div>
               <span className="label-xs shrink-0 border border-hairline px-2.5 py-1 text-bronze">
-                {e.status}
+                {ENQUIRY_STATUS_LABELS[e.status] ?? e.status}
               </span>
             </div>
             <p className="mt-4 text-lg font-semibold tracking-tight">
@@ -1577,7 +1692,7 @@ function Enquiries() {
               >
                 {ENQUIRY_STATUSES.map((s) => (
                   <option key={s} value={s}>
-                    {s}
+                    {ENQUIRY_STATUS_LABELS[s]}
                   </option>
                 ))}
               </select>
@@ -1628,11 +1743,21 @@ function Enquiries() {
                   ["Material", open.material],
                   ["Length", open.lengthFt ? `${open.lengthFt} ft` : "—"],
                   ["Standard Height", open.heightFt ? `${open.heightFt} ft` : "—"],
-                  ["Estimated area", open.estimatedAreaSqft ? `${open.estimatedAreaSqft} sq.ft.` : "—"],
-                  ["Rate", open.isCustom ? "Custom" : `${formatNPR(open.rate, settings.currency)} / sq.ft.`],
+                  [
+                    "Estimated area",
+                    open.estimatedAreaSqft ? `${open.estimatedAreaSqft} sq.ft.` : "—",
+                  ],
+                  [
+                    "Rate",
+                    open.isCustom
+                      ? "Custom"
+                      : `${formatNPR(open.rate, settings.currency)} / sq.ft.`,
+                  ],
                   [
                     "Estimated total",
-                    open.isCustom ? "Custom Quote" : formatNPR(open.estimatedTotal || open.estimatedPrice, settings.currency),
+                    open.isCustom
+                      ? "Custom Quote"
+                      : formatNPR(open.estimatedTotal || open.estimatedPrice, settings.currency),
                   ],
                   ["Status", open.status],
                   ["Requirements", open.additionalRequirements || "—"],

@@ -1,6 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
-import { Check, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Send, ArrowRight, Layers, CornerDownRight } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  HelpCircle,
+  MessageCircle,
+  Send,
+  ArrowRight,
+  Layers,
+  CornerDownRight,
+} from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
@@ -44,6 +54,8 @@ const PROJECT_TYPES = [
   "Other",
 ];
 
+const LENGTH_PRESETS = [10, 20, 30, 40, 50, 60];
+
 type FormState = {
   customerName: string;
   phone: string;
@@ -63,15 +75,7 @@ const EMPTY_FORM: FormState = {
 };
 
 type Errors = Partial<
-  Record<
-    | "customerName"
-    | "phone"
-    | "email"
-    | "location"
-    | "projectType"
-    | "length",
-    string
-  >
+  Record<"customerName" | "phone" | "email" | "location" | "projectType" | "length", string>
 >;
 
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
@@ -117,19 +121,19 @@ function CalculatorPage() {
 
   // Focus length input when product or railing type changes
   useEffect(() => {
-    if (selectedProduct) {
+    if (selectedId) {
       setTimeout(() => {
         lengthInputRef.current?.focus();
       }, 300);
     }
-  }, [selectedProduct?.id, railingType]);
+  }, [selectedId, railingType]);
 
   const numLength = parseFloat(length);
   const isCustom = Boolean(
     selectedProduct?.isCustom ||
     selectedProduct?.pricePerSqft === null ||
     selectedProduct?.pricePerSqft === undefined ||
-    selectedProduct?.pricePerSqft === 0
+    selectedProduct?.pricePerSqft === 0,
   );
 
   // Clean calculation: Area = Length × Standard Height, Price = Area × Rate
@@ -138,13 +142,7 @@ function CalculatorPage() {
     const rate = selectedProduct?.pricePerSqft ?? 0;
     const typeLabel = railingType === "staircase" ? "Staircase Railing" : "Balcony Railing";
 
-    return calculateRailingEstimate(
-      validLength,
-      currentStandardHeight,
-      rate,
-      isCustom,
-      typeLabel,
-    );
+    return calculateRailingEstimate(validLength, currentStandardHeight, rate, isCustom, typeLabel);
   }, [numLength, currentStandardHeight, selectedProduct, isCustom, railingType]);
 
   const setField = (k: keyof FormState, v: string) => {
@@ -202,7 +200,7 @@ function CalculatorPage() {
       lengthFt: estimate.length,
       heightFt: currentStandardHeight,
       estimatedAreaSqft: estimate.area,
-      rate: isCustom ? 0 : selectedProduct.pricePerSqft,
+      rate: isCustom ? 0 : (selectedProduct.pricePerSqft ?? 0),
       estimatedPrice: isCustom ? 0 : estimate.total,
       estimatedTotal: isCustom ? 0 : estimate.total,
       additionalRequirements: form.additionalRequirements.trim(),
@@ -259,7 +257,8 @@ function CalculatorPage() {
           <p className="label-xs text-bronze">01 SELECT</p>
           <h1 className="mt-5 text-3xl tracking-tight md:text-4xl">Select a railing to begin</h1>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            Browse our curated collection and choose an architectural railing design to calculate your estimate.
+            Browse our curated collection and choose an architectural railing design to calculate
+            your estimate.
           </p>
           <Link
             to="/collection"
@@ -292,22 +291,24 @@ function CalculatorPage() {
             return (
               <div key={step.name} className="flex items-center gap-3">
                 <span
-                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[0.62rem] font-medium tracking-wider transition-colors ${step.completed
+                  className={`flex h-6 w-6 items-center justify-center rounded-full text-[0.62rem] font-medium tracking-wider transition-colors ${
+                    step.completed
                       ? "bg-bronze text-ivory"
                       : isActive
                         ? "border border-foreground text-foreground"
                         : "border border-hairline text-muted-foreground"
-                    }`}
+                  }`}
                 >
                   {step.completed ? <Check className="h-3 w-3 stroke-[2.5]" /> : step.num}
                 </span>
                 <span
-                  className={`text-[0.7rem] tracking-[0.2em] uppercase transition-colors ${isActive
+                  className={`text-[0.7rem] tracking-[0.2em] uppercase transition-colors ${
+                    isActive
                       ? "font-semibold text-foreground"
                       : step.completed
                         ? "text-foreground/90"
                         : "text-muted-foreground"
-                    }`}
+                  }`}
                 >
                   {step.name}
                 </span>
@@ -324,7 +325,8 @@ function CalculatorPage() {
           CALCULATE YOUR RAILING ESTIMATE
         </h1>
         <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-          Choose your application type and enter the length. We automatically determine standard heights, calculate your square footage, and estimate your project rate.
+          Choose your application type and enter the length. We automatically determine standard
+          heights, calculate your square footage, and estimate your project rate.
         </p>
       </div>
 
@@ -346,12 +348,15 @@ function CalculatorPage() {
                 type="button"
                 onClick={() => {
                   setRailingType("balcony");
-                  toast.success("Selected Balcony Railing", { description: "Standard height: 3 ft" });
+                  toast.success("Selected Balcony Railing", {
+                    description: "Standard height: 3 ft",
+                  });
                 }}
-                className={`relative flex flex-col p-5 text-left transition-all ${railingType === "balcony"
+                className={`relative flex flex-col p-5 text-left transition-all ${
+                  railingType === "balcony"
                     ? "border-2 border-bronze bg-bronze/5 shadow-sm"
                     : "border border-hairline bg-card hover:border-foreground/30"
-                  }`}
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
@@ -371,12 +376,15 @@ function CalculatorPage() {
                 type="button"
                 onClick={() => {
                   setRailingType("staircase");
-                  toast.success("Selected Staircase Railing", { description: "Standard height: 2.8 ft" });
+                  toast.success("Selected Staircase Railing", {
+                    description: "Standard height: 2.8 ft",
+                  });
                 }}
-                className={`relative flex flex-col p-5 text-left transition-all ${railingType === "staircase"
+                className={`relative flex flex-col p-5 text-left transition-all ${
+                  railingType === "staircase"
                     ? "border-2 border-bronze bg-bronze/5 shadow-sm"
                     : "border border-hairline bg-card hover:border-foreground/30"
-                  }`}
+                }`}
               >
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-semibold tracking-wider uppercase text-foreground">
@@ -417,10 +425,16 @@ function CalculatorPage() {
                   </span>
                 </div>
                 {selectedProduct.nepaliName ? (
-                  <p className="mt-1 text-xs font-medium text-bronze">{selectedProduct.nepaliName}</p>
+                  <p className="mt-1 text-xs font-medium text-bronze">
+                    {selectedProduct.nepaliName}
+                  </p>
                 ) : null}
-                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">{selectedProduct.displayName || selectedProduct.name}</h2>
-                <p className="mt-1 text-xs text-muted-foreground truncate">{selectedProduct.material}</p>
+                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">
+                  {selectedProduct.displayName || selectedProduct.name}
+                </h2>
+                <p className="mt-1 text-xs text-muted-foreground truncate">
+                  {selectedProduct.material}
+                </p>
                 <div className="mt-3 flex items-center justify-between border-t border-hairline pt-3">
                   <span className="text-xs font-medium text-foreground">
                     {isCustom
@@ -467,8 +481,9 @@ function CalculatorPage() {
                     value={length}
                     onChange={(e) => setLength(e.target.value)}
                     placeholder="20"
-                    className={`w-full border bg-background px-4 py-3.5 font-mono text-lg transition-colors focus:border-bronze focus:outline-none ${errors.length ? "border-destructive" : "border-hairline"
-                      }`}
+                    className={`w-full border bg-background px-4 py-3.5 font-mono text-lg transition-colors focus:border-bronze focus:outline-none ${
+                      errors.length ? "border-destructive" : "border-hairline"
+                    }`}
                   />
                   <span className="absolute top-1/2 right-4 -translate-y-1/2 text-xs tracking-wider text-muted-foreground uppercase">
                     FT
@@ -489,10 +504,11 @@ function CalculatorPage() {
                       setLength(preset.toString());
                       toast.success(`Set length to ${preset} ft`);
                     }}
-                    className={`border px-3.5 py-1.5 font-mono text-xs transition-colors ${length === preset.toString()
+                    className={`border px-3.5 py-1.5 font-mono text-xs transition-colors ${
+                      length === preset.toString()
                         ? "border-bronze bg-bronze/10 text-bronze font-semibold"
                         : "border-hairline bg-background text-muted-foreground hover:border-foreground/40 hover:text-foreground"
-                      }`}
+                    }`}
                   >
                     {preset} ft
                   </button>
@@ -510,7 +526,13 @@ function CalculatorPage() {
               </span>
             </div>
 
-            <form onSubmit={(e) => { e.preventDefault(); handleSubmit(false); }} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(false);
+              }}
+              className="space-y-4"
+            >
               <Field id="enquiry-name" label="Full Name *" error={errors.customerName}>
                 <input
                   id="enquiry-name"
@@ -647,7 +669,8 @@ function CalculatorPage() {
                       PRICE ON REQUEST
                     </span>
                     <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
-                      Pricing will be confirmed based on the project dimensions, configuration and site requirements.
+                      Pricing will be confirmed based on the project dimensions, configuration and
+                      site requirements.
                     </p>
                   </div>
                 ) : (
@@ -656,7 +679,8 @@ function CalculatorPage() {
                       <AnimatedTotal value={estimate.total} currency={settings.currency} />
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      Calculated at {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
+                      Calculated at {formatNPR(selectedProduct.pricePerSqft, settings.currency)} /
+                      sq.ft.
                     </p>
                   </div>
                 )}
@@ -708,7 +732,11 @@ function CalculatorPage() {
                 className="flex w-full items-center justify-between text-left text-xs tracking-wider text-muted-foreground hover:text-foreground"
               >
                 <span>How is this calculated?</span>
-                {showFormula ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
+                {showFormula ? (
+                  <ChevronUp className="h-3.5 w-3.5" />
+                ) : (
+                  <ChevronDown className="h-3.5 w-3.5" />
+                )}
               </button>
               <AnimatePresence>
                 {showFormula && (
@@ -719,11 +747,14 @@ function CalculatorPage() {
                     className="overflow-hidden pt-3 text-xs leading-relaxed text-muted-foreground"
                   >
                     <p>
-                      <strong>Area:</strong> {estimate.length} ft × {currentStandardHeight} ft = {formatArea(estimate.area)}
+                      <strong>Area:</strong> {estimate.length} ft × {currentStandardHeight} ft ={" "}
+                      {formatArea(estimate.area)}
                     </p>
                     {!isCustom && (
                       <p className="mt-1">
-                        <strong>Price:</strong> {formatArea(estimate.area)} × {formatNPR(selectedProduct.pricePerSqft, settings.currency)} = {formatNPR(estimate.total, settings.currency)}
+                        <strong>Price:</strong> {formatArea(estimate.area)} ×{" "}
+                        {formatNPR(selectedProduct.pricePerSqft, settings.currency)} ={" "}
+                        {formatNPR(estimate.total, settings.currency)}
                       </p>
                     )}
                   </motion.div>
@@ -736,7 +767,8 @@ function CalculatorPage() {
               <p className="font-semibold text-foreground tracking-wider uppercase text-[0.65rem] mb-1">
                 ESTIMATE ONLY
               </p>
-              Final pricing and measurements will be confirmed by Metal Work Nepal after reviewing the project and taking final site measurements.
+              Final pricing and measurements will be confirmed by Metal Work Nepal after reviewing
+              the project and taking final site measurements.
             </div>
 
             {/* Primary Action Button */}

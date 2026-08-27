@@ -30,14 +30,21 @@ export async function query(sql, params = []) {
     return new Promise((resolve, reject) => {
       // Transform MySQL SQL dialect to SQLite where applicable
       let sSql = sql
-        .replace(/TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP/gi, "DATETIME DEFAULT CURRENT_TIMESTAMP")
+        .replace(
+          /TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP/gi,
+          "DATETIME DEFAULT CURRENT_TIMESTAMP",
+        )
         .replace(/ENGINE=InnoDB DEFAULT CHARSET=utf8mb4/gi, "")
         .replace(/JSON/gi, "TEXT")
         .replace(/BOOLEAN/gi, "INTEGER")
         .replace(/DECIMAL\(\d+,\s*\d+\)/gi, "REAL")
         .replace(/ENUM\([^)]+\)/gi, "TEXT");
 
-      if (sSql.trim().toUpperCase().startsWith("SELECT") || sSql.trim().toUpperCase().startsWith("PRAGMA") || sSql.trim().toUpperCase().startsWith("SHOW")) {
+      if (
+        sSql.trim().toUpperCase().startsWith("SELECT") ||
+        sSql.trim().toUpperCase().startsWith("PRAGMA") ||
+        sSql.trim().toUpperCase().startsWith("SHOW")
+      ) {
         sqliteDb.all(sSql, params, (err, rows) => {
           if (err) return reject(err);
           resolve(rows);
@@ -67,7 +74,9 @@ export async function initDatabase() {
       password: MYSQL_PASSWORD,
     });
 
-    await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`);
+    await rootConnection.query(
+      `CREATE DATABASE IF NOT EXISTS \`${MYSQL_DATABASE}\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;`,
+    );
     await rootConnection.end();
 
     pool = mysql.createPool({
@@ -201,7 +210,9 @@ async function createTables() {
 
     // Add railing_type column if upgrading existing table
     try {
-      await query("ALTER TABLE `enquiries` ADD COLUMN IF NOT EXISTS `railing_type` VARCHAR(64) NOT NULL DEFAULT 'Balcony Railing'");
+      await query(
+        "ALTER TABLE `enquiries` ADD COLUMN IF NOT EXISTS `railing_type` VARCHAR(64) NOT NULL DEFAULT 'Balcony Railing'",
+      );
     } catch {
       /* ignore column exists error */
     }
@@ -427,25 +438,34 @@ async function seedInitialData() {
     if (!existingTypes || existingTypes.length === 0) {
       await query(
         "INSERT INTO railing_types (id, name, slug, standard_height_ft, description) VALUES (?, ?, ?, ?, ?)",
-        ["balcony", "Balcony Railing", "balcony", 3.0, "Standard height: 3 ft"]
+        ["balcony", "Balcony Railing", "balcony", 3.0, "Standard height: 3 ft"],
       );
       await query(
         "INSERT INTO railing_types (id, name, slug, standard_height_ft, description) VALUES (?, ?, ?, ?, ?)",
-        ["staircase", "Staircase Railing", "staircase", 2.8, "Standard height: 2.8 ft"]
+        ["staircase", "Staircase Railing", "staircase", 2.8, "Standard height: 2.8 ft"],
       );
       console.log("Seeded Railing Types: Balcony (3 ft) & Staircase (2.8 ft)");
     }
 
     // 2. Seed Admin
-    const admins = await query("SELECT id FROM admins LIMIT 1");
+    const defaultPassword = process.env.ADMIN_PASSWORD || "MetalAdmin2026!";
+    const passwordHash = await bcrypt.hash(defaultPassword, 10);
+    const admins = await query("SELECT id FROM admins WHERE email = ? LIMIT 1", [
+      "admin@metalworknepal.com",
+    ]);
     if (!admins || admins.length === 0) {
-      const defaultPassword = process.env.ADMIN_PASSWORD || "MetalAdmin2026!";
-      const passwordHash = await bcrypt.hash(defaultPassword, 10);
-      await query(
-        "INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)",
-        ["admin-01", "admin@metalworknepal.com", passwordHash]
-      );
+      await query("INSERT INTO admins (id, email, password_hash) VALUES (?, ?, ?)", [
+        "admin-01",
+        "admin@metalworknepal.com",
+        passwordHash,
+      ]);
       console.log("Default Admin created: admin@metalworknepal.com");
+    } else {
+      await query("UPDATE admins SET password_hash = ? WHERE email = ?", [
+        passwordHash,
+        "admin@metalworknepal.com",
+      ]);
+      console.log("Admin credentials synced: admin@metalworknepal.com");
     }
 
     // 3. Seed Settings
@@ -467,11 +487,13 @@ async function seedInitialData() {
           "https://www.instagram.com/metalwork.nepal?igsi=MWg2cTdxNzY1NmFnag==",
           "https://www.tiktok.com/@metalworknepal?_r=1&_t=ZS-99CUIO2Y89o",
           "https://metalworknepal.com",
-        ]
+        ],
       );
       console.log("Default settings initialized.");
     } else {
-      await query("UPDATE settings SET company_name = 'Metal Work Nepal' WHERE id = 'default' AND company_name = 'House of Shakya'");
+      await query(
+        "UPDATE settings SET company_name = 'Metal Work Nepal' WHERE id = 'default' AND company_name = 'House of Shakya'",
+      );
     }
 
     // 4. Seed / Sync Products from JSON file
@@ -479,7 +501,10 @@ async function seedInitialData() {
     if (fs.existsSync(seedFile)) {
       const seedProducts = JSON.parse(fs.readFileSync(seedFile, "utf-8"));
       for (const p of seedProducts) {
-        const exists = await query("SELECT id FROM products WHERE id = ? OR code = ? LIMIT 1", [p.id, p.code]);
+        const exists = await query("SELECT id FROM products WHERE id = ? OR code = ? LIMIT 1", [
+          p.id,
+          p.code,
+        ]);
         if (!exists || exists.length === 0) {
           await query(
             `INSERT INTO products (id, code, slug, name, display_name, nepali_name, english_name, category, application, primer, finish, construction, note, description, material, price_per_sqft, standard_module_width, standard_height, image, gallery, features, applications, is_custom, is_active, display_order)
@@ -500,7 +525,9 @@ async function seedInitialData() {
               p.note || "",
               p.description || "",
               p.material || "",
-              p.price_per_sqft === null || p.price_per_sqft === undefined ? null : Number(p.price_per_sqft),
+              p.price_per_sqft === null || p.price_per_sqft === undefined
+                ? null
+                : Number(p.price_per_sqft),
               p.standard_module_width || 4.0,
               p.standard_height || 3.5,
               p.image || "",
@@ -510,11 +537,43 @@ async function seedInitialData() {
               p.is_custom || p.price_per_sqft === null ? 1 : 0,
               p.is_active ? 1 : 0,
               p.display_order || 0,
-            ]
+            ],
           );
         } else if (
-          ["r01", "r02", "r03", "r04", "r05", "r06", "r07", "r08", "r09", "r10", "r11", "r12", "r13", "r14", "r15"].includes(p.id) ||
-          ["R-01", "R-02", "R-03", "R-04", "R-05", "R-06", "R-07", "R-08", "R-09", "R-10", "R-11", "R-12", "R-13", "R-14", "R-15"].includes(p.code)
+          [
+            "r01",
+            "r02",
+            "r03",
+            "r04",
+            "r05",
+            "r06",
+            "r07",
+            "r08",
+            "r09",
+            "r10",
+            "r11",
+            "r12",
+            "r13",
+            "r14",
+            "r15",
+          ].includes(p.id) ||
+          [
+            "R-01",
+            "R-02",
+            "R-03",
+            "R-04",
+            "R-05",
+            "R-06",
+            "R-07",
+            "R-08",
+            "R-09",
+            "R-10",
+            "R-11",
+            "R-12",
+            "R-13",
+            "R-14",
+            "R-15",
+          ].includes(p.code)
         ) {
           // Update products 1 to 15 with authoritative client catalogue data
           await query(
@@ -535,13 +594,15 @@ async function seedInitialData() {
               p.note || "",
               p.description || "",
               p.material || "",
-              p.price_per_sqft === null || p.price_per_sqft === undefined ? null : Number(p.price_per_sqft),
+              p.price_per_sqft === null || p.price_per_sqft === undefined
+                ? null
+                : Number(p.price_per_sqft),
               p.is_custom || p.price_per_sqft === null ? 1 : 0,
               JSON.stringify(p.features || []),
               JSON.stringify(p.applications || []),
               p.id,
               p.code,
-            ]
+            ],
           );
         }
       }
@@ -559,7 +620,8 @@ async function seedInitialData() {
           location: "Bhaisepati",
           project_type: "Residential",
           railing_type: "Balcony & Staircase Railing",
-          description: "Precision architectural metalwork railing installation executed for a private modern residence in Bhaisepati. Featuring clean geometric lines, concealed mounting, and matte charcoal protective coating.",
+          description:
+            "Precision architectural metalwork railing installation executed for a private modern residence in Bhaisepati. Featuring clean geometric lines, concealed mounting, and matte charcoal protective coating.",
           cover_image: "/images/railings/r01.jpg",
           featured: 1,
           display_order: 1,
@@ -571,7 +633,8 @@ async function seedInitialData() {
           location: "Budhanilkantha",
           project_type: "Residential",
           railing_type: "Balcony Railing",
-          description: "Custom-engineered balcony railing system with minimalist vertical bars and weather-resistant architectural bronze finish overlooking the Kathmandu valley.",
+          description:
+            "Custom-engineered balcony railing system with minimalist vertical bars and weather-resistant architectural bronze finish overlooking the Kathmandu valley.",
           cover_image: "/images/railings/r02.jpg",
           featured: 0,
           display_order: 2,
@@ -583,7 +646,8 @@ async function seedInitialData() {
           location: "Naxal",
           project_type: "Commercial / Residential",
           railing_type: "Balcony & Glass Railing",
-          description: "Contemporary architectural metalwork and tempered glass railing system fabricated for a high-traffic urban project in Naxal.",
+          description:
+            "Contemporary architectural metalwork and tempered glass railing system fabricated for a high-traffic urban project in Naxal.",
           cover_image: "/images/railings/r03.jpg",
           featured: 0,
           display_order: 3,
@@ -595,7 +659,8 @@ async function seedInitialData() {
           location: "Dhapasi",
           project_type: "Residential",
           railing_type: "Staircase Railing",
-          description: "Precision continuous handrail and geometric balustrade detailing manufactured for a multi-story modern residence in Dhapasi.",
+          description:
+            "Precision continuous handrail and geometric balustrade detailing manufactured for a multi-story modern residence in Dhapasi.",
           cover_image: "/images/railings/r04.jpg",
           featured: 0,
           display_order: 4,
@@ -607,7 +672,8 @@ async function seedInitialData() {
           location: "Imadole",
           project_type: "Residential",
           railing_type: "Boundary & Balcony Railing",
-          description: "Complete residential boundary and terrace railing installation crafted with laser-cut detailing and structural steel anchor points.",
+          description:
+            "Complete residential boundary and terrace railing installation crafted with laser-cut detailing and structural steel anchor points.",
           cover_image: "/images/railings/r05.jpg",
           featured: 0,
           display_order: 5,
@@ -619,7 +685,8 @@ async function seedInitialData() {
           location: "",
           project_type: "Architectural Metalwork",
           railing_type: "Custom Metalwork & Skylight Structure",
-          description: "Bespoke structural steel fabrication and architectural metalwork designed to frame natural light in a contemporary architectural setting.",
+          description:
+            "Bespoke structural steel fabrication and architectural metalwork designed to frame natural light in a contemporary architectural setting.",
           cover_image: "/images/railings/r06.jpg",
           featured: 0,
           display_order: 6,
@@ -641,30 +708,182 @@ async function seedInitialData() {
             pr.cover_image,
             pr.featured,
             pr.display_order,
-          ]
+          ],
         );
       }
 
       const mediaData = [
-        { id: "pm-01-v", project_id: "proj-01", media_type: "video", media_url: "/videos/railings/bhaisepati railing 4k.mp4", thumbnail_url: "/images/railings/r01.jpg", caption: "Bhaisepati Railing 4K Walkthrough", display_order: 0 },
-        { id: "pm-01-1", project_id: "proj-01", media_type: "image", media_url: "/images/railings/r01.jpg", thumbnail_url: "/images/railings/r01.jpg", caption: "Terrace Balcony Installation Overview", display_order: 1 },
-        { id: "pm-01-2", project_id: "proj-01", media_type: "image", media_url: "/images/railings/r07.jpg", thumbnail_url: "/images/railings/r07.jpg", caption: "Corner Joinery & Handrail Detail", display_order: 2 },
-        { id: "pm-01-3", project_id: "proj-01", media_type: "image", media_url: "/images/railings/r08.jpg", thumbnail_url: "/images/railings/r08.jpg", caption: "Side Profile & Architectural Framing", display_order: 3 },
-        { id: "pm-02-v", project_id: "proj-02", media_type: "video", media_url: "/videos/railings/budhanilkantha railing.mp4", thumbnail_url: "/images/railings/r02.jpg", caption: "Budhanilkantha Railing Installation Video", display_order: 0 },
-        { id: "pm-02-1", project_id: "proj-02", media_type: "image", media_url: "/images/railings/r02.jpg", thumbnail_url: "/images/railings/r02.jpg", caption: "Balcony Railing Elevation", display_order: 1 },
-        { id: "pm-02-2", project_id: "proj-02", media_type: "image", media_url: "/images/railings/r09.jpg", thumbnail_url: "/images/railings/r09.jpg", caption: "Post Base Anchor Detail", display_order: 2 },
-        { id: "pm-03-v", project_id: "proj-03", media_type: "video", media_url: "/videos/railings/naxal railing 4k.mp4", thumbnail_url: "/images/railings/r03.jpg", caption: "Naxal 4K Installation Video", display_order: 0 },
-        { id: "pm-03-1", project_id: "proj-03", media_type: "image", media_url: "/images/railings/r03.jpg", thumbnail_url: "/images/railings/r03.jpg", caption: "Facade Railing Architecture", display_order: 1 },
-        { id: "pm-03-2", project_id: "proj-03", media_type: "image", media_url: "/images/railings/r10.jpg", thumbnail_url: "/images/railings/r10.jpg", caption: "Metal Framing with Glass Integration", display_order: 2 },
-        { id: "pm-04-v", project_id: "proj-04", media_type: "video", media_url: "/videos/railings/dhapasi railing.mp4", thumbnail_url: "/images/railings/r04.jpg", caption: "Dhapasi Staircase Railing Video", display_order: 0 },
-        { id: "pm-04-1", project_id: "proj-04", media_type: "image", media_url: "/images/railings/r04.jpg", thumbnail_url: "/images/railings/r04.jpg", caption: "Staircase Balustrade Running Length", display_order: 1 },
-        { id: "pm-04-2", project_id: "proj-04", media_type: "image", media_url: "/images/railings/r11.jpg", thumbnail_url: "/images/railings/r11.jpg", caption: "Stair Landing Handrail Return", display_order: 2 },
-        { id: "pm-05-v", project_id: "proj-05", media_type: "video", media_url: "/videos/railings/imadol railing arju .mp4", thumbnail_url: "/images/railings/r05.jpg", caption: "Imadole Installation Video", display_order: 0 },
-        { id: "pm-05-1", project_id: "proj-05", media_type: "image", media_url: "/images/railings/r05.jpg", thumbnail_url: "/images/railings/r05.jpg", caption: "Boundary Railing Perimeter", display_order: 1 },
-        { id: "pm-05-2", project_id: "proj-05", media_type: "image", media_url: "/images/railings/r12.jpg", thumbnail_url: "/images/railings/r12.jpg", caption: "Gate & Balcony Alignment Detail", display_order: 2 },
-        { id: "pm-06-v", project_id: "proj-06", media_type: "video", media_url: "/videos/railings/skylight time.mov", thumbnail_url: "/images/railings/r06.jpg", caption: "Skylight Structural Steel Video", display_order: 0 },
-        { id: "pm-06-1", project_id: "proj-06", media_type: "image", media_url: "/images/railings/r06.jpg", thumbnail_url: "/images/railings/r06.jpg", caption: "Skylight Structural Steel Framing", display_order: 1 },
-        { id: "pm-06-2", project_id: "proj-06", media_type: "image", media_url: "/images/railings/r13.jpg", thumbnail_url: "/images/railings/r13.jpg", caption: "Precision Welded Light Frame", display_order: 2 },
+        {
+          id: "pm-01-v",
+          project_id: "proj-01",
+          media_type: "video",
+          media_url: "/videos/railings/bhaisepati railing 4k.mp4",
+          thumbnail_url: "/images/railings/r01.jpg",
+          caption: "Bhaisepati Railing 4K Walkthrough",
+          display_order: 0,
+        },
+        {
+          id: "pm-01-1",
+          project_id: "proj-01",
+          media_type: "image",
+          media_url: "/images/railings/r01.jpg",
+          thumbnail_url: "/images/railings/r01.jpg",
+          caption: "Terrace Balcony Installation Overview",
+          display_order: 1,
+        },
+        {
+          id: "pm-01-2",
+          project_id: "proj-01",
+          media_type: "image",
+          media_url: "/images/railings/r07.jpg",
+          thumbnail_url: "/images/railings/r07.jpg",
+          caption: "Corner Joinery & Handrail Detail",
+          display_order: 2,
+        },
+        {
+          id: "pm-01-3",
+          project_id: "proj-01",
+          media_type: "image",
+          media_url: "/images/railings/r08.jpg",
+          thumbnail_url: "/images/railings/r08.jpg",
+          caption: "Side Profile & Architectural Framing",
+          display_order: 3,
+        },
+        {
+          id: "pm-02-v",
+          project_id: "proj-02",
+          media_type: "video",
+          media_url: "/videos/railings/budhanilkantha railing.mp4",
+          thumbnail_url: "/images/railings/r02.jpg",
+          caption: "Budhanilkantha Railing Installation Video",
+          display_order: 0,
+        },
+        {
+          id: "pm-02-1",
+          project_id: "proj-02",
+          media_type: "image",
+          media_url: "/images/railings/r02.jpg",
+          thumbnail_url: "/images/railings/r02.jpg",
+          caption: "Balcony Railing Elevation",
+          display_order: 1,
+        },
+        {
+          id: "pm-02-2",
+          project_id: "proj-02",
+          media_type: "image",
+          media_url: "/images/railings/r09.jpg",
+          thumbnail_url: "/images/railings/r09.jpg",
+          caption: "Post Base Anchor Detail",
+          display_order: 2,
+        },
+        {
+          id: "pm-03-v",
+          project_id: "proj-03",
+          media_type: "video",
+          media_url: "/videos/railings/naxal railing 4k.mp4",
+          thumbnail_url: "/images/railings/r03.jpg",
+          caption: "Naxal 4K Installation Video",
+          display_order: 0,
+        },
+        {
+          id: "pm-03-1",
+          project_id: "proj-03",
+          media_type: "image",
+          media_url: "/images/railings/r03.jpg",
+          thumbnail_url: "/images/railings/r03.jpg",
+          caption: "Facade Railing Architecture",
+          display_order: 1,
+        },
+        {
+          id: "pm-03-2",
+          project_id: "proj-03",
+          media_type: "image",
+          media_url: "/images/railings/r10.jpg",
+          thumbnail_url: "/images/railings/r10.jpg",
+          caption: "Metal Framing with Glass Integration",
+          display_order: 2,
+        },
+        {
+          id: "pm-04-v",
+          project_id: "proj-04",
+          media_type: "video",
+          media_url: "/videos/railings/dhapasi railing.mp4",
+          thumbnail_url: "/images/railings/r04.jpg",
+          caption: "Dhapasi Staircase Railing Video",
+          display_order: 0,
+        },
+        {
+          id: "pm-04-1",
+          project_id: "proj-04",
+          media_type: "image",
+          media_url: "/images/railings/r04.jpg",
+          thumbnail_url: "/images/railings/r04.jpg",
+          caption: "Staircase Balustrade Running Length",
+          display_order: 1,
+        },
+        {
+          id: "pm-04-2",
+          project_id: "proj-04",
+          media_type: "image",
+          media_url: "/images/railings/r11.jpg",
+          thumbnail_url: "/images/railings/r11.jpg",
+          caption: "Stair Landing Handrail Return",
+          display_order: 2,
+        },
+        {
+          id: "pm-05-v",
+          project_id: "proj-05",
+          media_type: "video",
+          media_url: "/videos/railings/imadol railing arju .mp4",
+          thumbnail_url: "/images/railings/r05.jpg",
+          caption: "Imadole Installation Video",
+          display_order: 0,
+        },
+        {
+          id: "pm-05-1",
+          project_id: "proj-05",
+          media_type: "image",
+          media_url: "/images/railings/r05.jpg",
+          thumbnail_url: "/images/railings/r05.jpg",
+          caption: "Boundary Railing Perimeter",
+          display_order: 1,
+        },
+        {
+          id: "pm-05-2",
+          project_id: "proj-05",
+          media_type: "image",
+          media_url: "/images/railings/r12.jpg",
+          thumbnail_url: "/images/railings/r12.jpg",
+          caption: "Gate & Balcony Alignment Detail",
+          display_order: 2,
+        },
+        {
+          id: "pm-06-v",
+          project_id: "proj-06",
+          media_type: "video",
+          media_url: "/videos/railings/skylight time.mov",
+          thumbnail_url: "/images/railings/r06.jpg",
+          caption: "Skylight Structural Steel Video",
+          display_order: 0,
+        },
+        {
+          id: "pm-06-1",
+          project_id: "proj-06",
+          media_type: "image",
+          media_url: "/images/railings/r06.jpg",
+          thumbnail_url: "/images/railings/r06.jpg",
+          caption: "Skylight Structural Steel Framing",
+          display_order: 1,
+        },
+        {
+          id: "pm-06-2",
+          project_id: "proj-06",
+          media_type: "image",
+          media_url: "/images/railings/r13.jpg",
+          thumbnail_url: "/images/railings/r13.jpg",
+          caption: "Precision Welded Light Frame",
+          display_order: 2,
+        },
       ];
 
       for (const m of mediaData) {
@@ -672,7 +891,15 @@ async function seedInitialData() {
           await query(
             `INSERT INTO project_media (id, project_id, media_type, media_url, thumbnail_url, caption, display_order)
              VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [m.id, m.project_id, m.media_type, m.media_url, m.thumbnail_url, m.caption, m.display_order]
+            [
+              m.id,
+              m.project_id,
+              m.media_type,
+              m.media_url,
+              m.thumbnail_url,
+              m.caption,
+              m.display_order,
+            ],
           );
         } catch {
           /* media record may already exist */
@@ -685,4 +912,3 @@ async function seedInitialData() {
     /* silent */
   }
 }
-

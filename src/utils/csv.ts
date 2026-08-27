@@ -39,8 +39,8 @@ export function enquiriesToCSV(enquiries: Enquiry[]): string {
       e.lengthFt ? e.lengthFt : "—",
       e.heightFt ? e.heightFt : "—",
       e.estimatedAreaSqft ? e.estimatedAreaSqft : "—",
-      e.isCustom ? "CUSTOM" : e.rate,
-      e.isCustom ? "CUSTOM" : (e.estimatedTotal || e.estimatedPrice),
+      e.isCustom ? "CUSTOM" : (e.rate ?? 0),
+      e.isCustom ? "CUSTOM" : (e.estimatedTotal ?? e.estimatedPrice ?? 0),
       e.status,
       e.additionalRequirements,
     ]
@@ -58,6 +58,10 @@ export function downloadCSV(enquiries: Enquiry[], filename = "metal-work-nepal-e
   const a = document.createElement("a");
   a.href = url;
   a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
+  if (a.click) {
+    a.click();
+  } else {
+    a.dispatchEvent(new MouseEvent("click"));
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }

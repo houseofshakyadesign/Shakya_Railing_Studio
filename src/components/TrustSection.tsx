@@ -1,12 +1,6 @@
 import { Reveal } from "./Reveal";
 
-const CAPABILITIES = [
-  "Design",
-  "Fabrication",
-  "Construction",
-  "Installation",
-  "Project Execution",
-];
+const CAPABILITIES = ["Design", "Fabrication", "Construction", "Installation", "Project Execution"];
 
 export function TrustSection() {
   return (
@@ -36,9 +30,9 @@ export function TrustSection() {
           </Reveal>
           <Reveal delay={0.1}>
             <p className="mt-6 max-w-xl text-base leading-relaxed text-muted-foreground">
-              Metal Work Nepal specializes in precision architectural metal fabrication, engineering,
-              and execution. Every project is custom engineered, fabricated in-house, and installed with
-              rigorous quality standards.
+              Metal Work Nepal specializes in precision architectural metal fabrication,
+              engineering, and execution. Every project is custom engineered, fabricated in-house,
+              and installed with rigorous quality standards.
             </p>
           </Reveal>
           <ul className="mt-10 grid gap-px border border-hairline bg-hairline sm:grid-cols-2">

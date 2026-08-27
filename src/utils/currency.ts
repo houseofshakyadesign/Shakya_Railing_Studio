@@ -10,8 +10,9 @@ export function groupIndian(amount: number): string {
 }
 
 /** formatNPR(362500) -> "NPR 3,62,500" */
-export function formatNPR(amount: number, currency = "NPR"): string {
-  return `${currency} ${groupIndian(amount)}`;
+export function formatNPR(amount: number | null | undefined, currency = "NPR"): string {
+  const value = Number.isFinite(amount) ? (amount as number) : 0;
+  return `${currency} ${groupIndian(value)}`;
 }
 
 export function formatRate(amount: number, currency = "NPR"): string {

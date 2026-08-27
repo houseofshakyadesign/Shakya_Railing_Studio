@@ -42,7 +42,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
           vid.pause();
         }
       },
-      { threshold: 0.1, rootMargin: "80px" }
+      { threshold: 0.1, rootMargin: "80px" },
     );
 
     observer.observe(containerRef.current);
@@ -52,10 +52,7 @@ export function ProjectCard({ project }: ProjectCardProps) {
   }, [videoMedia, videoError]);
 
   return (
-    <article
-      ref={containerRef}
-      className="group flex flex-col"
-    >
+    <article ref={containerRef} className="group flex flex-col">
       <Link
         to="/projects/$slug"
         params={{ slug: project.slug }}

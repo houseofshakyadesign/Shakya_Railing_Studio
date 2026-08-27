@@ -71,8 +71,8 @@ function ProjectsPage() {
             transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
             className="mt-5 max-w-xl text-sm leading-relaxed text-ivory/70 sm:text-base"
           >
-            Selected architectural metalwork and custom railing installations engineered and executed by
-            Metal Work Nepal across private residences and contemporary spaces.
+            Selected architectural metalwork and custom railing installations engineered and
+            executed by Metal Work Nepal across private residences and contemporary spaces.
           </motion.p>
 
           <motion.div
@@ -94,7 +94,11 @@ function ProjectsPage() {
       </section>
 
       {/* 2. PROJECT CATALOGUE (STRICT 2-COLUMN 4:3 GRID) */}
-      <section ref={gridRef} id="projects-grid" className="mx-auto max-w-[1440px] px-6 py-16 md:px-10 lg:px-16 md:py-24">
+      <section
+        ref={gridRef}
+        id="projects-grid"
+        className="mx-auto max-w-[1440px] px-6 py-16 md:px-10 lg:px-16 md:py-24"
+      >
         <div className="border-b border-hairline pb-6">
           <span className="label-xs text-bronze uppercase tracking-[0.22em]">Selected Works</span>
           <h2 className="mt-1 text-2xl font-light tracking-tight md:text-4xl text-foreground uppercase">
@@ -116,12 +120,16 @@ function ProjectsPage() {
       <section className="border-t border-hairline bg-sand">
         <div className="mx-auto max-w-[1440px] px-6 py-20 md:px-10 lg:px-16 md:py-28">
           <div className="max-w-3xl">
-            <span className="label-xs text-bronze uppercase tracking-[0.22em]">Custom Metalwork & Railings</span>
+            <span className="label-xs text-bronze uppercase tracking-[0.22em]">
+              Custom Metalwork & Railings
+            </span>
             <h2 className="mt-3 text-3xl font-light tracking-tight md:text-5xl">
-              Commission your <span className="display-serif italic font-normal">installation.</span>
+              Commission your{" "}
+              <span className="display-serif italic font-normal">installation.</span>
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground md:text-base">
-              Explore our contemporary railing catalogue or contact our team for bespoke metalwork tailored to your site.
+              Explore our contemporary railing catalogue or contact our team for bespoke metalwork
+              tailored to your site.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link

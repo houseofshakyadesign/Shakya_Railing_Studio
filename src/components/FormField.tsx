@@ -34,7 +34,9 @@ export function Field({
           {error}
         </p>
       ) : hint ? (
-        <p id={hintId} className="mt-2 text-xs text-muted-foreground">{hint}</p>
+        <p id={hintId} className="mt-2 text-xs text-muted-foreground">
+          {hint}
+        </p>
       ) : null}
     </div>
   );

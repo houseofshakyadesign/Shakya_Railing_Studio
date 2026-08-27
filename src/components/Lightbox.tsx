@@ -13,13 +13,7 @@ type LightboxProps = {
   onNavigate: (index: number) => void;
 };
 
-export function Lightbox({
-  media,
-  currentIndex,
-  open,
-  onClose,
-  onNavigate,
-}: LightboxProps) {
+export function Lightbox({ media, currentIndex, open, onClose, onNavigate }: LightboxProps) {
   const current = media[currentIndex];
   const trapRef = useFocusTrap(open);
 

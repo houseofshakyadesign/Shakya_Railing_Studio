@@ -6,7 +6,10 @@ const API_BASE = (import.meta.env.VITE_API_URL || "http://localhost:5000/api").r
 
 function getAuthHeader(): Record<string, string> {
   try {
-    const token = sessionStorage.getItem("metalWorkNepal_adminToken");
+    const token =
+      (typeof sessionStorage !== "undefined" &&
+        sessionStorage.getItem("metalWorkNepal_adminToken")) ||
+      (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminToken"));
     if (token) {
       return { Authorization: `Bearer ${token}` };
     }
@@ -51,7 +54,11 @@ async function request<T>(endpoint: string, options: RequestInit = {}, retries =
       return res.json();
     } catch (err) {
       lastError = err instanceof Error ? err : new Error(String(err));
-      if (attempt < retries && !lastError.message.includes("401") && !lastError.message.includes("403")) {
+      if (
+        attempt < retries &&
+        !lastError.message.includes("401") &&
+        !lastError.message.includes("403")
+      ) {
         await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
         continue;
       }
@@ -125,8 +132,7 @@ export const api = {
   projects: {
     list: (includeAll = false) =>
       request<import("@/data/projects").Project[]>(`/projects${includeAll ? "?all=true" : ""}`),
-    getBySlug: (slug: string) =>
-      request<import("@/data/projects").Project>(`/projects/${slug}`),
+    getBySlug: (slug: string) => request<import("@/data/projects").Project>(`/projects/${slug}`),
     create: (data: Partial<import("@/data/projects").Project>) =>
       request<import("@/data/projects").Project>("/projects", {
         method: "POST",
@@ -162,7 +168,14 @@ export const api = {
   },
 
   upload: {
-    media: async (file: File): Promise<{ success: boolean; url: string; filename: string; mediaType: "image" | "video" }> => {
+    media: async (
+      file: File,
+    ): Promise<{
+      success: boolean;
+      url: string;
+      filename: string;
+      mediaType: "image" | "video";
+    }> => {
       const url = `${API_BASE}/upload`;
       const formData = new FormData();
       formData.append("file", file);
