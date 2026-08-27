@@ -121,8 +121,7 @@ function ProjectsPage() {
               Commission your <span className="display-serif italic font-normal">installation.</span>
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-muted-foreground md:text-base">
-              Explore our contemporary railing catalogue or calculate an instant architectural estimate
-              tailored to your exact site dimensions.
+              Explore our contemporary railing catalogue or contact our team for bespoke metalwork tailored to your site.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
@@ -133,10 +132,10 @@ function ProjectsPage() {
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <Link
-                to="/calculator"
+                to="/contact"
                 className="inline-flex items-center gap-2 border border-foreground bg-transparent px-7 py-4 text-[0.72rem] font-bold tracking-[0.2em] text-foreground uppercase transition-colors hover:bg-foreground hover:text-background"
               >
-                <span>Get an Estimate</span>
+                <span>Contact Studio</span>
                 <ArrowUpRight className="h-3.5 w-3.5" />
               </Link>
             </div>
