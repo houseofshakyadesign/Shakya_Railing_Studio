@@ -368,22 +368,14 @@ function ContactPage() {
                       exit={{ opacity: 0 }}
                     >
                       <div>
-                        <div className="flex items-center justify-between">
-                          <p className="label-xs text-bronze uppercase tracking-[0.22em]">
-                            START YOUR PROJECT
-                          </p>
-                          <Link
-                            to="/calculator"
-                            className="text-[0.68rem] font-bold tracking-wider text-bronze uppercase underline underline-offset-4 hover:text-foreground"
-                          >
-                            Calculate Estimate →
-                          </Link>
-                        </div>
+                        <p className="label-xs text-bronze uppercase tracking-[0.22em]">
+                          START YOUR PROJECT
+                        </p>
                         <h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">
                           Send an Enquiry
                         </h2>
                         <p className="mt-2 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                          Fill out the essential project details below or use our calculator to get an instant estimate.
+                          Fill out the essential project details below and our team will get in touch directly.
                         </p>
                       </div>
 
@@ -617,33 +609,33 @@ function ContactPage() {
         </div>
       </section>
 
-      {/* ── 04 "FASTEST ROUTE" CALCULATOR CTA ── */}
+      {/* ── 04 "EXPLORE DESIGNS" CTA ── */}
       <section className="mx-auto max-w-[1440px] px-5 pb-20 md:px-10 md:pb-28">
         <div className="relative overflow-hidden border border-hairline bg-charcoal p-8 sm:p-12 md:p-16 text-ivory">
           <div className="relative z-10 max-w-2xl">
             <p className="label-xs text-bronze-soft font-semibold uppercase tracking-[0.24em]">
-              FASTEST ROUTE
+              PORTFOLIO & DESIGNS
             </p>
             <h2 className="mt-3 text-3xl font-extrabold tracking-tight sm:text-4xl md:text-5xl uppercase leading-tight">
-              CALCULATE FIRST.
+              EXPLORE DESIGNS.
               <br />
               ENQUIRE WITH CONFIDENCE.
             </h2>
             <p className="mt-5 text-sm leading-relaxed text-ivory/70 sm:text-base">
-              Enter your railing type and approximate length to get an instant per-sq.ft. price breakdown before sending your enquiry.
+              Browse our bespoke railing collection or view completed installations across Nepal to find inspiration for your project.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-4">
               <Link
-                to="/calculator"
+                to="/collection"
                 className="inline-flex items-center gap-2.5 bg-ivory px-8 py-4 text-[0.72rem] font-bold tracking-[0.2em] text-charcoal uppercase transition-all duration-300 hover:bg-bronze hover:text-ivory"
               >
-                CALCULATE YOUR ESTIMATE →
+                EXPLORE COLLECTION →
               </Link>
               <Link
-                to="/collection"
+                to="/projects"
                 className="inline-flex items-center gap-2 border border-ivory/30 px-6 py-4 text-[0.72rem] font-bold tracking-[0.18em] text-ivory uppercase transition-colors hover:border-ivory"
               >
-                Browse Collection
+                View Completed Projects
               </Link>
             </div>
           </div>
