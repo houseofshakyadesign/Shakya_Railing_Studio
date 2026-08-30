@@ -34,30 +34,31 @@ export function Hero() {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.15, ease: EASE }}
-          className="label-xs text-bronze-soft"
+          className="label-xs text-bronze-soft font-semibold tracking-[0.24em] uppercase"
         >
-          Metal Work Nepal · Railing Studio
+          Metal Work Nepal
         </motion.p>
 
         <motion.h1
           initial={{ opacity: 0, y: 28 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.25, ease: EASE }}
-          className="mt-6 max-w-4xl text-4xl leading-[1.02] tracking-tight text-ivory sm:text-6xl lg:text-7xl"
+          className="mt-6 max-w-4xl text-4xl leading-[1.04] tracking-tight text-ivory sm:text-6xl lg:text-7xl font-extrabold uppercase"
         >
-          Railings, designed to
-          <span className="display-serif italic"> define </span>
-          your space.
+          Crafted in metal.
+          <br />
+          <span className="font-serif italic font-normal text-bronze-soft lowercase">built for</span>{" "}
+          Architecture.
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
-          className="mt-7 max-w-xl text-base leading-relaxed text-ivory/70"
+          className="mt-7 max-w-2xl text-base leading-relaxed text-ivory/80 sm:text-lg"
         >
-          Explore contemporary railing systems, choose your preferred design, calculate your
-          estimated cost and send your requirement directly to our team.
+          Hand-forged railings, architectural grilles, gates, metal structures and glass enclosures
+          — made by Nepali hands for contemporary spaces.
         </motion.p>
 
         <motion.div
@@ -68,15 +69,15 @@ export function Hero() {
         >
           <Link
             to="/collection"
-            className="bg-ivory px-9 py-4 text-center text-[0.72rem] tracking-[0.22em] text-charcoal uppercase transition-colors duration-300 hover:bg-bronze hover:text-ivory"
+            className="bg-ivory px-9 py-4 text-center text-[0.72rem] font-bold tracking-[0.22em] text-charcoal uppercase transition-colors duration-300 hover:bg-bronze hover:text-ivory"
           >
-            Explore Collection
+            Explore Our Work →
           </Link>
           <Link
             to="/calculator"
-            className="border border-ivory/35 px-9 py-4 text-center text-[0.72rem] tracking-[0.22em] text-ivory uppercase transition-colors duration-300 hover:border-ivory hover:bg-ivory/10"
+            className="border border-ivory/35 px-9 py-4 text-center text-[0.72rem] font-bold tracking-[0.22em] text-ivory uppercase transition-colors duration-300 hover:border-ivory hover:bg-ivory/10"
           >
-            Calculate Price
+            Get a Quote →
           </Link>
         </motion.div>
       </div>

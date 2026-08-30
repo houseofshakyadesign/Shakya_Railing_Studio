@@ -16,8 +16,6 @@ import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { EASE, Reveal } from "@/components/Reveal";
-import { STORAGE_KEYS } from "@/config/settings";
-import { readJSON, writeJSON } from "@/utils/localStorage";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea, type RailingTypeSlug } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
@@ -99,18 +97,8 @@ function CalculatorPage() {
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const enquirySectionRef = useRef<HTMLDivElement>(null);
 
-  // Length input initialized from localStorage or default (20 ft)
-  const [length, setLength] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = readJSON<string | null>(STORAGE_KEYS.length, null);
-        if (stored) return stored;
-      } catch {
-        /* ignore */
-      }
-    }
-    return "20";
-  });
+  // Length input initialized with default 20 ft
+  const [length, setLength] = useState<string>("20");
 
   const [showFormula, setShowFormula] = useState(false);
 
@@ -119,14 +107,29 @@ function CalculatorPage() {
   const [errors, setErrors] = useState<Errors>({});
   const [submitted, setSubmitted] = useState<Enquiry | null>(null);
 
-  // Focus length input when product or railing type changes
+  // Sync railing application type and focus length input when product changes
   useEffect(() => {
-    if (selectedId) {
+    if (selectedProduct) {
+      if (
+        selectedProduct.application === "staircase" ||
+        selectedProduct.applications?.some((a) => a.toLowerCase().includes("staircase"))
+      ) {
+        setRailingType("staircase");
+      } else if (
+        selectedProduct.application === "balcony" ||
+        selectedProduct.application === "balcony_loft" ||
+        selectedProduct.applications?.some(
+          (a) => a.toLowerCase().includes("balcony") || a.toLowerCase().includes("loft"),
+        )
+      ) {
+        setRailingType("balcony");
+      }
+
       setTimeout(() => {
         lengthInputRef.current?.focus();
       }, 300);
     }
-  }, [selectedId, railingType]);
+  }, [selectedProduct, setRailingType]);
 
   const numLength = parseFloat(length);
   const isCustom = Boolean(
@@ -320,7 +323,7 @@ function CalculatorPage() {
       </div>
 
       <div className="max-w-3xl">
-        <p className="label-xs text-bronze">Metal Work Nepal — Railing Studio</p>
+        <p className="label-xs text-bronze uppercase tracking-[0.2em]">Metal Work Nepal</p>
         <h1 className="mt-3 text-3xl leading-[1.1] tracking-tight md:text-5xl">
           CALCULATE YOUR RAILING ESTIMATE
         </h1>

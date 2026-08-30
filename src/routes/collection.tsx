@@ -16,17 +16,15 @@ import { FinalCTA } from "@/components/FinalCTA";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { ProductGrid } from "@/components/ProductGrid";
 import { EASE, Reveal, SectionHeading } from "@/components/Reveal";
-import { STORAGE_KEYS } from "@/config/settings";
-import { readJSON, writeJSON } from "@/utils/localStorage";
 import type { Product } from "@/data/products";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 
-const title = "Railing Collection | Metal Work Nepal";
+const title = "The Collection | Metal Work Nepal";
 const description =
-  "Browse 13 architectural railing designs — steel, glass, cable, wood and bespoke systems — with transparent per sq.ft. pricing from Metal Work Nepal.";
+  "Explore hand-forged railings, architectural grilles, gates and metal + glass work crafted for contemporary spaces by Metal Work Nepal.";
 
 export const Route = createFileRoute("/collection")({
   head: () => ({
@@ -107,17 +105,7 @@ function CollectionPage() {
   }, [selectedProduct]);
 
   // Measurements
-  const [length, setLength] = useState<string>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = readJSON<string | null>(STORAGE_KEYS.length, null);
-        if (stored) return stored;
-      } catch {
-        /* ignore */
-      }
-    }
-    return "20";
-  });
+  const [length, setLength] = useState<string>("20");
 
   const [showFormula, setShowFormula] = useState(false);
 
@@ -258,16 +246,28 @@ function CollectionPage() {
 
   return (
     <>
-      {/* ── COLLECTION GRID ── */}
-      <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-16 md:px-10 md:pt-48">
-        <SectionHeading
-          label="01 SELECT"
-          title="Our railing collection."
-          intro="Select an architectural railing below — you'll be taken straight to the dimension calculator."
-        />
+      {/* ── 01 HERO / INTRODUCTION ── */}
+      <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-12 md:px-10 md:pt-48 md:pb-16">
+        <div className="max-w-3xl">
+          <p className="label-xs text-bronze font-semibold uppercase tracking-[0.24em]">
+            THE COLLECTION
+          </p>
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight leading-[1.08] sm:text-5xl md:text-6xl uppercase">
+            Architectural metalwork,
+            <br />
+            <span className="font-serif italic font-normal text-bronze lowercase">crafted for</span>{" "}
+            the way you build.
+          </h1>
+          <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
+            Explore hand-forged railings, architectural grilles, gates and metal + glass work crafted
+            for contemporary spaces.
+          </p>
+        </div>
       </section>
+
+      {/* ── 02 MASTER CATALOGUE GRID ── */}
       <section className="mx-auto max-w-[1440px] px-5 pb-24 md:px-10 md:pb-32">
-        <ProductGrid onAfterSelect={handleAfterSelect} />
+        <ProductGrid />
       </section>
 
       {/* ── INLINE CALCULATOR ── */}

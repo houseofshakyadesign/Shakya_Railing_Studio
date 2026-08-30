@@ -81,28 +81,30 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Metal Work Nepal | Railing Studio" },
+      { title: "Metal Work Nepal | Architectural Metalwork Studio" },
       {
         name: "description",
         content:
-          "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal. Select a design, calculate your instant estimate and connect directly with our studio.",
+          "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, grilles, gates, metal structures and glass enclosures for contemporary spaces in Nepal.",
       },
       { name: "author", content: "Metal Work Nepal" },
       { name: "theme-color", content: "#f6f3ec" },
-      { property: "og:site_name", content: "Metal Work Nepal — Railing Studio" },
+      { property: "og:site_name", content: "Metal Work Nepal — Architectural Metalwork Studio" },
       { property: "og:type", content: "website" },
-      { property: "og:title", content: "Metal Work Nepal | Railing Studio" },
+      { property: "og:title", content: "Metal Work Nepal | Architectural Metalwork Studio" },
       {
         property: "og:description",
-        content: "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
+        content:
+          "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, grilles, gates, metal structures and glass enclosures for contemporary spaces in Nepal.",
       },
       { property: "og:image", content: "/images/railings/hero.jpg" },
       { property: "og:url", content: "https://shakya-railing-studio.vercel.app" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Metal Work Nepal | Railing Studio" },
+      { name: "twitter:title", content: "Metal Work Nepal | Architectural Metalwork Studio" },
       {
         name: "twitter:description",
-        content: "Explore architectural metalwork and bespoke railing systems by Metal Work Nepal.",
+        content:
+          "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, grilles, gates, metal structures and glass enclosures for contemporary spaces in Nepal.",
       },
       { name: "twitter:image", content: "/images/railings/hero.jpg" },
     ],

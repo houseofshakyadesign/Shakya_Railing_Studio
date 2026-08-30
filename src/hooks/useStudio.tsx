@@ -7,7 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
-import { type Product } from "@/data/products";
+import { type Product, DEFAULT_PRODUCTS } from "@/data/products";
 import { type Project, type ProjectMedia, INITIAL_PROJECTS } from "@/data/projects";
 import { DEFAULT_SETTINGS, STORAGE_KEYS, type Settings } from "@/config/settings";
 import { isStorageAvailable, readJSON, writeJSON } from "@/utils/localStorage";
@@ -81,6 +81,7 @@ type StudioValue = {
   selectProduct: (id: string | null) => void;
   saveProduct: (p: Product) => Promise<boolean>;
   deleteProduct: (id: string) => Promise<boolean>;
+  duplicateProduct: (id: string) => Promise<Product | null>;
   resetProducts: () => void;
   saveProject: (p: Project) => Promise<boolean>;
   deleteProject: (id: string) => Promise<boolean>;
@@ -93,13 +94,37 @@ type StudioValue = {
 
 const StudioContext = createContext<StudioValue | null>(null);
 
+function mergeWithDefaults(current: Product[]): Product[] {
+  if (!Array.isArray(current) || current.length === 0) return DEFAULT_PRODUCTS;
+  const currentIds = new Set(current.map((p) => p.id));
+  const missing = DEFAULT_PRODUCTS.filter((p) => !currentIds.has(p.id));
+  const all = missing.length > 0 ? [...current, ...missing] : current;
+
+  return all.map((p) => {
+    const cat = (p.category || "").toUpperCase();
+    const id = (p.id || "").toLowerCase();
+    const isShowcase =
+      id.startsWith("mg") ||
+      cat.includes("GLASS") ||
+      cat.includes("ENCLOSED") ||
+      cat.includes("ROOM") ||
+      cat.includes("GATE") ||
+      cat.includes("GRILLE") ||
+      cat.includes("CUSTOM");
+    if (isShowcase) {
+      return { ...p, contentType: "SHOWCASE", isCustom: true, pricePerSqft: null };
+    }
+    return p;
+  });
+}
+
 export function StudioProvider({ children }: { children: ReactNode }) {
   const [ready, setReady] = useState(false);
   const [isCloudConnected, setIsCloudConnected] = useState(true);
   const storageOk = useMemo(() => isStorageAvailable(), []);
 
   const [products, setProducts] = useState<Product[]>(() => {
-    return readJSON<Product[]>(STORAGE_KEYS.products, []);
+    return mergeWithDefaults(readJSON<Product[]>(STORAGE_KEYS.products, DEFAULT_PRODUCTS));
   });
 
   const [projects, setProjects] = useState<Project[]>(() => {
@@ -121,9 +146,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return saved === "staircase" ? "staircase" : "balcony";
   });
 
-  const [selectedId, setSelectedId] = useState<string | null>(() => {
-    return readJSON<string | null>(STORAGE_KEYS.selected, null);
-  });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const setRailingType = useCallback((type: RailingTypeSlug) => {
     setRailingTypeState(type);
@@ -139,14 +162,12 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   // 1. Initial hydration
   useEffect(() => {
     if (storageOk) {
-      setProducts(readJSON<Product[]>(STORAGE_KEYS.products, []));
+      setProducts(mergeWithDefaults(readJSON<Product[]>(STORAGE_KEYS.products, DEFAULT_PRODUCTS)));
       setProjects(readJSON<Project[]>(STORAGE_KEYS.projects, INITIAL_PROJECTS));
       setSettings(readJSON<Settings>(STORAGE_KEYS.settings, DEFAULT_SETTINGS));
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
       const savedType = readJSON<RailingTypeSlug>(STORAGE_KEYS.railingType, "balcony");
       setRailingTypeState(savedType === "staircase" ? "staircase" : "balcony");
-      const savedSel = readJSON<string | null>(STORAGE_KEYS.selected, null);
-      if (savedSel) setSelectedId(savedSel);
     }
     setReady(true);
   }, [storageOk]);
@@ -182,8 +203,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       Array.isArray(productsResult.value) &&
       productsResult.value.length > 0
     ) {
-      setProducts(productsResult.value);
-      writeJSON(STORAGE_KEYS.products, productsResult.value);
+      const merged = mergeWithDefaults(productsResult.value);
+      setProducts(merged);
+      writeJSON(STORAGE_KEYS.products, merged);
     }
 
     if (
@@ -223,33 +245,58 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const selectProduct = useCallback((id: string | null) => {
     setSelectedId(id);
-    writeJSON(STORAGE_KEYS.selected, id);
   }, []);
 
   const saveProduct = useCallback(
     async (p: Product): Promise<boolean> => {
-      setProducts((prev) => {
-        const exists = prev.some((x) => x.id === p.id);
-        const next = exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
-        writeJSON(STORAGE_KEYS.products, next);
-        return next;
-      });
-
       try {
         const exists = products.some((x) => x.id === p.id);
+        let savedProd: Product;
         if (exists) {
-          await api.products.update(p.id, p);
+          savedProd = await api.products.update(p.id, p);
         } else {
-          await api.products.create(p);
+          savedProd = await api.products.create(p);
         }
+        setProducts((prev) => {
+          const next = prev.some((x) => x.id === (savedProd?.id || p.id))
+            ? prev.map((x) => (x.id === (savedProd?.id || p.id) ? (savedProd || p) : x))
+            : [...prev, savedProd || p];
+          writeJSON(STORAGE_KEYS.products, next);
+          return next;
+        });
         return true;
-      } catch {
-        /* silent */
+      } catch (err) {
+        console.error("saveProduct error:", err);
+        // Fallback update to local state so user doesn't lose form work in offline/local mode
+        setProducts((prev) => {
+          const exists = prev.some((x) => x.id === p.id);
+          const next = exists ? prev.map((x) => (x.id === p.id ? p : x)) : [...prev, p];
+          writeJSON(STORAGE_KEYS.products, next);
+          return next;
+        });
         return false;
       }
     },
     [products],
   );
+
+  const duplicateProduct = useCallback(async (id: string): Promise<Product | null> => {
+    try {
+      const duplicated = await api.products.duplicate(id);
+      if (duplicated) {
+        setProducts((prev) => {
+          const next = [...prev, duplicated];
+          writeJSON(STORAGE_KEYS.products, next);
+          return next;
+        });
+        return duplicated;
+      }
+      return null;
+    } catch (err) {
+      console.error("duplicateProduct error:", err);
+      return null;
+    }
+  }, []);
 
   const deleteProduct = useCallback(async (id: string): Promise<boolean> => {
     setProducts((prev) => {
@@ -386,7 +433,9 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const activeProducts = useMemo(() => {
-    return products.filter((p) => p.isActive);
+    return products
+      .filter((p) => p.isActive)
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
   }, [products]);
 
   const activeProjects = useMemo(() => {
@@ -420,6 +469,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       selectProduct,
       saveProduct,
       deleteProduct,
+      duplicateProduct,
       resetProducts,
       saveProject,
       deleteProject,

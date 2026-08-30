@@ -7,9 +7,9 @@ import { ProductGrid } from "@/components/ProductGrid";
 import { Reveal, SectionHeading } from "@/components/Reveal";
 import { TrustSection } from "@/components/TrustSection";
 
-const title = "Metal Work Nepal | Architectural Metalwork & Railings";
+const title = "Metal Work Nepal | Architectural Metalwork Studio";
 const description =
-  "Explore architectural metalwork and premium railing systems by Metal Work Nepal. Select a railing design, calculate your instant estimate and send your requirement directly to our team.";
+  "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, grilles, gates, metal structures and glass enclosures for contemporary spaces in Nepal.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -35,20 +35,37 @@ function Index() {
       <section id="collection" className="mx-auto max-w-[1440px] px-5 py-20 md:px-10 md:py-32">
         <div className="flex flex-wrap items-end justify-between gap-8">
           <SectionHeading
-            label="The Collection"
-            title="Our railing collection."
-            intro="A curated selection of architectural railing systems for residential, commercial and hospitality spaces."
+            label="Disciplines & Work"
+            title="Railings & Architectural Metalwork."
+            intro="Metal Work Nepal is an architectural metalwork studio creating crafted metal elements for homes, interiors and architectural spaces. Explore our flagship railing systems below, with custom grilles, gates, metal rooms and glass enclosures fabricated to specification."
           />
           <Reveal delay={0.1}>
             <Link
               to="/collection"
-              className="group flex items-center gap-3 border-b border-foreground/25 pb-2 text-[0.72rem] tracking-[0.2em] uppercase transition-colors hover:border-bronze hover:text-bronze"
+              className="group flex items-center gap-3 border-b border-foreground/25 pb-2 text-[0.72rem] font-bold tracking-[0.2em] uppercase transition-colors hover:border-bronze hover:text-bronze"
             >
               View all designs
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" />
             </Link>
           </Reveal>
         </div>
+
+        <Reveal delay={0.15}>
+          <div className="mt-8 flex flex-wrap items-center gap-2 sm:gap-3 border-y border-hairline py-3.5 text-[0.66rem] sm:text-[0.7rem] font-bold tracking-[0.18em] uppercase text-muted-foreground">
+            <span className="text-bronze font-semibold">Disciplines:</span>
+            <span>Railings</span>
+            <span className="text-muted-foreground/30">•</span>
+            <span>Grilles</span>
+            <span className="text-muted-foreground/30">•</span>
+            <span>Gates</span>
+            <span className="text-muted-foreground/30">•</span>
+            <span>Metal Rooms</span>
+            <span className="text-muted-foreground/30">•</span>
+            <span>Glass Enclosures</span>
+            <span className="text-muted-foreground/30">•</span>
+            <span>Custom Metalwork</span>
+          </div>
+        </Reveal>
 
         <div className="mt-14">
           <ProductGrid limit={6} />

@@ -408,7 +408,7 @@ function ContactPage() {
                               onChange={(e) => setField("fullName", e.target.value)}
                               maxLength={100}
                               className={errors.fullName ? errorInputClass : inputClass}
-                              placeholder="e.g. Sajan Shakya"
+                              placeholder="Your full name"
                             />
                           </Field>
 
@@ -427,7 +427,7 @@ function ContactPage() {
                               onChange={(e) => setField("phone", e.target.value)}
                               maxLength={25}
                               className={errors.phone ? errorInputClass : inputClass}
-                              placeholder="e.g. 98XXXXXXXX"
+                              placeholder="Your phone number"
                             />
                           </Field>
                         </div>
@@ -467,7 +467,7 @@ function ContactPage() {
                               onChange={(e) => setField("location", e.target.value)}
                               maxLength={120}
                               className={errors.location ? errorInputClass : inputClass}
-                              placeholder="e.g. Bhaisepati, Lalitpur"
+                              placeholder="Your address or location"
                             />
                           </Field>
                         </div>
@@ -485,7 +485,7 @@ function ContactPage() {
                             value={form.message}
                             onChange={(e) => setField("message", e.target.value)}
                             className={`${inputClass} resize-y`}
-                            placeholder="Tell us about the design style, approximate length, or anything specific..."
+                            placeholder="Your project details or specific requirements..."
                           />
                         </Field>
 

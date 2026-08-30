@@ -7,7 +7,7 @@ import { Reveal, EASE } from "@/components/Reveal";
 import { ProjectCard } from "@/components/ProjectCard";
 import { FinalCTA } from "@/components/FinalCTA";
 
-const title = "Completed Projects | Metal Work Nepal — Railing Studio";
+const title = "Completed Projects | Metal Work Nepal";
 const description =
   "Explore completed railing and architectural metalwork projects crafted by Metal Work Nepal across Nepal. High-end balcony, staircase, and custom fabrication installations.";
 

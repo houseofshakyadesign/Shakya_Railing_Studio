@@ -96,6 +96,10 @@ export const api = {
       request<{ success: boolean }>(`/products/${id}`, {
         method: "DELETE",
       }),
+    duplicate: (id: string) =>
+      request<Product>(`/products/${id}/duplicate`, {
+        method: "POST",
+      }),
   },
 
   enquiries: {

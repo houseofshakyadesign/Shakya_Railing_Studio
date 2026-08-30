@@ -1,5 +1,5 @@
 /**
- * Metal Work Nepal — Railing Studio
+ * Metal Work Nepal — Architectural Metalwork Studio
  * Central configuration.
  */
 
@@ -21,7 +21,7 @@ export type Settings = {
 
 export const DEFAULT_SETTINGS: Settings = {
   companyName: "Metal Work Nepal",
-  studioName: "Architectural Studio",
+  studioName: "Architectural Metalwork Studio",
   whatsappNumber: WHATSAPP_NUMBER,
   currency: "NPR",
   currencyLocale: "en-IN",

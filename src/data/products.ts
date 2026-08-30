@@ -6,7 +6,9 @@ export type Product = {
   nepaliName?: string;
   englishName?: string;
   displayName?: string;
+  subtitle?: string;
   category?: string;
+  contentType?: "PRODUCT" | "SHOWCASE";
   application?: "staircase" | "balcony" | "balcony_loft" | "grilles_gates" | string;
   description: string;
   material: string;
@@ -18,10 +20,12 @@ export type Product = {
   standardModuleWidth: number; // in feet, e.g. 4
   standardHeight: number; // in feet, e.g. 3.5
   image: string;
+  video?: string;
   gallery: string[];
   features: string[];
   applications: string[];
   isCustom: boolean;
+  featured?: boolean;
   isActive: boolean;
   displayOrder?: number;
   createdAt?: string;
@@ -511,5 +515,149 @@ export const DEFAULT_PRODUCTS: Product[] = [
     isCustom: false,
     isActive: true,
     displayOrder: 15,
+  },
+  {
+    id: "mg01",
+    application: "metal_glass",
+    code: "MG-01",
+    slug: "kausi-ghar",
+    name: "The Kausi Room",
+    displayName: "The Kausi Room",
+    nepaliName: "कौसी घर",
+    englishName: "Kausi Ghar",
+    category: "Metal & Glass Enclosed Rooms",
+    contentType: "SHOWCASE",
+    description:
+      "Kausi ghar - the rooftop room every Nepali home dreams of. A fully hand-built metal-and-glass room that turns your rooftop or terrace into a bright, comfortable living space year-round, framed in hand-finished black steel with detailed glass overhead panels.",
+    material:
+      '2"x2" MS wall frame, 1"x1" MS pipe + patti glazing bars, 6mm toughened glass walls, 3"x3" MS roof frame with 1.5"x3" MS purlins, 12mm toughened glass roof, black matt deco paint finish.',
+    primer: "Red oxide anti-corrosive primer",
+    finish: "Black matt deco paint finish",
+    construction: "Hand-built steel truss framework with structural glass glazing bars.",
+    pricePerSqft: null,
+    standardModuleWidth: 10,
+    standardHeight: 8.5,
+    image: "/images/rooms/kausi_ghar.jpg",
+    gallery: [],
+    features: [
+      '2"x2" MS wall frame',
+      '1"x1" MS pipe + patti glazing bars',
+      "6mm toughened glass walls",
+      '3"x3" MS roof frame with 1.5"x3" MS purlins',
+      "12mm toughened glass roof",
+      "Black matt deco paint finish",
+    ],
+    applications: ["Rooftop Room", "Terrace Enclosure", "Living Space"],
+    isCustom: true,
+    isActive: true,
+    displayOrder: 16,
+  },
+  {
+    id: "mg02",
+    application: "metal_glass",
+    code: "MG-02",
+    slug: "aangan-kausi",
+    name: "The Courtyard Sunroom",
+    displayName: "The Courtyard Sunroom",
+    nepaliName: "आँगन कौसी",
+    englishName: "Aangan Kausi",
+    category: "Metal & Glass Enclosed Rooms",
+    contentType: "SHOWCASE",
+    description:
+      "A modern glass-and-steel room built to extend straight out from the house into the courtyard or garden, letting in light from every side. Framed and welded by hand in matte black steel, with toughened glass throughout for safety and durability.",
+    material:
+      '2"x2" MS wall frame, 1"x1" MS pipe + patti glazing bars, 6mm toughened glass walls, 3"x3" MS roof frame with 1.5"x3" MS purlins, 12mm toughened glass roof, black matt deco paint finish.',
+    primer: "Red oxide anti-corrosive primer",
+    finish: "Black matt deco paint finish",
+    construction: "Hand-built steel frame extension with perimeter weather-sealing.",
+    pricePerSqft: null,
+    standardModuleWidth: 12,
+    standardHeight: 8.5,
+    image: "/images/rooms/aangan_kausi.jpg",
+    gallery: [],
+    features: [
+      '2"x2" MS wall frame',
+      '1"x1" MS pipe + patti glazing bars',
+      "6mm toughened glass walls",
+      '3"x3" MS roof frame with 1.5"x3" MS purlins',
+      "12mm toughened glass roof",
+      "Black matt deco paint finish",
+    ],
+    applications: ["Courtyard Sunroom", "Garden Extension"],
+    isCustom: true,
+    isActive: true,
+    displayOrder: 17,
+  },
+  {
+    id: "mg03",
+    application: "metal_glass",
+    code: "MG-03",
+    slug: "chhana-jali-baranda",
+    name: "The Glass-Roof Corridor",
+    displayName: "The Glass-Roof Corridor",
+    nepaliName: "छाना जाली बरन्डा",
+    englishName: "Chhana Jali Baranda",
+    category: "Metal & Glass Enclosed Rooms",
+    contentType: "SHOWCASE",
+    description:
+      "A long glass-roofed passage that fills a hallway with open sky and daylight, built entirely on a hand-fabricated steel frame. Ideal for connecting rooms of the house while keeping the space bright and open.",
+    material:
+      '2"x2" MS wall frame, 1"x1" MS pipe + patti glazing bars, 6mm toughened glass walls, 3"x3" MS roof frame with 1.5"x3" MS purlins, 12mm toughened glass roof, black matt deco paint finish.',
+    primer: "Red oxide anti-corrosive primer",
+    finish: "Black matt deco paint finish",
+    construction: "Hand-fabricated steel architectural overhead truss system.",
+    pricePerSqft: null,
+    standardModuleWidth: 8,
+    standardHeight: 8.5,
+    image: "/images/rooms/chhana_baranda.jpg",
+    gallery: [],
+    features: [
+      '2"x2" MS wall frame',
+      '1"x1" MS pipe + patti glazing bars',
+      "6mm toughened glass walls",
+      '3"x3" MS roof frame with 1.5"x3" MS purlins',
+      "12mm toughened glass roof",
+      "Black matt deco paint finish",
+    ],
+    applications: ["Glass-Roof Passage", "Connecting Corridor"],
+    isCustom: true,
+    isActive: true,
+    displayOrder: 18,
+  },
+  {
+    id: "mg04",
+    application: "metal_glass",
+    code: "MG-04",
+    slug: "bagaicha-kausi",
+    name: "The Garden Sunroom",
+    displayName: "The Garden Sunroom",
+    nepaliName: "बगैंचा कौसी",
+    englishName: "Bagaicha Kausi",
+    category: "Metal & Glass Enclosed Rooms",
+    contentType: "SHOWCASE",
+    description:
+      "A glass-roofed sitting and garden space that blurs the line between indoors and outdoors, framed by hand-built steel trusses. A peaceful corner for a Nepali home, built to last through every season.",
+    material:
+      '2"x2" MS wall frame, 1"x1" MS pipe + patti glazing bars, 6mm toughened glass walls, 3"x3" MS roof frame with 1.5"x3" MS purlins, 12mm toughened glass roof, black matt deco paint finish.',
+    primer: "Red oxide anti-corrosive primer",
+    finish: "Black matt deco paint finish",
+    construction: "Hand-built steel trusses with architectural roof pitch.",
+    pricePerSqft: null,
+    standardModuleWidth: 12,
+    standardHeight: 8.5,
+    image: "/images/rooms/bagaicha_kausi.jpg",
+    gallery: [],
+    features: [
+      '2"x2" MS wall frame',
+      '1"x1" MS pipe + patti glazing bars',
+      "6mm toughened glass walls",
+      '3"x3" MS roof frame with 1.5"x3" MS purlins',
+      "12mm toughened glass roof",
+      "Black matt deco paint finish",
+    ],
+    applications: ["Garden Sunroom", "Glass-Roofed Lounge"],
+    isCustom: true,
+    isActive: true,
+    displayOrder: 19,
   },
 ];

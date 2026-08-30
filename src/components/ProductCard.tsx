@@ -1,9 +1,62 @@
 import { memo } from "react";
 import { motion } from "framer-motion";
-import { ArrowRight, Check } from "lucide-react";
+import { ArrowRight, Check, Sparkles, X } from "lucide-react";
 import type { Product } from "@/data/products";
 import { formatNPR } from "@/utils/currency";
 import { EASE } from "./Reveal";
+
+export function isRailingProduct(product: Product): boolean {
+  const cat = (product.category || "").toUpperCase();
+  const name = (product.name || "").toLowerCase();
+  const apps = (product.applications || []).map((a) => a.toLowerCase());
+  const nepali = product.nepaliName || "";
+  const id = (product.id || "").toLowerCase();
+
+  // Strict SHOWCASE checks: Rooms, Gates, Grilles, Custom MUST NEVER be railings
+  if (
+    id.startsWith("mg") ||
+    cat.includes("GLASS") ||
+    cat.includes("ENCLOSED") ||
+    cat.includes("ROOM") ||
+    cat.includes("GATE") ||
+    cat.includes("GRILLE") ||
+    cat.includes("CUSTOM") ||
+    name.includes("gate") ||
+    name.includes("dhoka") ||
+    nepali.includes("ढोका") ||
+    name.includes("grille") ||
+    name.includes("jali") ||
+    nepali.includes("जाली") ||
+    name.includes("room") ||
+    name.includes("sunroom") ||
+    product.application === "metal_glass" ||
+    apps.some(
+      (a) =>
+        a.includes("room") ||
+        a.includes("sunroom") ||
+        a.includes("corridor") ||
+        a.includes("passage") ||
+        a.includes("gate") ||
+        a.includes("grille"),
+    )
+  ) {
+    return false;
+  }
+
+  if (product.contentType === "SHOWCASE") return false;
+  if (product.contentType === "PRODUCT") return true;
+
+  if (cat.includes("RAILING")) return true;
+  if (
+    product.application === "staircase" ||
+    product.application === "balcony" ||
+    product.application === "balcony_loft"
+  ) {
+    return true;
+  }
+
+  return !product.isCustom;
+}
 
 export const ProductCard = memo(function ProductCard({
   product,
@@ -11,6 +64,7 @@ export const ProductCard = memo(function ProductCard({
   selected,
   onView,
   onSelect,
+  onDeselect,
   currency = "NPR",
 }: {
   product: Product;
@@ -18,128 +72,226 @@ export const ProductCard = memo(function ProductCard({
   selected: boolean;
   onView: (p: Product) => void;
   onSelect: (p: Product) => void;
+  onDeselect?: (p: Product) => void;
   currency?: string;
 }) {
+  const isRailing = isRailingProduct(product);
+  const applicationLabel =
+    product.application === "staircase" ||
+    product.applications?.some((a) => a.toLowerCase().includes("staircase"))
+      ? "STAIRCASE"
+      : product.application === "balcony" ||
+          product.application === "balcony_loft" ||
+          product.applications?.some(
+            (a) => a.toLowerCase().includes("balcony") || a.toLowerCase().includes("loft"),
+          )
+        ? "BALCONY / LOFT"
+        : product.applications?.[0]?.toUpperCase() || product.category?.toUpperCase() || "RAILING";
+
+  const categoryLabel = !isRailing
+    ? product.category?.toUpperCase().includes("ENCLOSED") ||
+      product.category?.toUpperCase().includes("GLASS") ||
+      product.application === "metal_glass" ||
+      product.id.startsWith("mg")
+      ? "METAL & GLASS ENCLOSED ROOMS"
+      : product.category?.toUpperCase().includes("GATE") ||
+          product.applications?.[0]?.toUpperCase().includes("GATE")
+        ? "GATES"
+        : product.category?.toUpperCase().includes("GRILLE") ||
+            product.applications?.[0]?.toUpperCase().includes("GRILLE")
+          ? "GRILLES"
+          : product.category?.toUpperCase() || "SHOWCASE"
+    : applicationLabel;
+
   return (
     <motion.article
-      initial={{ opacity: 0, y: 26 }}
+      initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-60px" }}
-      transition={{ duration: 0.55, delay: (index % 3) * 0.07, ease: EASE }}
-      whileHover={{ y: -6 }}
-      className={`group relative flex flex-col border bg-card transition-[border-color,box-shadow] duration-300 ${
+      viewport={{ once: true, margin: "-40px" }}
+      transition={{ duration: 0.5, delay: (index % 3) * 0.06, ease: EASE }}
+      whileHover={{ y: -5 }}
+      onClick={() => onView(product)}
+      className={`group relative flex flex-col border bg-card transition-all duration-300 cursor-pointer ${
         selected
-          ? "border-bronze shadow-lift"
-          : "border-hairline shadow-soft hover:border-foreground/25 hover:shadow-lift"
+          ? "border-bronze shadow-lift ring-1 ring-bronze"
+          : "border-hairline shadow-soft hover:border-foreground/30 hover:shadow-lift"
       }`}
     >
+      {/* ── IMAGE WRAPPER ── */}
       <div className="relative aspect-[4/5] overflow-hidden bg-sand">
         <img
           src={product.image}
-          alt={`${product.name} by Metal Work Nepal`}
+          alt={`${product.displayName || product.name} by Metal Work Nepal`}
           loading="lazy"
           width={1024}
           height={1280}
-          className="h-full w-full object-cover transition-transform duration-[600ms] ease-out group-hover:scale-[1.04]"
+          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
         />
-        <div className="absolute inset-0 bg-charcoal/0 transition-colors duration-500 group-hover:bg-charcoal/12" />
-        <span className="absolute top-4 left-4 bg-background/85 px-3 py-1.5 text-[0.62rem] tracking-[0.22em] backdrop-blur-sm">
-          {String(index + 1).padStart(2, "0")} · {product.code}
-        </span>
-        {selected ? (
-          <motion.span
-            initial={{ scale: 0.6, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.28, ease: EASE }}
-            className="absolute top-4 right-4 grid h-9 w-9 place-items-center rounded-full bg-bronze text-ivory"
-            aria-label="Selected"
+        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/45 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
+
+        {/* Top Badges */}
+        <div className="absolute top-3.5 inset-x-3.5 flex items-center justify-between pointer-events-none">
+          <span className="bg-background/90 backdrop-blur-md px-2.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] uppercase text-foreground shadow-sm">
+            {isRailing ? applicationLabel : categoryLabel}
+          </span>
+
+          {isRailing && !selected ? (
+            <span className="inline-flex items-center gap-1 bg-sand/90 backdrop-blur-md px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.16em] uppercase text-bronze border border-hairline/80 shadow-sm">
+              <Sparkles className="h-2.5 w-2.5" />
+              INSTANT ESTIMATE
+            </span>
+          ) : null}
+        </div>
+
+        {/* Hover Quick Deselect Badge (Top Right when selected) */}
+        {selected && onDeselect ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDeselect(product);
+            }}
+            className="absolute top-3.5 right-3.5 z-20 hidden group-hover:inline-flex items-center gap-1.5 bg-destructive px-2.5 py-1 text-[0.62rem] font-bold tracking-wider text-ivory shadow-lift transition-transform hover:scale-105"
+            title="Click to deselect"
+            aria-label="Deselect railing"
           >
-            <Check className="h-4 w-4" strokeWidth={2.5} />
-          </motion.span>
+            <X className="h-3 w-3 stroke-[2.5]" />
+            <span>DESELECT</span>
+          </button>
+        ) : null}
+
+        {/* Selected Check Indicator / Deselect Trigger */}
+        {selected ? (
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (onDeselect) onDeselect(product);
+              else onSelect(product);
+            }}
+            className="group/badge absolute bottom-3.5 right-3.5 z-10 flex items-center gap-1.5 rounded-full bg-bronze px-2.5 py-1 text-ivory shadow-md transition-all duration-300 hover:bg-destructive hover:scale-105"
+            title="Selected — Click to deselect"
+            aria-label="Selected — Click to deselect"
+          >
+            <Check className="h-3.5 w-3.5 stroke-[2.5] group-hover/badge:hidden" />
+            <X className="h-3.5 w-3.5 stroke-[2.5] hidden group-hover/badge:block" />
+            <span className="text-[0.6rem] font-bold uppercase tracking-wider hidden group-hover/badge:inline">
+              DESELECT
+            </span>
+          </button>
         ) : null}
       </div>
 
-      <div className="flex flex-1 flex-col p-6">
+      {/* ── CARD CONTENT ── */}
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
         <div>
+          {/* Dual naming: Nepali & English */}
           {product.nepaliName ? (
-            <p className="text-sm font-medium tracking-wide text-bronze">{product.nepaliName}</p>
+            <p className="text-sm font-semibold tracking-wide text-bronze font-serif">
+              {product.nepaliName}
+              {product.englishName && product.englishName !== product.name ? (
+                <span className="ml-2 text-xs font-normal text-muted-foreground font-sans uppercase tracking-wider">
+                  {product.englishName}
+                </span>
+              ) : null}
+            </p>
           ) : null}
-          <h3 className="mt-1 text-lg font-medium leading-snug tracking-tight">
+
+          <h3 className="mt-1 text-lg font-bold leading-snug tracking-tight text-foreground group-hover:text-bronze transition-colors">
             {product.displayName || product.name}
           </h3>
-          {product.applications?.length || product.category ? (
-            <p className="mt-1.5 text-[0.68rem] font-medium tracking-[0.16em] text-muted-foreground uppercase">
-              {product.applications?.[0] || product.category}
+
+          {!isRailing ? (
+            <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+              {product.description}
             </p>
           ) : null}
         </div>
 
-        <dl className="mt-auto flex items-end justify-between gap-4 border-t border-hairline pt-5 mt-6">
-          <div className="min-w-0 flex-1">
-            <dt className="label-xs text-muted-foreground">Material</dt>
-            <dd
-              className="mt-1.5 text-xs leading-snug text-foreground line-clamp-2"
-              title={product.material}
-            >
-              {product.material}
-            </dd>
-          </div>
-          <div className="shrink-0 text-right">
-            <dt className="label-xs text-muted-foreground">Rate</dt>
-            <dd className="mt-1.5 text-sm font-semibold tracking-tight">
-              {product.pricePerSqft === null ||
-              product.pricePerSqft === undefined ||
-              product.pricePerSqft === 0 ||
-              product.isCustom ? (
-                "Price on Request"
-              ) : (
-                <>
-                  {formatNPR(product.pricePerSqft, currency)}
-                  <span className="font-normal text-muted-foreground"> / sq.ft.</span>
-                </>
-              )}
-            </dd>
-          </div>
-        </dl>
+        {/* Specification & Pricing Strip */}
+        <div className="mt-auto pt-5 mt-5 border-t border-hairline">
+          {isRailing ? (
+            <div className="flex items-baseline justify-between gap-2">
+              <span className="text-[0.66rem] font-bold tracking-[0.18em] uppercase text-muted-foreground">
+                RATE
+              </span>
+              <div className="text-right">
+                {product.pricePerSqft ? (
+                  <p className="text-base font-extrabold tracking-tight text-foreground">
+                    {formatNPR(product.pricePerSqft, currency)}
+                    <span className="text-xs font-normal text-muted-foreground"> / SQ.FT</span>
+                  </p>
+                ) : (
+                  <p className="text-xs font-bold text-muted-foreground uppercase">Price on Request</p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-center justify-between text-xs text-muted-foreground">
+              <span className="text-[0.66rem] font-bold tracking-[0.18em] uppercase">MATERIAL</span>
+              <span className="text-[0.72rem] text-foreground font-medium truncate max-w-[170px]">
+                {product.material.split(",")[0]}
+              </span>
+            </div>
+          )}
+        </div>
 
-        <div className="mt-6 flex items-center gap-3">
-          <button
-            type="button"
-            onClick={() => onView(product)}
-            className="group/btn flex flex-1 items-center justify-between border border-hairline px-4 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 hover:border-foreground/40"
-          >
-            View Details
-            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelect(product)}
-            aria-pressed={selected}
-            className={`group/sel flex items-center gap-2 px-5 py-3 text-[0.68rem] tracking-[0.18em] uppercase transition-colors duration-300 ${
-              selected
-                ? "bg-bronze text-ivory hover:bg-destructive"
-                : "bg-charcoal text-ivory hover:bg-bronze"
-            }`}
-          >
-            {selected ? (
+        {/* Action Buttons */}
+        <div className="mt-5 pt-3 border-t border-hairline/60 flex items-center gap-2">
+          {isRailing ? (
+            selected ? (
               <>
-                <Check
-                  className="h-3 w-3 transition-transform duration-200 group-hover/sel:hidden"
-                  strokeWidth={2.5}
-                />
-                <span className="hidden h-3 w-3 items-center justify-center text-[0.6rem] leading-none group-hover/sel:flex">
-                  ✕
-                </span>
-                <span className="group-hover/sel:hidden">Selected</span>
-                <span className="hidden group-hover/sel:inline">Deselect</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(product);
+                  }}
+                  className="group/sel flex flex-1 items-center justify-center gap-1.5 bg-bronze py-3 px-3 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-charcoal"
+                >
+                  <Check className="h-3.5 w-3.5" />
+                  <span>CALCULATE</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDeselect?.(product);
+                  }}
+                  className="group/desel flex items-center justify-center gap-1 border border-destructive/40 bg-destructive/10 px-3 py-3 text-[0.68rem] font-bold tracking-[0.14em] uppercase text-destructive transition-all duration-300 hover:bg-destructive hover:text-ivory"
+                  title="Deselect this railing"
+                  aria-label="Deselect railing"
+                >
+                  <X className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <span>DESELECT</span>
+                </button>
               </>
             ) : (
-              <>
-                Select & Calculate
-                <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/sel:translate-x-0.5" />
-              </>
-            )}
-          </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onSelect(product);
+                }}
+                className="group/sel flex flex-1 items-center justify-center gap-2 bg-charcoal py-3 px-4 text-[0.68rem] font-bold tracking-[0.18em] uppercase text-ivory transition-all duration-300 hover:bg-bronze"
+              >
+                <span>SELECT & CALCULATE</span>
+                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/sel:translate-x-1" />
+              </button>
+            )
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onView(product);
+              }}
+              className="group/btn flex w-full items-center justify-between border border-hairline bg-sand/40 px-4 py-3 text-[0.68rem] font-bold tracking-[0.18em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
+            >
+              <span>EXPLORE DESIGN</span>
+              <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
+            </button>
+          )}
         </div>
       </div>
     </motion.article>

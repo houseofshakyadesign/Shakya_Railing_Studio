@@ -7,7 +7,7 @@ export function FinalCTA() {
       <div className="mx-auto max-w-[1440px] px-5 py-24 md:px-10 md:py-40">
         <Reveal>
           <h2 className="text-4xl leading-[1.02] tracking-tight text-ivory sm:text-6xl lg:text-7xl">
-            Found your railing?
+            Planning your metalwork?
           </h2>
         </Reveal>
         <Reveal delay={0.08}>
@@ -16,9 +16,9 @@ export function FinalCTA() {
           </p>
         </Reveal>
         <Reveal delay={0.16}>
-          <p className="mt-8 max-w-lg text-base leading-relaxed text-ivory/65">
-            Choose your preferred railing, calculate your estimated requirement and send it directly
-            to our team.
+          <p className="mt-8 max-w-lg text-base leading-relaxed text-ivory/70">
+            Choose your preferred railing design, calculate your estimate, or send your custom
+            architectural requirement directly to our studio team.
           </p>
         </Reveal>
         <Reveal delay={0.22}>

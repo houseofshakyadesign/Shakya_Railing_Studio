@@ -165,12 +165,16 @@ async function createTables() {
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `display_name` VARCHAR(255)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `nepali_name` VARCHAR(255)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `english_name` VARCHAR(255)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `subtitle` VARCHAR(255)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `category` VARCHAR(128)",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `content_type` VARCHAR(32) DEFAULT 'PRODUCT'",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `application` VARCHAR(64)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `primer` VARCHAR(255)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `finish` VARCHAR(255)",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `construction` TEXT",
       "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `note` TEXT",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `video` TEXT",
+      "ALTER TABLE `products` ADD COLUMN IF NOT EXISTS `featured` BOOLEAN NOT NULL DEFAULT FALSE",
       "ALTER TABLE `products` MODIFY COLUMN `price_per_sqft` DECIMAL(10, 2) NULL DEFAULT NULL",
     ];
     for (const sql of mysqlCols) {
@@ -330,12 +334,16 @@ async function createTables() {
       "ALTER TABLE products ADD COLUMN display_name TEXT",
       "ALTER TABLE products ADD COLUMN nepali_name TEXT",
       "ALTER TABLE products ADD COLUMN english_name TEXT",
+      "ALTER TABLE products ADD COLUMN subtitle TEXT",
       "ALTER TABLE products ADD COLUMN category TEXT",
+      "ALTER TABLE products ADD COLUMN content_type TEXT DEFAULT 'PRODUCT'",
       "ALTER TABLE products ADD COLUMN application TEXT",
       "ALTER TABLE products ADD COLUMN primer TEXT",
       "ALTER TABLE products ADD COLUMN finish TEXT",
       "ALTER TABLE products ADD COLUMN construction TEXT",
       "ALTER TABLE products ADD COLUMN note TEXT",
+      "ALTER TABLE products ADD COLUMN video TEXT",
+      "ALTER TABLE products ADD COLUMN featured INTEGER DEFAULT 0",
     ];
     for (const sql of sqliteCols) {
       try {
@@ -907,6 +915,23 @@ async function seedInitialData() {
       }
 
       console.log(`Seeded ${projectsData.length} projects with ${mediaData.length} media records.`);
+    }
+
+    // Enforce SHOWCASE on all metal & glass rooms, gates, grilles, and custom products
+    try {
+      await query(`
+        UPDATE products 
+        SET content_type = 'SHOWCASE', is_custom = 1, price_per_sqft = NULL
+        WHERE id LIKE 'mg%' 
+           OR category LIKE '%Glass%' 
+           OR category LIKE '%Enclosed%' 
+           OR category LIKE '%Room%' 
+           OR category LIKE '%Gate%' 
+           OR category LIKE '%Grille%' 
+           OR category LIKE '%Custom%'
+      `);
+    } catch {
+      /* ignore */
     }
   } catch (err) {
     /* silent */

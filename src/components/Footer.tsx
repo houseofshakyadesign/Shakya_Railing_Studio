@@ -12,20 +12,20 @@ export function Footer() {
           <div className="flex items-center gap-4">
             <img
               src="/logo/house-of-shakya-logo-dark.png"
-              alt="Metal Work Nepal — Railing Studio"
+              alt="Metal Work Nepal — Architectural Metalwork Studio"
               className="h-14 w-14 md:h-16 md:w-16 shrink-0 rounded-sm object-contain"
             />
             <div>
               <p className="text-[0.98rem] md:text-base font-extrabold tracking-[0.24em] uppercase">
                 Metal Work Nepal
               </p>
-              <p className="mt-0.5 text-[0.66rem] font-bold tracking-[0.3em] text-bronze uppercase">
-                Railing Studio
+              <p className="mt-0.5 text-[0.66rem] font-bold tracking-[0.24em] text-bronze uppercase">
+                Architectural Metalwork Studio
               </p>
             </div>
           </div>
           <p className="mt-6 max-w-sm text-sm leading-relaxed text-muted-foreground">
-            Architectural Metalwork | Railings | Stairs | Custom Fabrication
+            Hand-forged and fabricated metalwork for contemporary architecture.
           </p>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-muted-foreground">
             {settings.address} · {settings.phone}
