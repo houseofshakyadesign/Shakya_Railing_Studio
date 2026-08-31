@@ -97,26 +97,26 @@ const StudioContext = createContext<StudioValue | null>(null);
 
 function mergeWithDefaults(current: Product[]): Product[] {
   if (!Array.isArray(current) || current.length === 0) return DEFAULT_PRODUCTS;
-  const currentIds = new Set(current.map((p) => p.id));
-  const missing = DEFAULT_PRODUCTS.filter((p) => !currentIds.has(p.id));
-  const all = missing.length > 0 ? [...current, ...missing] : current;
+  const defaultMap = new Map<string, Product>(DEFAULT_PRODUCTS.map((p) => [p.id, p]));
 
-  return all.map((p) => {
-    const cat = (p.category || "").toUpperCase();
-    const id = (p.id || "").toLowerCase();
-    const isShowcase =
-      id.startsWith("mg") ||
-      cat.includes("GLASS") ||
-      cat.includes("ENCLOSED") ||
-      cat.includes("ROOM") ||
-      cat.includes("GATE") ||
-      cat.includes("GRILLE") ||
-      cat.includes("CUSTOM");
-    if (isShowcase) {
-      return { ...p, contentType: "SHOWCASE", isCustom: true, pricePerSqft: null };
+  const merged: Product[] = current.map((p) => {
+    const def = defaultMap.get(p.id);
+    if (def) {
+      const item: Product = {
+        ...def,
+        ...p,
+        pricePerSqft:
+          p.pricePerSqft !== undefined && p.pricePerSqft !== null ? p.pricePerSqft : def.pricePerSqft,
+        contentType: def.contentType || (def.pricePerSqft ? "PRODUCT" : p.contentType || "PRODUCT"),
+      };
+      return item;
     }
     return p;
   });
+
+  const currentIds = new Set(merged.map((p) => p.id));
+  const missing = DEFAULT_PRODUCTS.filter((p) => !currentIds.has(p.id));
+  return missing.length > 0 ? [...merged, ...missing] : merged;
 }
 
 export function StudioProvider({ children }: { children: ReactNode }) {
