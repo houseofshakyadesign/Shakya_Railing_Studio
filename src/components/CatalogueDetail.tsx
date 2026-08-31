@@ -21,13 +21,15 @@ import { isRailingProduct } from "@/components/ProductCard";
 import type { Product } from "@/data/products";
 import { useStudio } from "@/hooks/useStudio";
 import { formatNPR } from "@/utils/currency";
+import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
+import { AnimatedTotal } from "@/components/AnimatedTotal";
 
 export function CatalogueDetail({
   productSlugOrId,
 }: {
   productSlugOrId: string;
 }) {
-  const { activeProducts, ready, settings, selectProduct } = useStudio();
+  const { activeProducts, ready, settings, selectProduct, setRailingType } = useStudio();
   const navigate = useNavigate();
 
   // Find product by slug or id (case-insensitive)
@@ -47,6 +49,32 @@ export function CatalogueDetail({
   const [activeMediaIndex, setActiveMediaIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [showMobileStickyCta, setShowMobileStickyCta] = useState(false);
+
+  // Live inline estimator state for railings
+  const [calcLength, setCalcLength] = useState<string>("20");
+  const [calcType, setCalcType] = useState<"balcony" | "staircase">("balcony");
+
+  useEffect(() => {
+    if (product) {
+      if (
+        product.application === "staircase" ||
+        product.applications?.some((a) => a.toLowerCase().includes("staircase"))
+      ) {
+        setCalcType("staircase");
+      } else {
+        setCalcType("balcony");
+      }
+    }
+  }, [product]);
+
+  const numCalcLength = parseFloat(calcLength);
+  const liveEstimate = useMemo(() => {
+    if (!product || !product.pricePerSqft) return null;
+    const validL = Number.isFinite(numCalcLength) && numCalcLength > 0 ? numCalcLength : 0;
+    const h = calcType === "staircase" ? 2.8 : 3.0;
+    const typeLabel = calcType === "staircase" ? "Staircase Railing" : "Balcony Railing";
+    return calculateRailingEstimate(validL, h, product.pricePerSqft, false, typeLabel);
+  }, [product, numCalcLength, calcType]);
 
   // Scroll listener for mobile sticky CTA
   useEffect(() => {
@@ -373,19 +401,20 @@ export function CatalogueDetail({
               </div>
             ) : null}
 
-            {/* Price Area (Railings Only with valid price from MySQL) */}
+            {/* Price & Live Calculation Area (Railings Only with valid price from MySQL) */}
             {isRailing ? (
-              <div className="mt-6 border-y border-hairline py-5 bg-sand/35 px-5">
-                <div className="flex items-baseline justify-between">
+              <div className="mt-6 border border-hairline bg-card p-5 sm:p-6 shadow-soft">
+                <div className="flex items-baseline justify-between border-b border-hairline pb-3">
                   <span className="text-[0.68rem] font-bold tracking-[0.2em] uppercase text-muted-foreground">
-                    INDICATIVE RATE
+                    UNIT PRICE (RATE)
                   </span>
                   <span className="inline-flex items-center gap-1 text-[0.62rem] font-bold tracking-[0.16em] uppercase text-bronze">
                     <Sparkles className="h-3 w-3" />
                     LIVE ESTIMATE
                   </span>
                 </div>
-                <div className="mt-1.5 flex items-baseline gap-2">
+
+                <div className="mt-3 flex items-baseline gap-2">
                   {product.pricePerSqft ? (
                     <>
                       <span className="text-3xl font-extrabold tracking-tight text-foreground sm:text-4xl">
@@ -401,9 +430,83 @@ export function CatalogueDetail({
                     </span>
                   )}
                 </div>
-                <p className="mt-1.5 text-[0.7rem] text-muted-foreground">
-                  Calculated dynamically based on 2.8 ft (staircase) or 3.0 ft (balcony) standard heights.
-                </p>
+
+                {product.pricePerSqft && liveEstimate ? (
+                  <div className="mt-5 border-t border-hairline/80 pt-4 space-y-4">
+                    {/* Dimension inputs */}
+                    <div>
+                      <div className="flex items-center justify-between text-xs mb-2">
+                        <label
+                          htmlFor="detail-length"
+                          className="font-semibold text-muted-foreground uppercase tracking-wider text-[0.68rem]"
+                        >
+                          Enter Running Length:
+                        </label>
+                        <span className="font-medium text-foreground text-xs">
+                          {calcType === "staircase"
+                            ? "2.8 ft H (Staircase)"
+                            : "3.0 ft H (Balcony/Grille)"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="relative flex-1">
+                          <input
+                            id="detail-length"
+                            type="number"
+                            min="1"
+                            max="10000"
+                            step="0.5"
+                            value={calcLength}
+                            onChange={(e) => setCalcLength(e.target.value)}
+                            placeholder="20"
+                            className="w-full border border-hairline bg-background px-3 py-2 text-sm font-mono focus:border-bronze focus:outline-none"
+                          />
+                          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-bold text-muted-foreground uppercase">
+                            FT
+                          </span>
+                        </div>
+                        <div className="flex gap-1">
+                          {["10", "20", "30", "50"].map((preset) => (
+                            <button
+                              key={preset}
+                              type="button"
+                              onClick={() => setCalcLength(preset)}
+                              className={`border px-2.5 py-2 text-xs font-mono transition-colors ${
+                                calcLength === preset
+                                  ? "border-bronze bg-bronze/10 text-bronze font-semibold"
+                                  : "border-hairline bg-sand/30 text-muted-foreground hover:text-foreground"
+                              }`}
+                            >
+                              {preset}ft
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Calculated Amount Breakdown according to Unit Price */}
+                    <div className="border border-bronze/20 bg-bronze/5 p-3.5 space-y-1.5 text-xs">
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Estimated Area:</span>
+                        <span className="font-medium text-foreground font-mono">
+                          {formatArea(liveEstimate.area)} ({liveEstimate.length}ft ×{" "}
+                          {liveEstimate.height}ft)
+                        </span>
+                      </div>
+                      <div className="flex justify-between items-baseline pt-1 border-t border-hairline/60">
+                        <span className="text-[0.7rem] font-bold tracking-wider uppercase text-bronze">
+                          ESTIMATED AMOUNT:
+                        </span>
+                        <span className="text-xl font-bold font-serif text-foreground">
+                          <AnimatedTotal value={liveEstimate.total} currency={settings.currency} />
+                        </span>
+                      </div>
+                      <p className="text-[0.65rem] text-muted-foreground text-right">
+                        Calculated at {formatNPR(product.pricePerSqft, settings.currency)} / sq.ft.
+                      </p>
+                    </div>
+                  </div>
+                ) : null}
               </div>
             ) : null}
 

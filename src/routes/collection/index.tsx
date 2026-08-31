@@ -709,8 +709,7 @@ function CollectionPage() {
                               <AnimatedTotal value={estimate.total} currency={settings.currency} />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft. ·
-                              13% VAT added into the total amount seamlessly.
+                              Calculated at {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.
                             </p>
                           </div>
                         )}
