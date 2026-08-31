@@ -25,7 +25,7 @@ const PORTAL_CARDS: PortalCardItem[] = [
       "Explore our collection of handcrafted metalwork, architectural structures and bespoke pieces.",
     ctaText: "EXPLORE COLLECTION",
     href: "/collection",
-    image: "/images/railings/craft.jpg",
+    image: "/images/portals/products_portal.jpg",
     alt: "Metal Work Nepal handcrafted architectural metalwork product collection",
   },
   {
@@ -37,7 +37,7 @@ const PORTAL_CARDS: PortalCardItem[] = [
       "Explore completed work and custom architectural site installations by Metal Work Nepal.",
     ctaText: "VIEW PROJECTS",
     href: "/projects",
-    image: "/images/railings/r01.jpg",
+    image: "/images/portals/projects_portal.jpg",
     alt: "Completed architectural metalwork and railing installations by Metal Work Nepal",
   },
 ];
@@ -46,7 +46,7 @@ export function ExplorePortals() {
   return (
     <section
       aria-label="Explore Metal Work Nepal"
-      className="relative z-10 mx-auto max-w-[1440px] px-5 py-20 md:px-10 lg:px-16 md:py-32"
+      className="relative z-10 mx-auto max-w-[1440px] px-5 py-16 md:px-10 lg:px-16 md:py-24"
     >
       {/* ── 01 SECTION INTRODUCTION ── */}
       <div className="max-w-2xl">
@@ -70,14 +70,14 @@ export function ExplorePortals() {
         </Reveal>
       </div>
 
-      {/* ── 02 TWO LARGE BALANCED ARCHITECTURAL CARDS ── */}
-      <div className="mt-12 md:mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 items-stretch">
+      {/* ── 02 TWO LARGE BALANCED ARCHITECTURAL CARDS (COMPACT ASPECT RATIO) ── */}
+      <div className="mt-10 md:mt-12 grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8 items-stretch">
         {PORTAL_CARDS.map((card, idx) => (
           <Reveal key={card.id} delay={0.1 + idx * 0.12} className="h-full">
             <Link
               to={card.href}
               aria-label={`${card.title} - ${card.description}`}
-              className="group relative flex flex-col justify-end overflow-hidden border border-hairline bg-charcoal aspect-[4/5] sm:aspect-[16/13] md:aspect-[4/5] w-full transition-all duration-500 hover:border-bronze/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-bronze"
+              className="group relative flex flex-col justify-end overflow-hidden border border-hairline bg-charcoal aspect-[16/12] sm:aspect-[16/11] md:aspect-[16/11] w-full transition-all duration-500 hover:border-bronze/60 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-bronze"
             >
               {/* Background Photography with Ken-Burns Hover Zoom */}
               <div className="absolute inset-0 z-0 overflow-hidden">
@@ -89,33 +89,33 @@ export function ExplorePortals() {
                 />
 
                 {/* Layered Architectural Gradient Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/50 to-charcoal/15 transition-opacity duration-500 group-hover:opacity-95" />
-                <div className="absolute inset-0 bg-charcoal/20 transition-colors duration-500 group-hover:bg-charcoal/35" />
+                <div className="absolute inset-0 bg-gradient-to-t from-charcoal/95 via-charcoal/45 to-charcoal/10 transition-opacity duration-500 group-hover:opacity-95" />
+                <div className="absolute inset-0 bg-charcoal/15 transition-colors duration-500 group-hover:bg-charcoal/30" />
               </div>
 
               {/* Top Index Badge */}
-              <div className="absolute top-6 left-6 sm:top-8 sm:left-8 z-10">
-                <span className="text-[0.66rem] font-mono font-bold tracking-[0.24em] text-bronze-soft uppercase bg-charcoal/70 backdrop-blur-xs px-2.5 py-1 border border-hairline/40">
+              <div className="absolute top-5 left-5 sm:top-6 sm:left-6 z-10">
+                <span className="text-[0.64rem] font-mono font-bold tracking-[0.24em] text-bronze-soft uppercase bg-charcoal/75 backdrop-blur-xs px-2.5 py-1 border border-hairline/40">
                   {card.index}
                 </span>
               </div>
 
               {/* Bottom Editorial Content */}
-              <div className="relative z-10 p-6 sm:p-8 lg:p-10 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1">
+              <div className="relative z-10 p-5 sm:p-7 lg:p-8 transition-transform duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:-translate-y-1">
                 <p className="label-xs text-bronze-soft font-semibold tracking-[0.22em] uppercase">
                   {card.eyebrow}
                 </p>
 
-                <h3 className="mt-2 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight uppercase text-ivory">
+                <h3 className="mt-1.5 text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight uppercase text-ivory">
                   {card.title}
                 </h3>
 
-                <p className="mt-3 text-xs sm:text-sm leading-relaxed text-ivory/80 max-w-md line-clamp-2">
+                <p className="mt-2 text-xs sm:text-sm leading-relaxed text-ivory/80 max-w-md line-clamp-2">
                   {card.description}
                 </p>
 
                 {/* CTA Link with Smooth Animated Arrow */}
-                <div className="mt-6 inline-flex items-center gap-2.5 text-[0.72rem] font-bold tracking-[0.2em] uppercase text-ivory transition-colors duration-300 group-hover:text-bronze-soft">
+                <div className="mt-4 sm:mt-5 inline-flex items-center gap-2.5 text-[0.7rem] font-bold tracking-[0.2em] uppercase text-ivory transition-colors duration-300 group-hover:text-bronze-soft">
                   <span className="border-b border-ivory/40 pb-0.5 transition-colors duration-300 group-hover:border-bronze-soft">
                     {card.ctaText}
                   </span>
