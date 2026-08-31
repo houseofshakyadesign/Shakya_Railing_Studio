@@ -10,7 +10,7 @@ import { TrustSection } from "@/components/TrustSection";
 
 const title = "Metal Work Nepal | Architectural Metalwork Studio";
 const description =
-  "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, grilles, gates, metal structures and glass enclosures for contemporary spaces in Nepal.";
+  "Metal Work Nepal is an architectural metalwork studio creating hand-forged railings, metal structures, bespoke furniture and custom metalwork for contemporary spaces in Nepal.";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -39,7 +39,7 @@ function Index() {
           <SectionHeading
             label="Disciplines & Work"
             title="Railings & Architectural Metalwork."
-            intro="Metal Work Nepal is an architectural metalwork studio creating crafted metal elements for homes, interiors and architectural spaces. Explore our flagship railing systems below, with custom grilles, gates, metal rooms and glass enclosures fabricated to specification."
+            intro="Metal Work Nepal is an architectural metalwork studio creating crafted metal elements for homes, interiors and architectural spaces. Explore our flagship railing systems below, with custom metal structures, furniture and architectural metalwork fabricated to specification."
           />
           <Reveal delay={0.1}>
             <Link
@@ -57,13 +57,9 @@ function Index() {
             <span className="text-bronze font-semibold">Disciplines:</span>
             <span>Railings</span>
             <span className="text-muted-foreground/30">•</span>
-            <span>Grilles</span>
+            <span>Metal Structures</span>
             <span className="text-muted-foreground/30">•</span>
-            <span>Gates</span>
-            <span className="text-muted-foreground/30">•</span>
-            <span>Metal Rooms</span>
-            <span className="text-muted-foreground/30">•</span>
-            <span>Glass Enclosures</span>
+            <span>Furniture</span>
             <span className="text-muted-foreground/30">•</span>
             <span>Custom Metalwork</span>
           </div>
