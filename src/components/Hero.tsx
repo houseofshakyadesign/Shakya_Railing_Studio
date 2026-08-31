@@ -48,6 +48,10 @@ export function Hero() {
     setCurrentSlide((prev) => (prev + 1) % HERO_SLIDES.length);
   }, []);
 
+  const prevSlide = useCallback(() => {
+    setCurrentSlide((prev) => (prev - 1 + HERO_SLIDES.length) % HERO_SLIDES.length);
+  }, []);
+
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
   };
@@ -66,7 +70,7 @@ export function Hero() {
     return () => {
       if (timerRef.current) clearInterval(timerRef.current);
     };
-  }, [isPaused, nextSlide]);
+  }, [isPaused, nextSlide, currentSlide]);
 
   const activeSlideData: HeroSlide = HERO_SLIDES[currentSlide] ?? {
     id: "railings",
@@ -79,8 +83,6 @@ export function Hero() {
   return (
     <section
       aria-label="Metal Work Nepal Hero"
-      onMouseEnter={() => setIsPaused(true)}
-      onMouseLeave={() => setIsPaused(false)}
       className="relative min-h-[92vh] sm:min-h-screen w-full overflow-hidden bg-charcoal select-none"
     >
       {/* ── 01 CINEMATIC BACKGROUND SLIDER ── */}
@@ -98,12 +100,23 @@ export function Hero() {
               opacity: { duration: 0.85, ease: EASE },
               scale: { duration: SLIDE_DURATION / 1000 + 0.8, ease: "linear" },
             }}
-            className="absolute inset-0 h-full w-full"
+            className="absolute inset-0 h-full w-full cursor-grab active:cursor-grabbing"
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.2}
+            onDragEnd={(_, info) => {
+              const swipeThreshold = 50;
+              if (info.offset.x < -swipeThreshold) {
+                nextSlide();
+              } else if (info.offset.x > swipeThreshold) {
+                prevSlide();
+              }
+            }}
           >
             <img
               src={activeSlideData.image}
               alt={activeSlideData.alt}
-              className="h-full w-full object-cover object-center"
+              className="h-full w-full object-cover object-center pointer-events-none"
               loading={currentSlide === 0 ? "eager" : "lazy"}
               fetchPriority={currentSlide === 0 ? "high" : "low"}
             />
@@ -196,6 +209,8 @@ export function Hero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.7, delay: 0.6, ease: EASE }}
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
               className="w-full max-w-xs border-t border-hairline/40 pt-4"
             >
               {/* Category Indicator Text */}
