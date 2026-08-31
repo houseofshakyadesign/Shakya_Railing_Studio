@@ -170,6 +170,16 @@ export function ProductGrid({
     [selectProduct],
   );
 
+  const handleCardView = useCallback(
+    (p: Product) => {
+      navigate({
+        to: "/collection/$slug",
+        params: { slug: p.slug || p.id },
+      });
+    },
+    [navigate],
+  );
+
   const handleCustomQuote = () => {
     const text = encodeURIComponent(
       "Hello Metal Work Nepal, I would like to enquire about a custom architectural metalwork project. Could we schedule a consultation or quote review?",
@@ -300,7 +310,7 @@ export function ProductGrid({
                   index={i}
                   selected={p.id === selectedId}
                   currency={settings.currency}
-                  onView={setOpenProduct}
+                  onView={handleCardView}
                   onSelect={handleCardSelect}
                   onDeselect={handleCardDeselect}
                 />

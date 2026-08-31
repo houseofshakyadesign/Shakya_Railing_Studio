@@ -13,9 +13,10 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CalculatorRouteImport } from './routes/calculator'
-import { Route as CollectionRouteImport } from './routes/collection'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as CollectionIndexRouteImport } from './routes/collection/index'
+import { Route as CollectionSlugRouteImport } from './routes/collection/$slug'
 import { Route as ProjectsIndexRouteImport } from './routes/projects/index'
 import { Route as ProjectsSlugRouteImport } from './routes/projects/$slug'
 
@@ -39,11 +40,6 @@ const CalculatorRoute = CalculatorRouteImport.update({
   path: '/calculator',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionRoute = CollectionRouteImport.update({
-  id: '/collection',
-  path: '/collection',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
@@ -52,6 +48,16 @@ const ContactRoute = ContactRouteImport.update({
 const HowItWorksRoute = HowItWorksRouteImport.update({
   id: '/how-it-works',
   path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionIndexRoute = CollectionIndexRouteImport.update({
+  id: '/collection/',
+  path: '/collection/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CollectionSlugRoute = CollectionSlugRouteImport.update({
+  id: '/collection/$slug',
+  path: '/collection/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProjectsIndexRoute = ProjectsIndexRouteImport.update({
@@ -70,10 +76,11 @@ export interface FileRoutesByFullPath {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
-  '/collection': typeof CollectionRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/collection/$slug': typeof CollectionSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/collection/': typeof CollectionIndexRoute
   '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -81,10 +88,11 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
-  '/collection': typeof CollectionRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/collection/$slug': typeof CollectionSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/collection': typeof CollectionIndexRoute
   '/projects': typeof ProjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -93,10 +101,11 @@ export interface FileRoutesById {
   '/about': typeof AboutRoute
   '/admin': typeof AdminRoute
   '/calculator': typeof CalculatorRoute
-  '/collection': typeof CollectionRoute
   '/contact': typeof ContactRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/collection/$slug': typeof CollectionSlugRoute
   '/projects/$slug': typeof ProjectsSlugRoute
+  '/collection/': typeof CollectionIndexRoute
   '/projects/': typeof ProjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -106,10 +115,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/calculator'
-    | '/collection'
     | '/contact'
     | '/how-it-works'
+    | '/collection/$slug'
     | '/projects/$slug'
+    | '/collection/'
     | '/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -117,10 +127,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/calculator'
-    | '/collection'
     | '/contact'
     | '/how-it-works'
+    | '/collection/$slug'
     | '/projects/$slug'
+    | '/collection'
     | '/projects'
   id:
     | '__root__'
@@ -128,10 +139,11 @@ export interface FileRouteTypes {
     | '/about'
     | '/admin'
     | '/calculator'
-    | '/collection'
     | '/contact'
     | '/how-it-works'
+    | '/collection/$slug'
     | '/projects/$slug'
+    | '/collection/'
     | '/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -140,10 +152,11 @@ export interface RootRouteChildren {
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRoute
   CalculatorRoute: typeof CalculatorRoute
-  CollectionRoute: typeof CollectionRoute
   ContactRoute: typeof ContactRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  CollectionSlugRoute: typeof CollectionSlugRoute
   ProjectsSlugRoute: typeof ProjectsSlugRoute
+  CollectionIndexRoute: typeof CollectionIndexRoute
   ProjectsIndexRoute: typeof ProjectsIndexRoute
 }
 
@@ -177,13 +190,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CalculatorRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collection': {
-      id: '/collection'
-      path: '/collection'
-      fullPath: '/collection'
-      preLoaderRoute: typeof CollectionRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/contact': {
       id: '/contact'
       path: '/contact'
@@ -196,6 +202,20 @@ declare module '@tanstack/react-router' {
       path: '/how-it-works'
       fullPath: '/how-it-works'
       preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collection/': {
+      id: '/collection/'
+      path: '/collection'
+      fullPath: '/collection/'
+      preLoaderRoute: typeof CollectionIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/collection/$slug': {
+      id: '/collection/$slug'
+      path: '/collection/$slug'
+      fullPath: '/collection/$slug'
+      preLoaderRoute: typeof CollectionSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/projects/': {
@@ -220,10 +240,11 @@ const rootRouteChildren: RootRouteChildren = {
   AboutRoute: AboutRoute,
   AdminRoute: AdminRoute,
   CalculatorRoute: CalculatorRoute,
-  CollectionRoute: CollectionRoute,
   ContactRoute: ContactRoute,
   HowItWorksRoute: HowItWorksRoute,
+  CollectionSlugRoute: CollectionSlugRoute,
   ProjectsSlugRoute: ProjectsSlugRoute,
+  CollectionIndexRoute: CollectionIndexRoute,
   ProjectsIndexRoute: ProjectsIndexRoute,
 }
 export const routeTree = rootRouteImport

@@ -15,7 +15,7 @@ import { AnimatedTotal } from "@/components/AnimatedTotal";
 import { FinalCTA } from "@/components/FinalCTA";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
 import { ProductGrid } from "@/components/ProductGrid";
-import { EASE, Reveal, SectionHeading } from "@/components/Reveal";
+import { EASE } from "@/components/Reveal";
 import type { Product } from "@/data/products";
 import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
@@ -26,7 +26,7 @@ const title = "The Collection | Metal Work Nepal";
 const description =
   "Explore hand-forged railings, architectural grilles, gates and metal + glass work crafted for contemporary spaces by Metal Work Nepal.";
 
-export const Route = createFileRoute("/collection")({
+export const Route = createFileRoute("/collection/")({
   head: () => ({
     meta: [
       { title },
@@ -80,10 +80,8 @@ const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
 function CollectionPage() {
   const {
     selectedProduct,
-    selectedId,
     selectProduct,
     products,
-    ready,
     settings,
     addEnquiry,
     storageOk,
@@ -267,7 +265,7 @@ function CollectionPage() {
 
       {/* ── 02 MASTER CATALOGUE GRID ── */}
       <section className="mx-auto max-w-[1440px] px-5 pb-24 md:px-10 md:pb-32">
-        <ProductGrid />
+        <ProductGrid onAfterSelect={handleAfterSelect} />
       </section>
 
       {/* ── INLINE CALCULATOR ── */}
@@ -298,7 +296,7 @@ function CollectionPage() {
             </div>
           ) : (
             <>
-              {/* "Great choice" confirmation banner */}
+              {/* Selection confirmation banner */}
               <AnimatePresence>
                 {justSelected ? (
                   <motion.div
@@ -318,7 +316,7 @@ function CollectionPage() {
                     </motion.span>
                     <div>
                       <p className="text-sm font-medium tracking-tight">
-                        Great choice. Let's calculate your railing.
+                        Great choice. Configure your railing dimensions below.
                       </p>
                       <p className="mt-1 text-xs text-muted-foreground">
                         {productToUse.code} — {productToUse.displayName || productToUse.name}

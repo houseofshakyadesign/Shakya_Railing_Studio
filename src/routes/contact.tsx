@@ -28,11 +28,17 @@ const description =
 
 type ContactSearch = {
   type?: string | undefined;
+  product?: string | undefined;
+  category?: string | undefined;
+  code?: string | undefined;
 };
 
 export const Route = createFileRoute("/contact")({
   validateSearch: (search: Record<string, unknown>): ContactSearch => ({
     type: typeof search["type"] === "string" ? (search["type"] as string) : undefined,
+    product: typeof search["product"] === "string" ? (search["product"] as string) : undefined,
+    category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
+    code: typeof search["code"] === "string" ? (search["code"] as string) : undefined,
   }),
   head: () => ({
     meta: [
@@ -53,6 +59,7 @@ export const Route = createFileRoute("/contact")({
 const PROJECT_TYPE_OPTIONS = [
   "Staircase Railing",
   "Balcony / Loft Railing",
+  "Metal & Glass Enclosed Rooms",
   "Gate",
   "Grille",
   "Other Architectural Metalwork",
@@ -72,17 +79,29 @@ function ContactPage() {
   const { settings, addEnquiry } = useStudio();
   const search = Route.useSearch();
 
+  const initialProjectType = (() => {
+    const cat = (search.category || "").toLowerCase();
+    const type = (search.type || "").toLowerCase();
+    if (cat.includes("glass") || cat.includes("enclosed") || cat.includes("room")) {
+      return "Metal & Glass Enclosed Rooms";
+    }
+    if (cat.includes("gate")) return "Gate";
+    if (cat.includes("grille")) return "Grille";
+    if (type === "staircase" || cat.includes("staircase")) return "Staircase Railing";
+    if (type === "balcony" || cat.includes("balcony") || cat.includes("loft")) return "Balcony / Loft Railing";
+    return "Staircase Railing";
+  })();
+
+  const initialMessage = search.product
+    ? `Hello Metal Work Nepal, I would like to enquire about ${search.product}${search.code ? ` (${search.code})` : ""}${search.category ? ` under ${search.category}` : ""}. Please share quotation requirements and fabrication lead time.`
+    : "";
+
   const [form, setForm] = useState<FormState>({
     fullName: "",
     phone: "",
-    projectType:
-      search.type === "staircase"
-        ? "Staircase Railing"
-        : search.type === "balcony"
-          ? "Balcony / Loft Railing"
-          : "Staircase Railing",
+    projectType: initialProjectType,
     location: "",
-    message: "",
+    message: initialMessage,
   });
 
   const [errors, setErrors] = useState<FormErrors>({});

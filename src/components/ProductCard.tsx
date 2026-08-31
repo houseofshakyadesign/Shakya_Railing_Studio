@@ -267,17 +267,31 @@ export const ProductCard = memo(function ProductCard({
                 </button>
               </>
             ) : (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onSelect(product);
-                }}
-                className="group/sel flex flex-1 items-center justify-center gap-2 bg-charcoal py-3 px-4 text-[0.68rem] font-bold tracking-[0.18em] uppercase text-ivory transition-all duration-300 hover:bg-bronze"
-              >
-                <span>SELECT & CALCULATE</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/sel:translate-x-1" />
-              </button>
+              <div className="flex items-center gap-2 w-full">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onView(product);
+                  }}
+                  className="group/btn flex flex-1 items-center justify-between border border-hairline bg-sand/40 px-3.5 py-3 text-[0.68rem] font-bold tracking-[0.18em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
+                >
+                  <span>VIEW DESIGN</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onSelect(product);
+                  }}
+                  title="Select and Calculate"
+                  aria-label="Calculate this railing"
+                  className="group/sel flex items-center justify-center gap-1 bg-charcoal px-3.5 py-3 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-bronze shrink-0"
+                >
+                  <span>CALCULATE</span>
+                </button>
+              </div>
             )
           ) : (
             <button
