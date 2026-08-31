@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight } from "lucide-react";
 import { FinalCTA } from "@/components/FinalCTA";
 import { Hero } from "@/components/Hero";
+import { ExplorePortals } from "@/components/ExplorePortals";
 import { HowItWorks } from "@/components/HowItWorks";
 import { ProductGrid } from "@/components/ProductGrid";
 import { Reveal, SectionHeading } from "@/components/Reveal";
@@ -31,6 +32,7 @@ function Index() {
   return (
     <>
       <Hero />
+      <ExplorePortals />
 
       <section id="collection" className="mx-auto max-w-[1440px] px-5 py-20 md:px-10 md:py-32">
         <div className="flex flex-wrap items-end justify-between gap-8">
