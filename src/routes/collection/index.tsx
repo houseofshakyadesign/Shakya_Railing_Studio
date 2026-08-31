@@ -25,9 +25,16 @@ import { isRailingProduct } from "@/components/ProductCard";
 
 const title = "The Collection | Metal Work Nepal";
 const description =
-  "Explore hand-forged railings, architectural grilles, gates and metal + glass work crafted for contemporary spaces by Metal Work Nepal.";
+  "Explore handcrafted railings, architectural metal structures and bespoke work crafted for contemporary spaces by Metal Work Nepal.";
+
+type CollectionSearch = {
+  category?: string | undefined;
+};
 
 export const Route = createFileRoute("/collection/")({
+  validateSearch: (search: Record<string, unknown>): CollectionSearch => ({
+    category: typeof search["category"] === "string" ? (search["category"] as string) : undefined,
+  }),
   head: () => ({
     meta: [
       { title },
@@ -79,6 +86,16 @@ type Errors = Partial<
 const PHONE_RE = /^(?:\+?977[-\s]?)?9[678]\d{8}$/;
 
 function CollectionPage() {
+  const search = Route.useSearch();
+  const initialCategory = useMemo(() => {
+    const raw = (search.category || "").toLowerCase();
+    if (raw === "railings" || raw === "railing") return "railings";
+    if (raw.includes("structure") || raw.includes("glass") || raw.includes("gate")) return "metal_structures";
+    if (raw.includes("furniture")) return "furniture";
+    if (raw.includes("custom")) return "custom";
+    return "all";
+  }, [search.category]);
+
   const {
     selectedProduct,
     selectProduct,
@@ -261,22 +278,21 @@ function CollectionPage() {
           <p className="label-xs text-bronze font-semibold uppercase tracking-[0.24em]">
             THE COLLECTION
           </p>
-          <h1 className="mt-4 text-4xl font-extrabold tracking-tight leading-[1.08] sm:text-5xl md:text-6xl uppercase">
-            Architectural metalwork,
+          <h1 className="mt-4 text-4xl font-extrabold tracking-tight leading-[1.08] sm:text-5xl md:text-6xl uppercase text-foreground">
+            Metalwork crafted for
             <br />
-            <span className="font-serif italic font-normal text-bronze lowercase">crafted for</span>{" "}
-            the way you build.
+            <span className="font-serif italic font-normal text-bronze lowercase">remarkable</span>{" "}
+            spaces.
           </h1>
           <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">
-            Explore hand-forged railings, architectural grilles, gates and metal + glass work crafted
-            for contemporary spaces.
+            Explore handcrafted railings, architectural metal structures and bespoke work by Metal Work Nepal.
           </p>
         </div>
       </section>
 
       {/* ── 02 MASTER CATALOGUE GRID ── */}
       <section className="mx-auto max-w-[1440px] px-5 pb-24 md:px-10 md:pb-32">
-        <ProductGrid onAfterSelect={handleAfterSelect} />
+        <ProductGrid initialCategory={initialCategory} onAfterSelect={handleAfterSelect} />
       </section>
 
       {/* ── INLINE CALCULATOR ── */}

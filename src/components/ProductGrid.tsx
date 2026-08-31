@@ -1,24 +1,28 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, Layers, MessageCircle, Sparkles } from "lucide-react";
+import { ArrowRight, Armchair, Hammer, MessageCircle } from "lucide-react";
 import { toast } from "sonner";
 import type { Product } from "@/data/products";
 import { useStudio } from "@/hooks/useStudio";
-import { ProductCard, isRailingProduct } from "./ProductCard";
+import {
+  ProductCard,
+  isRailingProduct,
+  isMetalStructureProduct,
+  isFurnitureProduct,
+} from "./ProductCard";
 import { ProductModal } from "./ProductModal";
 import { EASE } from "./Reveal";
 
-export type MasterCategory = "all" | "railings" | "grilles" | "gates" | "metal_glass" | "custom";
+export type MasterCategory = "all" | "railings" | "metal_structures" | "furniture" | "custom";
 export type RailingFilter = "all_railings" | "staircase" | "balcony_loft";
 
 export const MASTER_CATEGORIES: { id: MasterCategory; label: string }[] = [
   { id: "all", label: "ALL" },
   { id: "railings", label: "RAILINGS" },
-  { id: "grilles", label: "GRILLES" },
-  { id: "gates", label: "GATES" },
-  { id: "metal_glass", label: "METAL & GLASS ENCLOSED ROOMS" },
-  { id: "custom", label: "CUSTOM" },
+  { id: "metal_structures", label: "METAL STRUCTURES" },
+  { id: "furniture", label: "FURNITURE" },
+  { id: "custom", label: "CUSTOM METALWORK" },
 ];
 
 export const RAILING_FILTERS: { id: RailingFilter; label: string }[] = [
@@ -44,6 +48,8 @@ export function ProductGrid({
   const [activeCategory, setActiveCategory] = useState<MasterCategory>(initialCategory);
   const [activeRailingFilter, setActiveRailingFilter] = useState<RailingFilter>("all_railings");
   const navigate = useNavigate();
+
+  // Prioritize Railings first, then Metal Structures, then Furniture
   const prioritizedProducts = useMemo(() => {
     return [...activeProducts].sort((a, b) => {
       const aIsRailing = isRailingProduct(a);
@@ -87,62 +93,16 @@ export function ProductGrid({
       return railings;
     }
 
-    if (activeCategory === "grilles") {
-      return baseProducts.filter((p) => {
-        const cat = (p.category || "").toLowerCase();
-        const name = (p.name || "").toLowerCase();
-        const nepali = p.nepaliName || "";
-        const apps = (p.applications || []).map((a) => a.toLowerCase());
-        return (
-          cat === "grilles" ||
-          cat.includes("grille") ||
-          name.includes("grille") ||
-          name.includes("jali") ||
-          nepali.includes("जाली") ||
-          apps.some((a) => a.includes("grille") || a.includes("jali"))
-        );
-      });
+    if (activeCategory === "metal_structures") {
+      return baseProducts.filter((p) => isMetalStructureProduct(p));
     }
 
-    if (activeCategory === "gates") {
-      return baseProducts.filter((p) => {
-        const cat = (p.category || "").toLowerCase();
-        const name = (p.name || "").toLowerCase();
-        const nepali = p.nepaliName || "";
-        const apps = (p.applications || []).map((a) => a.toLowerCase());
-        return (
-          cat === "gates" ||
-          cat.includes("gate") ||
-          name.includes("gate") ||
-          name.includes("dhoka") ||
-          nepali.includes("ढोका") ||
-          apps.some((a) => a.includes("gate") || a.includes("dhoka"))
-        );
-      });
-    }
-
-    if (activeCategory === "metal_glass") {
-      return baseProducts.filter((p) => {
-        const cat = (p.category || "").toLowerCase();
-        const name = (p.name || "").toLowerCase();
-        const apps = (p.applications || []).map((a) => a.toLowerCase());
-        return (
-          cat.includes("enclosed") ||
-          cat.includes("glass") ||
-          p.application === "metal_glass" ||
-          p.id.startsWith("mg") ||
-          apps.some((a) => a.includes("room") || a.includes("sunroom") || a.includes("glass")) ||
-          name.includes("room") ||
-          name.includes("sunroom")
-        );
-      });
+    if (activeCategory === "furniture") {
+      return baseProducts.filter((p) => isFurnitureProduct(p));
     }
 
     if (activeCategory === "custom") {
-      return baseProducts.filter((p) => {
-        const cat = (p.category || "").toLowerCase();
-        return p.isCustom || cat.includes("custom");
-      });
+      return [];
     }
 
     return baseProducts;
@@ -197,19 +157,6 @@ export function ProductGrid({
     window.open(`https://wa.me/${cleanNumber}?text=${text}`, "_blank");
   };
 
-  if (baseProducts.length === 0) {
-    return (
-      <div className="border border-dashed border-hairline px-6 py-24 text-center">
-        <p className="label-xs text-bronze uppercase tracking-[0.2em]">CATALOGUE</p>
-        <h3 className="mt-4 text-2xl tracking-tight font-extrabold">Collection expanding</h3>
-        <p className="mt-3 text-sm text-muted-foreground max-w-md mx-auto">
-          Designs are being published by our Sita Complex studio. Please check back shortly or
-          contact our team directly.
-        </p>
-      </div>
-    );
-  }
-
   return (
     <div>
       {/* ── 01 MAIN CATEGORY FILTER ── */}
@@ -220,6 +167,7 @@ export function ProductGrid({
               <p className="label-xs text-bronze font-semibold uppercase tracking-[0.22em]">
                 DISCIPLINES & CATEGORIES
               </p>
+              {/* Horizontal scroll container for mobile */}
               <div
                 role="tablist"
                 aria-label="Master Catalogue Categories"
@@ -247,22 +195,24 @@ export function ProductGrid({
               </div>
             </div>
 
-            {/* Result Counter */}
-            <p className="shrink-0 text-[0.68rem] tracking-[0.2em] uppercase text-muted-foreground font-mono">
-              {String(filteredProducts.length).padStart(2, "0")}{" "}
-              {filteredProducts.length === 1 ? "DESIGN" : "DESIGNS"}
-            </p>
+            {/* Result Counter (Only if not Custom Metalwork) */}
+            {activeCategory !== "custom" && activeCategory !== "furniture" && (
+              <p className="shrink-0 text-[0.68rem] tracking-[0.2em] uppercase text-muted-foreground font-mono">
+                {String(filteredProducts.length).padStart(2, "0")}{" "}
+                {filteredProducts.length === 1 ? "DESIGN" : "DESIGNS"}
+              </p>
+            )}
           </div>
 
-          {/* ── 02 SUPPORTING STATEMENT FOR METAL & GLASS ENCLOSED ROOMS ── */}
-          {activeCategory === "metal_glass" && (
+          {/* ── 02 SUPPORTING STATEMENT FOR METAL STRUCTURES ── */}
+          {activeCategory === "metal_structures" && (
             <motion.div
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               className="mt-4 flex items-center gap-3 border-l-2 border-bronze bg-sand/25 px-4 py-2.5"
             >
               <p className="text-xs sm:text-sm font-medium text-foreground/85 tracking-wide">
-                Hand-built steel-frame glass rooms, finished in black matt deco paint.
+                Handcrafted architectural structures, glass sunrooms and ornamental entrance installations.
               </p>
             </motion.div>
           )}
@@ -301,7 +251,7 @@ export function ProductGrid({
         </div>
       )}
 
-      {/* ── 04 PRODUCT & SHOWCASE GRID ── */}
+      {/* ── 04 PRODUCT, SHOWCASE OR CUSTOM PATHWAY ── */}
       <AnimatePresence mode="wait">
         <motion.div
           key={`${activeCategory}-${activeRailingFilter}`}
@@ -310,7 +260,85 @@ export function ProductGrid({
           exit={{ opacity: 0, y: -8 }}
           transition={{ duration: 0.3, ease: EASE }}
         >
-          {filteredProducts.length > 0 ? (
+          {/* CUSTOM METALWORK PATHWAY */}
+          {activeCategory === "custom" ? (
+            <div className="border border-hairline bg-card p-8 sm:p-14 lg:p-16 max-w-4xl mx-auto shadow-soft">
+              <div className="max-w-2xl">
+                <span className="label-xs text-bronze font-semibold uppercase tracking-[0.24em]">
+                  CUSTOM METALWORK
+                </span>
+                <h3 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground uppercase leading-tight">
+                  Have something different in mind?
+                </h3>
+                <p className="mt-2 font-serif italic text-lg sm:text-xl text-bronze font-normal">
+                  Your idea doesn't have to fit a catalogue.
+                </p>
+                <p className="mt-5 text-sm sm:text-base leading-relaxed text-muted-foreground">
+                  Tell us what you're planning — dimensions, sketches, materials, photographs or simply an idea. Our team can discuss a custom metalwork solution with you.
+                </p>
+
+                <div className="mt-10 flex flex-wrap items-center gap-4">
+                  <Link
+                    to="/contact"
+                    search={{
+                      category: "Custom Metalwork",
+                      product: "Bespoke Metalwork Project",
+                    }}
+                    className="inline-flex items-center gap-3 bg-charcoal px-8 py-4 text-[0.72rem] font-bold tracking-[0.2em] text-ivory uppercase shadow-lift transition-all hover:bg-bronze hover:scale-[1.01]"
+                  >
+                    <span>START A CUSTOM PROJECT</span>
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={handleCustomQuote}
+                    className="inline-flex items-center gap-2.5 border border-foreground/30 bg-transparent px-7 py-4 text-[0.72rem] font-bold tracking-[0.18em] text-foreground uppercase transition-colors hover:border-bronze hover:text-bronze"
+                  >
+                    <MessageCircle className="h-4 w-4 text-bronze" />
+                    <span>WHATSAPP DIRECT</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : activeCategory === "furniture" && filteredProducts.length === 0 ? (
+            /* FURNITURE COMING SOON EMPTY STATE */
+            <div className="border border-hairline bg-card p-10 sm:p-16 text-center max-w-2xl mx-auto shadow-soft">
+              <span className="inline-grid h-14 w-14 place-items-center rounded-full bg-sand text-bronze mb-5 border border-hairline">
+                <Armchair className="h-7 w-7" />
+              </span>
+              <p className="label-xs text-bronze font-semibold uppercase tracking-[0.22em]">
+                BESPOKE FURNITURE
+              </p>
+              <h3 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl text-foreground uppercase">
+                Furniture collection coming soon.
+              </h3>
+              <p className="mt-4 text-xs sm:text-sm leading-relaxed text-muted-foreground max-w-md mx-auto">
+                Our bespoke metal furniture collection is currently being developed. New pieces will appear here as they are added.
+              </p>
+              <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
+                <Link
+                  to="/contact"
+                  search={{
+                    category: "Furniture",
+                    product: "Bespoke Metal Furniture Inquiry",
+                  }}
+                  className="inline-flex items-center gap-2 bg-charcoal px-6 py-3.5 text-[0.7rem] font-bold tracking-[0.2em] text-ivory uppercase transition-colors hover:bg-bronze"
+                >
+                  <MessageCircle className="h-4 w-4" />
+                  <span>ENQUIRE ABOUT CUSTOM WORK →</span>
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategory("railings")}
+                  className="inline-flex items-center gap-2 border border-hairline px-6 py-3.5 text-[0.7rem] font-bold tracking-[0.18em] uppercase transition-colors hover:border-bronze hover:text-bronze"
+                >
+                  <span>VIEW RAILINGS CATALOGUE</span>
+                </button>
+              </div>
+            </div>
+          ) : filteredProducts.length > 0 ? (
+            /* NORMAL PRODUCT & SHOWCASE GRID */
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:gap-8">
               {filteredProducts.map((p, i) => (
                 <ProductCard
@@ -324,40 +352,12 @@ export function ProductGrid({
                   onDeselect={handleCardDeselect}
                 />
               ))}
-
-              {/* Showcase Highlight for Custom */}
-              {activeCategory === "custom" && (
-                <div className="flex flex-col justify-between border border-hairline bg-sand/60 p-8">
-                  <div>
-                    <span className="label-xs text-bronze font-semibold uppercase tracking-[0.24em]">
-                      BESPOKE FABRICATION
-                    </span>
-                    <h3 className="mt-4 text-2xl font-extrabold tracking-tight sm:text-3xl uppercase leading-tight">
-                      SOMETHING SPECIFIC IN MIND?
-                    </h3>
-                    <p className="mt-4 text-xs leading-relaxed text-muted-foreground sm:text-sm">
-                      From custom curved centerpieces and arched entry gates to one-off sculptural
-                      metal elements — our Sita Complex craftsmen fabricate bespoke architectural
-                      projects from scratch.
-                    </p>
-                  </div>
-                  <div className="mt-8 flex flex-col gap-3">
-                    <Link
-                      to="/contact"
-                      className="flex w-full items-center justify-between bg-charcoal px-6 py-3.5 text-[0.7rem] font-bold tracking-[0.2em] text-ivory uppercase transition-colors hover:bg-bronze"
-                    >
-                      <span>START A PROJECT</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </Link>
-                  </div>
-                </div>
-              )}
             </div>
           ) : (
-            /* ── REFINED EMPTY / EXPANDING STATE ── */
+            /* GENERAL EMPTY STATE */
             <div className="border border-hairline bg-sand/30 p-10 sm:p-16 text-center max-w-2xl mx-auto">
               <span className="inline-grid h-12 w-12 place-items-center rounded-full bg-sand text-bronze mb-4">
-                <Layers className="h-6 w-6" />
+                <Hammer className="h-6 w-6" />
               </span>
               <p className="label-xs text-bronze font-semibold uppercase tracking-[0.22em]">
                 EXPANDING ARCHIVE
@@ -366,8 +366,7 @@ export function ProductGrid({
                 THIS COLLECTION IS CURRENTLY BEING EXPANDED.
               </h3>
               <p className="mt-4 text-xs leading-relaxed text-muted-foreground sm:text-sm max-w-md mx-auto">
-                Our master artisans fabricate custom grilles, gates, metal + glass rooms, and
-                architectural metalwork on a bespoke project basis.
+                Our master artisans fabricate handcrafted railings, metal structures, and bespoke furniture to specification.
               </p>
               <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
                 <button
@@ -376,14 +375,14 @@ export function ProductGrid({
                   className="inline-flex items-center gap-2 bg-charcoal px-6 py-3.5 text-[0.7rem] font-bold tracking-[0.2em] text-ivory uppercase transition-colors hover:bg-bronze"
                 >
                   <MessageCircle className="h-4 w-4" />
-                  ENQUIRE ABOUT CUSTOM WORK →
+                  <span>ENQUIRE ABOUT CUSTOM WORK →</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => setActiveCategory("railings")}
                   className="inline-flex items-center gap-2 border border-hairline px-6 py-3.5 text-[0.7rem] font-bold tracking-[0.18em] uppercase transition-colors hover:border-bronze hover:text-bronze"
                 >
-                  VIEW RAILINGS CATALOGUE
+                  <span>VIEW RAILINGS CATALOGUE</span>
                 </button>
               </div>
             </div>
@@ -391,7 +390,7 @@ export function ProductGrid({
         </motion.div>
       </AnimatePresence>
 
-      {/* ── 04 MODAL ── */}
+      {/* ── 05 MODAL ── */}
       <ProductModal
         product={openProduct}
         selected={openProduct?.id === selectedId}

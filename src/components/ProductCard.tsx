@@ -6,30 +6,28 @@ import { formatNPR } from "@/utils/currency";
 import { EASE } from "./Reveal";
 
 export function isRailingProduct(product: Product): boolean {
-  const cat = (product.category || "").toUpperCase();
-  const name = (product.name || "").toLowerCase();
-  const apps = (product.applications || []).map((a) => a.toLowerCase());
-  const id = (product.id || "").toLowerCase();
+  if (product.isCalculable === true) return true;
+  if (product.isCalculable === false) return false;
 
-  // Explicit SHOWCASE check: Metal & Glass Enclosed Rooms and showcase items without pricing
+  const id = (product.id || "").toLowerCase();
+  const cat = (product.category || "").toUpperCase();
+
+  // Explicit SHOWCASE check: Metal Structures / Furniture
   if (
+    id === "r09" ||
     id.startsWith("mg") ||
+    id.startsWith("ms") ||
     product.contentType === "SHOWCASE" ||
+    cat.includes("STRUCTURE") ||
     cat.includes("GLASS") ||
     cat.includes("ENCLOSED") ||
     cat.includes("ROOM") ||
-    product.application === "metal_glass" ||
-    apps.some((a) => a.includes("room") || a.includes("sunroom") || a.includes("corridor"))
+    cat.includes("FURNITURE") ||
+    product.application === "metal_glass"
   ) {
     return false;
   }
 
-  // Gates without price or custom showcase gates
-  if ((id === "r09" || name.includes("gate") || cat.includes("GATE")) && !product.pricePerSqft) {
-    return false;
-  }
-
-  // If item has a valid price per sq.ft, it is a calculable railing product
   if (product.pricePerSqft !== null && product.pricePerSqft > 0) {
     return true;
   }
@@ -45,6 +43,29 @@ export function isRailingProduct(product: Product): boolean {
   }
 
   return !product.isCustom;
+}
+
+export function isMetalStructureProduct(product: Product): boolean {
+  if (isRailingProduct(product)) return false;
+  const cat = (product.category || "").toLowerCase();
+  const id = (product.id || "").toLowerCase();
+  if (cat.includes("furniture")) return false;
+  return (
+    id === "r09" ||
+    id.startsWith("mg") ||
+    id.startsWith("ms") ||
+    cat.includes("structure") ||
+    cat.includes("metal & glass") ||
+    cat.includes("room") ||
+    cat.includes("gate") ||
+    cat.includes("enclosed")
+  );
+}
+
+export function isFurnitureProduct(product: Product): boolean {
+  const cat = (product.category || "").toLowerCase();
+  const name = (product.name || "").toLowerCase();
+  return cat.includes("furniture") || name.includes("furniture");
 }
 
 export const ProductCard = memo(function ProductCard({
@@ -65,6 +86,7 @@ export const ProductCard = memo(function ProductCard({
   currency?: string;
 }) {
   const isRailing = isRailingProduct(product);
+  const isFurniture = isFurnitureProduct(product);
   const applicationLabel =
     product.application === "staircase" ||
     product.applications?.some((a) => a.toLowerCase().includes("staircase"))
@@ -75,22 +97,13 @@ export const ProductCard = memo(function ProductCard({
             (a) => a.toLowerCase().includes("balcony") || a.toLowerCase().includes("loft"),
           )
         ? "BALCONY / LOFT"
-        : product.applications?.[0]?.toUpperCase() || product.category?.toUpperCase() || "RAILING";
+        : product.applications?.[0]?.toUpperCase() || "RAILING SYSTEM";
 
-  const categoryLabel = !isRailing
-    ? product.category?.toUpperCase().includes("ENCLOSED") ||
-      product.category?.toUpperCase().includes("GLASS") ||
-      product.application === "metal_glass" ||
-      product.id.startsWith("mg")
-      ? "METAL & GLASS ENCLOSED ROOMS"
-      : product.category?.toUpperCase().includes("GATE") ||
-          product.applications?.[0]?.toUpperCase().includes("GATE")
-        ? "GATES"
-        : product.category?.toUpperCase().includes("GRILLE") ||
-            product.applications?.[0]?.toUpperCase().includes("GRILLE")
-          ? "GRILLES"
-          : product.category?.toUpperCase() || "SHOWCASE"
-    : applicationLabel;
+  const categoryLabel = isRailing
+    ? applicationLabel
+    : isFurniture
+      ? "FURNITURE"
+      : "METAL STRUCTURES";
 
   return (
     <motion.article

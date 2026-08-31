@@ -1,15 +1,16 @@
 export type Product = {
   id: string;
   code: string;
-  slug?: string;
+  slug?: string | undefined;
   name: string;
-  nepaliName?: string;
-  englishName?: string;
-  displayName?: string;
-  subtitle?: string;
-  category?: string;
-  contentType?: "PRODUCT" | "SHOWCASE";
-  application?: "staircase" | "balcony" | "balcony_loft" | "grilles_gates" | string;
+  nepaliName?: string | undefined;
+  englishName?: string | undefined;
+  displayName?: string | undefined;
+  subtitle?: string | undefined;
+  category?: string | undefined;
+  contentType?: ("PRODUCT" | "SHOWCASE") | undefined;
+  isCalculable?: boolean | undefined;
+  application?: ("staircase" | "balcony" | "balcony_loft" | "grilles_gates" | string) | undefined;
   description: string;
   material: string;
   primer?: string;
@@ -34,6 +35,7 @@ export type Product = {
 
 // Authoritative client products for Metal Work Nepal
 export const DEFAULT_PRODUCTS: Product[] = [
+  // ── 14 CORE RAILING PRODUCTS (Calculable) ──
   {
     id: "r01",
     application: "staircase",
@@ -43,7 +45,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Basantapur Railing",
     nepaliName: "बसन्तपुर",
     englishName: "Basantapur Bharyang",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A grand staircase railing built around flowing spirals that curl and unfurl like a river bend. Every twist is heated over an open flame and beaten into shape by a Nepali karigar's hammer, one loop at a time - no two panels ever come out exactly alike. Made in Nepal, for Nepali homes that want a staircase people stop to admire.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -75,7 +79,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Lotus Grille",
     nepaliName: "कमल जाली",
     englishName: "Kamal Jali",
-    category: "Wrought Iron Grille",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A wide balcony grille built around a central lotus - Nepal's own symbol of grace - surrounded by hand-curled tendrils. Our karigars forge each petal and vine by hand over fire, then fit them into a single balanced panel. A handmade piece that turns a plain balcony into the face of the house.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -107,7 +113,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Vine Railing",
     nepaliName: "लहरा",
     englishName: "Lahara Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Inspired by climbing vines, this railing is made of soft rounded curls that repeat gently up the staircase. Hand-forged and hand-hammered by Nepali artisans, then finished in matte black for a quiet, elegant look that suits both traditional and modern Nepali homes.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -139,7 +147,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Leaf Railing",
     nepaliName: "पात बाह्रन्डा",
     englishName: "Pat Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A staircase railing of repeating leaf-shaped scrolls, simple and rhythmic. Built by hand, piece by piece, over fire and hammer by our Nepali karigars - a design that fits comfortably into any home, from Kathmandu apartments to hillside houses.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -171,7 +181,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Malla Balcony",
     nepaliName: "मल्ल जाली",
     englishName: "Malla Jali",
-    category: "Wrought Iron Grille",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A curved balcony railing with flowing scrolls and hanging floral drops, named for the era of Nepal's great craftsmen. Every curl is shaped by hand over open fire - a balcony grille built the old way, for a new home.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -189,7 +201,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
       '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
-    applications: ["Balcony Railing / Balcony Grille"],
+    applications: ["Balcony Railing", "Balcony Grille"],
     isCustom: false,
     isActive: true,
     displayOrder: 5,
@@ -203,7 +215,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Newa Railing",
     nepaliName: "नेवा बाह्रन्डा",
     englishName: "Newa Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Paired with a wooden post, this railing's soft double-scroll pattern nods to the fine craft tradition of the Kathmandu Valley's Newa artisans. Hand heated, hand hammered, hand fitted - a railing that carries generations of Nepali metalwork into a modern home.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -221,7 +235,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
       '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
-    applications: ["Railing"],
+    applications: ["Balcony / Loft Railing"],
     isCustom: false,
     isActive: true,
     displayOrder: 6,
@@ -235,7 +249,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Maya Railing",
     nepaliName: "माया",
     englishName: "Maya Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A loft and balcony railing with soft heart-shaped scrolls at its centre - maya means love and warmth in Nepali, and that's exactly what this design brings to an open, airy space. Fully hand-forged and finished in matte black by our karigars.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -253,7 +269,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
       '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
-    applications: ["Loft / Balcony Railing"],
+    applications: ["Balcony / Loft Railing"],
     isCustom: false,
     isActive: true,
     displayOrder: 7,
@@ -267,7 +283,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Spiral Steps Railing",
     nepaliName: "Butti Railing",
     englishName: "Ghumti Kadam",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Tall, sweeping scrolls climb this staircase from bottom to top in one continuous rhythm, capped with a simple ball-top post. Every scroll is heated and hand-beaten by Nepali craftsmen - strong enough for daily use, beautiful enough to be the centrepiece of the home.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -291,40 +309,6 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayOrder: 8,
   },
   {
-    id: "r09",
-    application: "grilles_gates",
-    code: "R-09",
-    slug: "toran-dhoka",
-    name: "The Toran Gate",
-    displayName: "The Toran Gate",
-    nepaliName: "Butta ढोका",
-    englishName: "Toran Dhoka",
-    category: "Wrought Iron Gate",
-    description:
-      "A pair of ornamental entrance doors, densely worked with scrolls and medallions - toran being the traditional Nepali word for a decorative entrance. Hand-forged from solid rod and flat bar, this gate is built to be both the first line of security and the first impression of the home.",
-    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
-    primer: "Red oxide primer",
-    finish: "Black matt deco paint finish",
-    construction: "Reinforced door-frame construction for daily use as an entrance gate.",
-    note: "Wood handrail shown is not included - iron scrollwork only.",
-    pricePerSqft: null,
-    standardModuleWidth: 4,
-    standardHeight: 3.5,
-    image: "/images/railings/r09.jpg",
-    gallery: [],
-    features: [
-      "10mm MS rod (hand-forged scroll)",
-      '1"x1" MS pipe frame',
-      '1" MS flat bar (patti)',
-      "Red oxide primer & Black matt deco paint finish",
-      "Reinforced door-frame construction for entrance gate",
-    ],
-    applications: ["Entrance Gate"],
-    isCustom: true,
-    isActive: true,
-    displayOrder: 9,
-  },
-  {
     id: "r10",
     application: "staircase",
     code: "R-10",
@@ -333,7 +317,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Palace Railing",
     nepaliName: "राजमहल",
     englishName: "Rajmahal Bhryang",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A grand curved staircase railing with dense, palace-style scrollwork, built for wide, sweeping stairways. Every panel is individually hand-forged to follow the curve of the staircase - a statement piece for homes that want a truly royal welcome.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -365,7 +351,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Spiral Railing",
     nepaliName: "घुम्ती बाह्रन्डा",
     englishName: "Ghumti Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Named after Kathmandu's historic Basantapur square, this curved railing pairs a wooden handrail with detailed hand-forged scrollwork bands. A design that carries heritage character while fitting easily into a contemporary staircase.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -397,7 +385,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Bhaktapur Railing",
     nepaliName: "भक्तपुर बाह्रन्डा",
     englishName: "Bhaktapur Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "A straight staircase railing with generous scrollwork, named for Bhaktapur - the city long known across Nepal for its master craftsmen. Hand-forged and hand-fitted panel by panel, built to match a staircase of any length.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -429,7 +419,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Jharokha Window Grille",
     nepaliName: "झरोखा जाली",
     englishName: "Jharokha Jali",
-    category: "Wrought Iron Grille",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Jharokha is the traditional word for a projecting window balcony - and this design brings that old idea into hand-forged iron, framing a window with a full arched grille. Bent, curled, and hammered entirely by hand, it turns an ordinary window into a feature of the house front.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -461,7 +453,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Chautari Railing",
     nepaliName: "चौतारी बाह्रन्डा",
     englishName: "Chautari Baranda",
-    category: "Wrought Iron Railing",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Named after the chautari - Nepal's traditional resting spot where neighbours gather - this slim, elegant balcony railing is built for a balcony you actually want to sit and relax on. Fine hand-forged scrolls, finished in matte black, light enough in look but strong enough for daily life.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -493,7 +487,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Aankhijhyal Grille",
     nepaliName: "आँखीझ्याल जाली",
     englishName: "Aankhijhyal Jali",
-    category: "Wrought Iron Grille",
+    category: "Railings",
+    contentType: "PRODUCT",
+    isCalculable: true,
     description:
       "Named after the aankhijhyal, the iconic 'eye window' of traditional Nepali architecture, this balcony grille reimagines that heritage detail in hand-forged iron scrollwork. A design that connects a modern home to Nepal's own architectural roots.",
     material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
@@ -516,6 +512,44 @@ export const DEFAULT_PRODUCTS: Product[] = [
     isActive: true,
     displayOrder: 15,
   },
+
+  // ── 5 METAL STRUCTURES PRODUCTS (Showcase / Enquire) ──
+  {
+    id: "r09",
+    application: "grilles_gates",
+    code: "R-09",
+    slug: "toran-dhoka",
+    name: "The Toran Gate",
+    displayName: "The Toran Gate",
+    nepaliName: "Butta ढोका",
+    englishName: "Toran Dhoka",
+    category: "Metal Structures",
+    contentType: "SHOWCASE",
+    isCalculable: false,
+    description:
+      "A pair of ornamental entrance doors, densely worked with scrolls and medallions - toran being the traditional Nepali word for a decorative entrance. Hand-forged from solid rod and flat bar, this gate is built to be both the first line of security and the first impression of the home.",
+    material: '10mm MS rod (hand-forged scroll), 1"x1" MS pipe frame, 1" MS flat bar (patti)',
+    primer: "Red oxide primer",
+    finish: "Black matt deco paint finish",
+    construction: "Reinforced door-frame construction for daily use as an entrance gate.",
+    note: "Wood handrail shown is not included - iron scrollwork only.",
+    pricePerSqft: null,
+    standardModuleWidth: 4,
+    standardHeight: 3.5,
+    image: "/images/railings/r09.jpg",
+    gallery: [],
+    features: [
+      "10mm MS rod (hand-forged scroll)",
+      '1"x1" MS pipe frame',
+      '1" MS flat bar (patti)',
+      "Red oxide primer & Black matt deco paint finish",
+      "Reinforced door-frame construction for entrance gate",
+    ],
+    applications: ["Entrance Gate", "Metal Structures"],
+    isCustom: true,
+    isActive: true,
+    displayOrder: 9,
+  },
   {
     id: "mg01",
     application: "metal_glass",
@@ -525,8 +559,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Kausi Room",
     nepaliName: "कौसी घर",
     englishName: "Kausi Ghar",
-    category: "Metal & Glass Enclosed Rooms",
+    category: "Metal Structures",
     contentType: "SHOWCASE",
+    isCalculable: false,
     description:
       "Kausi ghar - the rooftop room every Nepali home dreams of. A fully hand-built metal-and-glass room that turns your rooftop or terrace into a bright, comfortable living space year-round, framed in hand-finished black steel with detailed glass overhead panels.",
     material:
@@ -561,8 +596,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Courtyard Sunroom",
     nepaliName: "आँगन कौसी",
     englishName: "Aangan Kausi",
-    category: "Metal & Glass Enclosed Rooms",
+    category: "Metal Structures",
     contentType: "SHOWCASE",
+    isCalculable: false,
     description:
       "A modern glass-and-steel room built to extend straight out from the house into the courtyard or garden, letting in light from every side. Framed and welded by hand in matte black steel, with toughened glass throughout for safety and durability.",
     material:
@@ -597,8 +633,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Glass-Roof Corridor",
     nepaliName: "छाना जाली बरन्डा",
     englishName: "Chhana Jali Baranda",
-    category: "Metal & Glass Enclosed Rooms",
+    category: "Metal Structures",
     contentType: "SHOWCASE",
+    isCalculable: false,
     description:
       "A long glass-roofed passage that fills a hallway with open sky and daylight, built entirely on a hand-fabricated steel frame. Ideal for connecting rooms of the house while keeping the space bright and open.",
     material:
@@ -633,8 +670,9 @@ export const DEFAULT_PRODUCTS: Product[] = [
     displayName: "The Garden Sunroom",
     nepaliName: "बगैंचा कौसी",
     englishName: "Bagaicha Kausi",
-    category: "Metal & Glass Enclosed Rooms",
+    category: "Metal Structures",
     contentType: "SHOWCASE",
+    isCalculable: false,
     description:
       "A glass-roofed sitting and garden space that blurs the line between indoors and outdoors, framed by hand-built steel trusses. A peaceful corner for a Nepali home, built to last through every season.",
     material:

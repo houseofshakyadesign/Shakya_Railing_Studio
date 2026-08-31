@@ -340,10 +340,8 @@ function Overview() {
 
 const CONTROLLED_CATEGORIES = [
   { value: "RAILINGS", label: "RAILINGS", defaultContentType: "PRODUCT" as const },
-  { value: "GRILLES", label: "GRILLES", defaultContentType: "SHOWCASE" as const },
-  { value: "GATES", label: "GATES", defaultContentType: "SHOWCASE" as const },
-  { value: "METAL & GLASS ENCLOSED ROOMS", label: "METAL & GLASS ENCLOSED ROOMS", defaultContentType: "SHOWCASE" as const },
-  { value: "CUSTOM METALWORK", label: "CUSTOM METALWORK", defaultContentType: "SHOWCASE" as const },
+  { value: "METAL STRUCTURES", label: "METAL STRUCTURES", defaultContentType: "SHOWCASE" as const },
+  { value: "FURNITURE", label: "FURNITURE", defaultContentType: "SHOWCASE" as const },
 ];
 
 const BLANK_PRODUCT: Product = {
@@ -357,6 +355,7 @@ const BLANK_PRODUCT: Product = {
   subtitle: "",
   category: "RAILINGS",
   contentType: "PRODUCT",
+  isCalculable: true,
   application: "balcony_loft",
   primer: "Zinc chromate red oxide primer",
   finish: "Black matt deco paint",
@@ -403,15 +402,16 @@ function CatalogueManager() {
     const matchesCategory =
       selectedCategory === "ALL" ||
       pCat === selectedCategory ||
-      (selectedCategory === "RAILINGS" && pCat.includes("RAILING")) ||
-      (selectedCategory === "METAL & GLASS ENCLOSED ROOMS" && (pCat.includes("GLASS") || pCat.includes("ENCLOSED") || p.id.startsWith("mg")));
+      (selectedCategory === "RAILINGS" && (pCat.includes("RAILING") || pCat.includes("GRILLE") || (p.pricePerSqft !== null && p.pricePerSqft > 0 && p.id !== "r09" && !p.id.startsWith("mg")))) ||
+      (selectedCategory === "METAL STRUCTURES" && (pCat.includes("STRUCTURE") || pCat.includes("GLASS") || pCat.includes("ENCLOSED") || pCat.includes("ROOM") || pCat.includes("GATE") || p.id === "r09" || p.id.startsWith("mg"))) ||
+      (selectedCategory === "FURNITURE" && pCat.includes("FURNITURE"));
 
     const matchesStatus =
       selectedStatus === "ALL" ||
       (selectedStatus === "PUBLISHED" && p.isActive) ||
       (selectedStatus === "DRAFT" && !p.isActive);
 
-    const isRailing = pCat.includes("RAILING") || p.contentType === "PRODUCT";
+    const isRailing = (p.isCalculable ?? (pCat.includes("RAILING") || p.contentType === "PRODUCT"));
     const matchesType =
       selectedType === "ALL" ||
       (selectedType === "PRODUCT" && isRailing) ||
@@ -809,11 +809,13 @@ function ProductEditor({
   };
 
   const isRailing =
-    (draft.category || "").toUpperCase().includes("RAILING") || draft.contentType === "PRODUCT";
+    draft.isCalculable ??
+    ((draft.category || "").toUpperCase().includes("RAILING") || draft.contentType === "PRODUCT");
 
   const handleCategoryChange = (newCat: string) => {
     const matched = CONTROLLED_CATEGORIES.find((c) => c.value === newCat);
     const newContentType = matched ? matched.defaultContentType : newCat.toUpperCase().includes("RAILING") ? "PRODUCT" : "SHOWCASE";
+    const isCalculableVal = newContentType === "PRODUCT";
     setDraft((d) => {
       if (!d) return null;
       const appVal = newContentType === "PRODUCT" ? (d.application || "balcony_loft") : (d.application || "");
@@ -821,6 +823,7 @@ function ProductEditor({
         ...d,
         category: newCat,
         contentType: newContentType,
+        isCalculable: isCalculableVal,
         application: appVal,
       };
     });

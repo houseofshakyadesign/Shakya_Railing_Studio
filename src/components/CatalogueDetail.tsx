@@ -17,7 +17,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
-import { isRailingProduct } from "@/components/ProductCard";
+import { isRailingProduct, isMetalStructureProduct, isFurnitureProduct } from "@/components/ProductCard";
 import type { Product } from "@/data/products";
 import { useStudio } from "@/hooks/useStudio";
 import { formatNPR } from "@/utils/currency";
@@ -162,20 +162,12 @@ export function CatalogueDetail({
         ? "BALCONY / LOFT"
         : product.applications?.[0]?.toUpperCase() || product.category?.toUpperCase() || "RAILING SYSTEM";
 
-  const disciplineCategory = !isRailing
-    ? product.category?.toUpperCase().includes("ENCLOSED") ||
-      product.category?.toUpperCase().includes("GLASS") ||
-      product.application === "metal_glass" ||
-      product.id.startsWith("mg")
-      ? "METAL & GLASS ENCLOSED ROOMS"
-      : product.category?.toUpperCase().includes("GATE") ||
-          product.applications?.[0]?.toUpperCase().includes("GATE")
-        ? "GATES"
-        : product.category?.toUpperCase().includes("GRILLE") ||
-            product.applications?.[0]?.toUpperCase().includes("GRILLE")
-          ? "GRILLES"
-          : product.category?.toUpperCase() || "CUSTOM METALWORK"
-    : "RAILINGS";
+  const isFurniture = isFurnitureProduct(product);
+  const disciplineCategory = isRailing
+    ? "RAILINGS"
+    : isFurniture
+      ? "FURNITURE"
+      : "METAL STRUCTURES";
 
   // Related products query (3-4 items from active catalogue, prefer same content type / category)
   const relatedProducts = useMemo(() => {

@@ -17,14 +17,20 @@ function formatProduct(p) {
     cat.includes("GLASS") ||
     cat.includes("ENCLOSED") ||
     cat.includes("ROOM") ||
+    cat.includes("STRUCTURE") ||
     cat.includes("GATE") ||
-    cat.includes("GRILLE") ||
+    cat.includes("FURNITURE") ||
     cat.includes("CUSTOM") ||
-    (p.id && String(p.id).toLowerCase().startsWith("mg"));
+    (p.id && (String(p.id).toLowerCase().startsWith("mg") || String(p.id).toLowerCase().startsWith("ms") || String(p.id).toLowerCase() === "r09"));
 
   const inferredContentType = isShowcase
     ? "SHOWCASE"
-    : p.content_type || (cat.includes("RAILING") ? "PRODUCT" : "SHOWCASE");
+    : p.content_type || (cat.includes("RAILING") || (price !== null && price > 0) ? "PRODUCT" : "SHOWCASE");
+
+  const isCalculable =
+    p.is_calculable !== undefined && p.is_calculable !== null
+      ? Boolean(p.is_calculable)
+      : inferredContentType === "PRODUCT" && price !== null && price > 0;
 
   return {
     id: p.id,
@@ -37,6 +43,7 @@ function formatProduct(p) {
     subtitle: p.subtitle || "",
     category: p.category || "RAILINGS",
     contentType: inferredContentType,
+    isCalculable,
     application: p.application || "",
     description: p.description || "",
     material: p.material || "",

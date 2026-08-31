@@ -102,9 +102,12 @@ function mergeWithDefaults(current: Product[]): Product[] {
   const merged: Product[] = current.map((p) => {
     const def = defaultMap.get(p.id);
     if (def) {
+      const isCalculable = def.isCalculable ?? p.isCalculable ?? (def.contentType === "PRODUCT" || (def.pricePerSqft !== null && def.pricePerSqft > 0));
       const item: Product = {
         ...def,
         ...p,
+        category: def.category || p.category || "Railings",
+        isCalculable,
         pricePerSqft:
           p.pricePerSqft !== undefined && p.pricePerSqft !== null ? p.pricePerSqft : def.pricePerSqft,
         contentType: def.contentType || (def.pricePerSqft ? "PRODUCT" : p.contentType || "PRODUCT"),
