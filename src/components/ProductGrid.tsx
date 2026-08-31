@@ -44,8 +44,17 @@ export function ProductGrid({
   const [activeCategory, setActiveCategory] = useState<MasterCategory>(initialCategory);
   const [activeRailingFilter, setActiveRailingFilter] = useState<RailingFilter>("all_railings");
   const navigate = useNavigate();
+  const prioritizedProducts = useMemo(() => {
+    return [...activeProducts].sort((a, b) => {
+      const aIsRailing = isRailingProduct(a);
+      const bIsRailing = isRailingProduct(b);
+      if (aIsRailing && !bIsRailing) return -1;
+      if (!aIsRailing && bIsRailing) return 1;
+      return (a.displayOrder || 0) - (b.displayOrder || 0);
+    });
+  }, [activeProducts]);
 
-  const baseProducts = limit ? activeProducts.slice(0, limit) : activeProducts;
+  const baseProducts = limit ? prioritizedProducts.slice(0, limit) : prioritizedProducts;
 
   // Filter products based on Master Catalogue category & Railing secondary filter
   const filteredProducts = useMemo(() => {

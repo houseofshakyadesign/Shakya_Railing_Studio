@@ -94,8 +94,30 @@ function CollectionPage() {
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const [justSelected, setJustSelected] = useState(false);
 
-  // Active products filter
-  const activeProducts = useMemo(() => products.filter((p) => p.isActive !== false), [products]);
+  // Active products filter (railings prioritised first)
+  const activeProducts = useMemo(() => {
+    return products
+      .filter((p) => p.isActive !== false)
+      .sort((a, b) => {
+        const aCat = (a.category || "").toUpperCase();
+        const bCat = (b.category || "").toUpperCase();
+        const aIsRailing =
+          a.contentType !== "SHOWCASE" &&
+          (aCat.includes("RAILING") ||
+            a.application === "staircase" ||
+            a.application === "balcony" ||
+            a.application === "balcony_loft");
+        const bIsRailing =
+          b.contentType !== "SHOWCASE" &&
+          (bCat.includes("RAILING") ||
+            b.application === "staircase" ||
+            b.application === "balcony" ||
+            b.application === "balcony_loft");
+        if (aIsRailing && !bIsRailing) return -1;
+        if (!aIsRailing && bIsRailing) return 1;
+        return (a.displayOrder || 0) - (b.displayOrder || 0);
+      });
+  }, [products]);
 
   // Selected railing to use in calculator (null if deselected)
   const productToUse = useMemo(() => {

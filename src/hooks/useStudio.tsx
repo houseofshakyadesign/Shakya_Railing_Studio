@@ -442,7 +442,15 @@ export function StudioProvider({ children }: { children: ReactNode }) {
   const activeProducts = useMemo(() => {
     return products
       .filter((p) => p.isActive)
-      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+      .sort((a, b) => {
+        const aCat = (a.category || "").toUpperCase();
+        const bCat = (b.category || "").toUpperCase();
+        const aIsRailing = a.contentType !== "SHOWCASE" && (aCat.includes("RAILING") || a.application === "staircase" || a.application === "balcony" || a.application === "balcony_loft");
+        const bIsRailing = b.contentType !== "SHOWCASE" && (bCat.includes("RAILING") || b.application === "staircase" || b.application === "balcony" || b.application === "balcony_loft");
+        if (aIsRailing && !bIsRailing) return -1;
+        if (!aIsRailing && bIsRailing) return 1;
+        return (a.displayOrder || 0) - (b.displayOrder || 0);
+      });
   }, [products]);
 
   const activeProjects = useMemo(() => {
