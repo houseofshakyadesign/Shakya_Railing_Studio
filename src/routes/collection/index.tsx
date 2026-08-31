@@ -21,6 +21,7 @@ import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
+import { isRailingProduct } from "@/components/ProductCard";
 
 const title = "The Collection | Metal Work Nepal";
 const description =
@@ -99,20 +100,8 @@ function CollectionPage() {
     return products
       .filter((p) => p.isActive !== false)
       .sort((a, b) => {
-        const aCat = (a.category || "").toUpperCase();
-        const bCat = (b.category || "").toUpperCase();
-        const aIsRailing =
-          a.contentType !== "SHOWCASE" &&
-          (aCat.includes("RAILING") ||
-            a.application === "staircase" ||
-            a.application === "balcony" ||
-            a.application === "balcony_loft");
-        const bIsRailing =
-          b.contentType !== "SHOWCASE" &&
-          (bCat.includes("RAILING") ||
-            b.application === "staircase" ||
-            b.application === "balcony" ||
-            b.application === "balcony_loft");
+        const aIsRailing = isRailingProduct(a);
+        const bIsRailing = isRailingProduct(b);
         if (aIsRailing && !bIsRailing) return -1;
         if (!aIsRailing && bIsRailing) return 1;
         return (a.displayOrder || 0) - (b.displayOrder || 0);

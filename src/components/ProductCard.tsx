@@ -9,43 +9,32 @@ export function isRailingProduct(product: Product): boolean {
   const cat = (product.category || "").toUpperCase();
   const name = (product.name || "").toLowerCase();
   const apps = (product.applications || []).map((a) => a.toLowerCase());
-  const nepali = product.nepaliName || "";
   const id = (product.id || "").toLowerCase();
 
-  // Strict SHOWCASE checks: Rooms, Gates, Grilles, Custom MUST NEVER be railings
+  // Explicit SHOWCASE check: Metal & Glass Enclosed Rooms and showcase items without pricing
   if (
     id.startsWith("mg") ||
+    product.contentType === "SHOWCASE" ||
     cat.includes("GLASS") ||
     cat.includes("ENCLOSED") ||
     cat.includes("ROOM") ||
-    cat.includes("GATE") ||
-    cat.includes("GRILLE") ||
-    cat.includes("CUSTOM") ||
-    name.includes("gate") ||
-    name.includes("dhoka") ||
-    nepali.includes("ढोका") ||
-    name.includes("grille") ||
-    name.includes("jali") ||
-    nepali.includes("जाली") ||
-    name.includes("room") ||
-    name.includes("sunroom") ||
     product.application === "metal_glass" ||
-    apps.some(
-      (a) =>
-        a.includes("room") ||
-        a.includes("sunroom") ||
-        a.includes("corridor") ||
-        a.includes("passage") ||
-        a.includes("gate") ||
-        a.includes("grille"),
-    )
+    apps.some((a) => a.includes("room") || a.includes("sunroom") || a.includes("corridor"))
   ) {
     return false;
   }
 
-  if (product.contentType === "SHOWCASE") return false;
-  if (product.contentType === "PRODUCT") return true;
+  // Gates without price or custom showcase gates
+  if ((id === "r09" || name.includes("gate") || cat.includes("GATE")) && !product.pricePerSqft) {
+    return false;
+  }
 
+  // If item has a valid price per sq.ft, it is a calculable railing product
+  if (product.pricePerSqft !== null && product.pricePerSqft > 0) {
+    return true;
+  }
+
+  if (product.contentType === "PRODUCT") return true;
   if (cat.includes("RAILING")) return true;
   if (
     product.application === "staircase" ||
