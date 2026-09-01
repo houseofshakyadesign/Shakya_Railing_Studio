@@ -55,7 +55,7 @@ router.post(
       }
 
       const token = jwt.sign({ id: admin.id, email: admin.email }, getJwtSecret(), {
-        expiresIn: "24h",
+        expiresIn: "1h",
       });
 
       return res.json({

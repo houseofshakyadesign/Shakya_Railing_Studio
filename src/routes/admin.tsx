@@ -65,11 +65,30 @@ function AdminPage() {
   const [loggingIn, setLoggingIn] = useState(false);
   const [currentUserEmail, setCurrentUserEmail] = useState<string | null>(null);
 
+  const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 hour
+
   useEffect(() => {
     const token =
       (typeof sessionStorage !== "undefined" &&
         sessionStorage.getItem("metalWorkNepal_adminToken")) ||
       (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminToken"));
+
+    const loginTimeStr =
+      (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminLoginTime")) ||
+      (typeof sessionStorage !== "undefined" && sessionStorage.getItem("metalWorkNepal_adminLoginTime"));
+
+    if (loginTimeStr) {
+      const loginTime = parseInt(loginTimeStr, 10);
+      if (Date.now() - loginTime > SESSION_DURATION_MS) {
+        // Session has expired (over 1 hour)
+        localStorage.removeItem("metalWorkNepal_adminToken");
+        sessionStorage.removeItem("metalWorkNepal_adminToken");
+        localStorage.removeItem("metalWorkNepal_adminLoginTime");
+        sessionStorage.removeItem("metalWorkNepal_adminLoginTime");
+        setUnlocked(false);
+        return;
+      }
+    }
 
     if (token) {
       void api.auth
@@ -83,10 +102,29 @@ function AdminPage() {
         .catch(() => {
           sessionStorage.removeItem("metalWorkNepal_adminToken");
           localStorage.removeItem("metalWorkNepal_adminToken");
+          localStorage.removeItem("metalWorkNepal_adminLoginTime");
+          sessionStorage.removeItem("metalWorkNepal_adminLoginTime");
           setUnlocked(false);
         });
     }
   }, []);
+
+  // Automatic 1-hour timer when active
+  useEffect(() => {
+    if (!unlocked) return;
+
+    const checkInterval = setInterval(() => {
+      const loginTimeStr = localStorage.getItem("metalWorkNepal_adminLoginTime") || sessionStorage.getItem("metalWorkNepal_adminLoginTime");
+      if (loginTimeStr) {
+        const loginTime = parseInt(loginTimeStr, 10);
+        if (Date.now() - loginTime >= SESSION_DURATION_MS) {
+          handleLogout("Admin session expired after 1 hour. Please sign in again.");
+        }
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => clearInterval(checkInterval);
+  }, [unlocked]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,8 +134,11 @@ function AdminPage() {
     try {
       const res = await api.auth.login(email.trim(), pw);
       if (res?.token) {
+        const now = String(Date.now());
         localStorage.setItem("metalWorkNepal_adminToken", res.token);
         sessionStorage.setItem("metalWorkNepal_adminToken", res.token);
+        localStorage.setItem("metalWorkNepal_adminLoginTime", now);
+        sessionStorage.setItem("metalWorkNepal_adminLoginTime", now);
         setCurrentUserEmail(res.admin?.email || email);
         setUnlocked(true);
         toast.success("Welcome, Studio Admin");
@@ -108,6 +149,9 @@ function AdminPage() {
         (!studio.isCloudConnected || (err instanceof Error && err.message.includes("Failed to fetch"))) &&
         (pw === "MetalAdmin2026!" || pw.trim() === "MetalAdmin2026!")
       ) {
+        const now = String(Date.now());
+        localStorage.setItem("metalWorkNepal_adminLoginTime", now);
+        sessionStorage.setItem("metalWorkNepal_adminLoginTime", now);
         setCurrentUserEmail("admin@metalworknepal.com");
         setUnlocked(true);
         toast.success("Welcome, Studio Admin (Local Mode)");
@@ -119,10 +163,12 @@ function AdminPage() {
     }
   };
 
-  const handleLogout = async () => {
+  const handleLogout = async (message = "Logged out safely") => {
     try {
       localStorage.removeItem("metalWorkNepal_adminToken");
       sessionStorage.removeItem("metalWorkNepal_adminToken");
+      localStorage.removeItem("metalWorkNepal_adminLoginTime");
+      sessionStorage.removeItem("metalWorkNepal_adminLoginTime");
       sessionStorage.removeItem(STORAGE_KEYS.admin);
     } catch {
       /* ignore */
@@ -130,7 +176,7 @@ function AdminPage() {
     setCurrentUserEmail(null);
     setUnlocked(false);
     setPw("");
-    toast.success("Logged out safely");
+    toast.success(message);
   };
 
   const handleSync = async () => {
@@ -260,7 +306,7 @@ function AdminPage() {
             </Link>
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={() => handleLogout()}
               className="inline-flex items-center gap-1.5 border border-hairline bg-card px-3.5 py-1.5 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-destructive transition-colors hover:border-destructive hover:bg-destructive/10"
             >
               <LogOut className="h-3.5 w-3.5" />
