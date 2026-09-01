@@ -990,12 +990,25 @@ function ProductEditor({
         }
       }
 
+      let updatedGallery = draft.gallery && draft.gallery.length > 0 ? [...draft.gallery] : [];
+      if (selectedFile && finalImageUrl) {
+        if (updatedGallery.length <= 1 || (draft.image && updatedGallery.includes(draft.image))) {
+          updatedGallery = updatedGallery.map((g) => (g === draft.image ? finalImageUrl : g));
+          if (!updatedGallery.includes(finalImageUrl)) {
+            updatedGallery = [finalImageUrl, ...updatedGallery.filter((g) => g !== draft.image)];
+          }
+        }
+      }
+      if (updatedGallery.length === 0 && finalImageUrl) {
+        updatedGallery = [finalImageUrl];
+      }
+
       await onSave({
         ...draft,
         displayName: draft.displayName || draft.englishName || draft.name,
         name: draft.displayName || draft.englishName || draft.name,
         image: finalImageUrl,
-        gallery: draft.gallery && draft.gallery.length > 0 ? draft.gallery : [finalImageUrl],
+        gallery: updatedGallery,
       });
     } finally {
       setSaving(false);
