@@ -586,11 +586,24 @@ function CollectionPage() {
                             <strong>{formatArea(estimate.area)}</strong>
                           </p>
                           {!isCustom && (
-                            <p>
-                              <strong>Price:</strong> {formatArea(estimate.area)} ×{" "}
-                              {formatNPR(productToUse.pricePerSqft, settings.currency)} ={" "}
-                              <strong>{formatNPR(estimate.total, settings.currency)}</strong>
-                            </p>
+                            <>
+                              <p>
+                                <strong>Subtotal:</strong> {formatArea(estimate.area)} ×{" "}
+                                {formatNPR(productToUse.pricePerSqft, settings.currency)} ={" "}
+                                <strong>{formatNPR(estimate.subtotal, settings.currency)}</strong>
+                              </p>
+                              <p>
+                                <strong>13% VAT:</strong>{" "}
+                                {formatNPR(estimate.subtotal, settings.currency)} × 13% ={" "}
+                                <strong>{formatNPR(estimate.vatAmount, settings.currency)}</strong>
+                              </p>
+                              <p className="font-semibold text-foreground">
+                                <strong>Total (Incl. 13% VAT):</strong>{" "}
+                                {formatNPR(estimate.subtotal, settings.currency)} +{" "}
+                                {formatNPR(estimate.vatAmount, settings.currency)} ={" "}
+                                <strong>{formatNPR(estimate.total, settings.currency)}</strong>
+                              </p>
+                            </>
                           )}
                           <p className="text-[0.68rem] text-muted-foreground/80 italic">
                             * Final exact measurements and site conditions will be reviewed during
@@ -725,7 +738,8 @@ function CollectionPage() {
                               <AnimatedTotal value={estimate.total} currency={settings.currency} />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              Calculated at {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.
+                              Base: {formatNPR(estimate.subtotal, settings.currency)} + 13% VAT (
+                              {formatNPR(estimate.vatAmount, settings.currency)})
                             </p>
                           </div>
                         )}
@@ -747,14 +761,26 @@ function CollectionPage() {
                       <Row label="Material" value={productToUse.material} />
                       <Row label="Length" value={`${estimate.length || 0} ft`} />
                       <Row label="Standard Height" value={`${currentStandardHeight} ft`} />
-                      <Row
-                        label="Rate"
-                        value={
-                          isCustom
-                            ? "Custom Quote"
-                            : `${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`
-                        }
-                      />
+                      {!isCustom && (
+                        <>
+                          <Row
+                            label="Rate"
+                            value={`${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`}
+                          />
+                          <Row
+                            label="Subtotal"
+                            value={formatNPR(estimate.subtotal, settings.currency)}
+                          />
+                          <Row
+                            label="Govt. VAT (13%)"
+                            value={formatNPR(estimate.vatAmount, settings.currency)}
+                          />
+                          <Row
+                            label="Total (Incl. VAT)"
+                            value={formatNPR(estimate.total, settings.currency)}
+                          />
+                        </>
+                      )}
                       <Row label="Customer" value={form.customerName || "—"} />
                       <Row label="Phone" value={form.phone || "—"} />
                       <Row label="Location" value={form.location || "—"} />

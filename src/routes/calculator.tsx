@@ -682,8 +682,9 @@ function CalculatorPage() {
                       <AnimatedTotal value={estimate.total} currency={settings.currency} />
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">
-                      Calculated at {formatNPR(selectedProduct.pricePerSqft, settings.currency)} /
-                      sq.ft.
+                      Base: {formatNPR(estimate.subtotal, settings.currency)} + 13% VAT (
+                      {formatNPR(estimate.vatAmount, settings.currency)}) ·{" "}
+                      {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
                     </p>
                   </div>
                 )}
@@ -717,12 +718,30 @@ function CalculatorPage() {
                 <span className="font-medium text-foreground">{formatArea(estimate.area)}</span>
               </div>
               {!isCustom && (
-                <div className="flex justify-between py-1 border-b border-hairline/60">
-                  <span className="text-muted-foreground">Rate</span>
-                  <span className="font-medium text-foreground">
-                    {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
-                  </span>
-                </div>
+                <>
+                  <div className="flex justify-between py-1 border-b border-hairline/60">
+                    <span className="text-muted-foreground">Rate</span>
+                    <span className="font-medium text-foreground">
+                      {formatNPR(selectedProduct.pricePerSqft, settings.currency)} / sq.ft.
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-hairline/60">
+                    <span className="text-muted-foreground">Subtotal</span>
+                    <span className="font-medium text-foreground">
+                      {formatNPR(estimate.subtotal, settings.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-hairline/60">
+                    <span className="text-muted-foreground">Govt. VAT (13%)</span>
+                    <span className="font-medium text-foreground">
+                      {formatNPR(estimate.vatAmount, settings.currency)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-hairline/60 font-semibold text-foreground">
+                    <span>Total (Incl. 13% VAT)</span>
+                    <span>{formatNPR(estimate.total, settings.currency)}</span>
+                  </div>
+                </>
               )}
             </div>
 
@@ -754,11 +773,24 @@ function CalculatorPage() {
                       {formatArea(estimate.area)}
                     </p>
                     {!isCustom && (
-                      <p className="mt-1">
-                        <strong>Price:</strong> {formatArea(estimate.area)} ×{" "}
-                        {formatNPR(selectedProduct.pricePerSqft, settings.currency)} ={" "}
-                        {formatNPR(estimate.total, settings.currency)}
-                      </p>
+                      <>
+                        <p className="mt-1">
+                          <strong>Subtotal:</strong> {formatArea(estimate.area)} ×{" "}
+                          {formatNPR(selectedProduct.pricePerSqft, settings.currency)} ={" "}
+                          {formatNPR(estimate.subtotal, settings.currency)}
+                        </p>
+                        <p className="mt-1">
+                          <strong>13% VAT:</strong>{" "}
+                          {formatNPR(estimate.subtotal, settings.currency)} × 13% ={" "}
+                          {formatNPR(estimate.vatAmount, settings.currency)}
+                        </p>
+                        <p className="mt-1 font-medium text-foreground">
+                          <strong>Total (Incl. 13% VAT):</strong>{" "}
+                          {formatNPR(estimate.subtotal, settings.currency)} +{" "}
+                          {formatNPR(estimate.vatAmount, settings.currency)} ={" "}
+                          {formatNPR(estimate.total, settings.currency)}
+                        </p>
+                      </>
                     )}
                   </motion.div>
                 )}

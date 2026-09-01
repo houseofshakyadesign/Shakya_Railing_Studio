@@ -25,11 +25,16 @@ export const DEFAULT_RAILING_TYPES: RailingTypeConfig[] = [
   },
 ];
 
+export const VAT_RATE = 0.13; // 13% Government VAT in Nepal
+
 export type RailingEstimate = {
   length: number;
   height: number;
   area: number;
   rate: number;
+  subtotal: number;
+  vatRate: number;
+  vatAmount: number;
   total: number;
   isCustom: boolean;
   railingType: string;
@@ -42,13 +47,13 @@ export function formatArea(sqft: number): string {
   return `${formatted} sq.ft.`;
 }
 
-export const VAT_RATE = 0.13;
-
 /**
- * Single source of truth for railing calculations.
+ * Single source of truth for railing calculations including 13% VAT.
  *
  * 1. Estimated Area = Length (ft) × Standard Height (ft)
- * 2. Estimated Total Amount = Estimated Area (sq.ft) × Unit Price / Rate (NPR / sq.ft)
+ * 2. Base Amount (Subtotal) = Estimated Area (sq.ft) × Unit Price / Rate (NPR / sq.ft)
+ * 3. 13% VAT = Base Amount × 0.13
+ * 4. Estimated Total (Incl. VAT) = Base Amount + 13% VAT
  */
 export function calculateRailingEstimate(
   length: number,
@@ -64,13 +69,18 @@ export function calculateRailingEstimate(
 
   const rawArea = l * h;
   const area = Number(rawArea.toFixed(2));
-  const total = isCustom ? 0 : Math.round(area * r);
+  const subtotal = isCustom ? 0 : Math.round(area * r);
+  const vatAmount = isCustom ? 0 : Math.round(subtotal * VAT_RATE);
+  const total = isCustom ? 0 : subtotal + vatAmount;
 
   return {
     length: l,
     height: h,
     area,
     rate: r,
+    subtotal,
+    vatRate: VAT_RATE,
+    vatAmount,
     total,
     isCustom,
     railingType,

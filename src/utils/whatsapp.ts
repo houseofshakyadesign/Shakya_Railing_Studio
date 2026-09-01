@@ -33,12 +33,22 @@ export function generateWhatsAppMessage(e: Enquiry, currency = "NPR"): string {
       "",
     );
   } else {
+    const rawSubtotal = Math.round((e.estimatedAreaSqft || 0) * (e.rate || 0));
+    const vat = Math.round(rawSubtotal * 0.13);
+    const totalWithVat = rawSubtotal + vat;
+
     lines.push(
       "Rate:",
       `${formatNPR(e.rate, currency)}/sq.ft.`,
       "",
-      "Estimated Price:",
-      formatNPR(e.estimatedPrice || e.estimatedTotal, currency),
+      "Subtotal (Base):",
+      formatNPR(rawSubtotal, currency),
+      "",
+      "Govt. VAT (13%):",
+      formatNPR(vat, currency),
+      "",
+      "Estimated Total (Incl. 13% VAT):",
+      formatNPR(totalWithVat, currency),
       "",
     );
   }

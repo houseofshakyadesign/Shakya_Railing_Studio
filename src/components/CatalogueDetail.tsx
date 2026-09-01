@@ -485,16 +485,28 @@ export function CatalogueDetail({
                           {liveEstimate.height}ft)
                         </span>
                       </div>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>Base Amount:</span>
+                        <span className="font-medium text-foreground font-mono">
+                          {formatNPR(liveEstimate.subtotal, settings.currency)}
+                        </span>
+                      </div>
+                      <div className="flex justify-between text-muted-foreground">
+                        <span>13% VAT:</span>
+                        <span className="font-medium text-foreground font-mono">
+                          {formatNPR(liveEstimate.vatAmount, settings.currency)}
+                        </span>
+                      </div>
                       <div className="flex justify-between items-baseline pt-1 border-t border-hairline/60">
                         <span className="text-[0.7rem] font-bold tracking-wider uppercase text-bronze">
-                          ESTIMATED AMOUNT:
+                          TOTAL ESTIMATE (INCL. 13% VAT):
                         </span>
                         <span className="text-xl font-bold font-serif text-foreground">
                           <AnimatedTotal value={liveEstimate.total} currency={settings.currency} />
                         </span>
                       </div>
                       <p className="text-[0.65rem] text-muted-foreground text-right">
-                        Calculated at {formatNPR(product.pricePerSqft, settings.currency)} / sq.ft.
+                        Calculated at {formatNPR(product.pricePerSqft, settings.currency)} / sq.ft. + 13% VAT
                       </p>
                     </div>
                   </div>
