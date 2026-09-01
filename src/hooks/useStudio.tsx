@@ -152,9 +152,7 @@ export function StudioProvider({ children }: { children: ReactNode }) {
     return saved === "staircase" ? "staircase" : "balcony";
   });
 
-  const [selectedId, setSelectedId] = useState<string | null>(() => {
-    return readJSON<string | null>(STORAGE_KEYS.selected, null);
-  });
+  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   const setRailingType = useCallback((type: RailingTypeSlug) => {
     setRailingTypeState(type);
@@ -176,9 +174,11 @@ export function StudioProvider({ children }: { children: ReactNode }) {
       setEnquiries(readJSON<Enquiry[]>(STORAGE_KEYS.enquiries, []));
       const savedType = readJSON<RailingTypeSlug>(STORAGE_KEYS.railingType, "balcony");
       setRailingTypeState(savedType === "staircase" ? "staircase" : "balcony");
-      const savedSelectedId = readJSON<string | null>(STORAGE_KEYS.selected, null);
-      if (savedSelectedId) {
-        setSelectedId(savedSelectedId);
+      // Clean up any stale localStorage selection so hard reloads start clean
+      try {
+        localStorage.removeItem(STORAGE_KEYS.selected);
+      } catch {
+        /* ignore */
       }
     }
     setReady(true);
@@ -257,7 +257,6 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const selectProduct = useCallback((id: string | null) => {
     setSelectedId(id);
-    writeJSON(STORAGE_KEYS.selected, id);
   }, []);
 
   const saveProduct = useCallback(
