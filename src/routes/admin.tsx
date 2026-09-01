@@ -67,27 +67,58 @@ function AdminPage() {
 
   const SESSION_DURATION_MS = 60 * 60 * 1000; // 1 hour
 
+  function checkTokenExpired(rawToken: string | null | undefined | false): boolean {
+    if (!rawToken || typeof rawToken !== "string") return true;
+    try {
+      const parts = rawToken.split(".");
+      if (parts.length === 3 && parts[1]) {
+        const payload = JSON.parse(atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")));
+        // Check standard JWT expiration timestamp
+        if (payload.exp && Date.now() >= payload.exp * 1000) {
+          return true;
+        }
+        // Check issued-at timestamp (must not exceed 1 hour)
+        if (payload.iat && Date.now() - payload.iat * 1000 >= SESSION_DURATION_MS) {
+          return true;
+        }
+      }
+    } catch {
+      return true;
+    }
+    return false;
+  }
+
   useEffect(() => {
-    const token =
-      (typeof sessionStorage !== "undefined" &&
-        sessionStorage.getItem("metalWorkNepal_adminToken")) ||
-      (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminToken"));
+    const token: string | null =
+      typeof window !== "undefined"
+        ? sessionStorage.getItem("metalWorkNepal_adminToken") ||
+          localStorage.getItem("metalWorkNepal_adminToken")
+        : null;
 
-    const loginTimeStr =
-      (typeof localStorage !== "undefined" && localStorage.getItem("metalWorkNepal_adminLoginTime")) ||
-      (typeof sessionStorage !== "undefined" && sessionStorage.getItem("metalWorkNepal_adminLoginTime"));
+    const loginTimeStr: string | null =
+      typeof window !== "undefined"
+        ? localStorage.getItem("metalWorkNepal_adminLoginTime") ||
+          sessionStorage.getItem("metalWorkNepal_adminLoginTime")
+        : null;
 
-    if (loginTimeStr) {
-      const loginTime = parseInt(loginTimeStr, 10);
-      if (Date.now() - loginTime > SESSION_DURATION_MS) {
-        // Session has expired (over 1 hour)
+    const isExpiredByTime = loginTimeStr
+      ? Date.now() - parseInt(loginTimeStr, 10) >= SESSION_DURATION_MS
+      : false;
+
+    const isExpiredByJwt = checkTokenExpired(token);
+
+    // If token is missing, expired by JWT, or expired by login timestamp, force logout
+    if (!token || isExpiredByTime || isExpiredByJwt || !loginTimeStr) {
+      try {
         localStorage.removeItem("metalWorkNepal_adminToken");
         sessionStorage.removeItem("metalWorkNepal_adminToken");
         localStorage.removeItem("metalWorkNepal_adminLoginTime");
         sessionStorage.removeItem("metalWorkNepal_adminLoginTime");
-        setUnlocked(false);
-        return;
+      } catch {
+        /* ignore */
       }
+      setUnlocked(false);
+      return;
     }
 
     if (token) {
@@ -97,14 +128,12 @@ function AdminPage() {
           if (res?.admin?.email) {
             setCurrentUserEmail(res.admin.email);
             setUnlocked(true);
+          } else {
+            handleLogout("Session invalid. Please sign in again.");
           }
         })
         .catch(() => {
-          sessionStorage.removeItem("metalWorkNepal_adminToken");
-          localStorage.removeItem("metalWorkNepal_adminToken");
-          localStorage.removeItem("metalWorkNepal_adminLoginTime");
-          sessionStorage.removeItem("metalWorkNepal_adminLoginTime");
-          setUnlocked(false);
+          handleLogout("Session expired. Please sign in again.");
         });
     }
   }, []);
