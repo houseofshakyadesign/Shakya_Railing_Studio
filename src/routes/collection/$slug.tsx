@@ -2,8 +2,9 @@ import { createFileRoute } from "@tanstack/react-router";
 import { CatalogueDetail } from "@/components/CatalogueDetail";
 
 export const Route = createFileRoute("/collection/$slug")({
-  head: ({ params }) => {
-    const slug = (params as { slug?: string }).slug || "Design";
+  head: (ctx) => {
+    const rawSlug = ctx?.params?.slug;
+    const slug = typeof rawSlug === "string" ? rawSlug : "Design";
     const formatted = slug
       .split("-")
       .map((w: string) => w.charAt(0).toUpperCase() + w.slice(1))

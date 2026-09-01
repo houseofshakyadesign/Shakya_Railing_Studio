@@ -23,6 +23,8 @@ import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
 import { isRailingProduct } from "@/components/ProductCard";
+import { STORAGE_KEYS } from "@/config/settings";
+import { readJSON, writeJSON } from "@/utils/localStorage";
 
 const title = "The Collection | Metal Work Nepal";
 const description =
@@ -131,8 +133,15 @@ function CollectionPage() {
     return selectedProduct;
   }, [selectedProduct]);
 
-  // Measurements
-  const [length, setLength] = useState<string>("20");
+  // Measurements with local storage persistence
+  const [length, setLengthState] = useState<string>(() => {
+    return readJSON<string>(STORAGE_KEYS.length, "20");
+  });
+
+  const setLength = useCallback((val: string) => {
+    setLengthState(val);
+    writeJSON(STORAGE_KEYS.length, val);
+  }, []);
 
   const [showFormula, setShowFormula] = useState(false);
 

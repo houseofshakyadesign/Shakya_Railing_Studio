@@ -11,7 +11,7 @@ import {
   Layers,
   CornerDownRight,
 } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AnimatedTotal } from "@/components/AnimatedTotal";
 import { errorInputClass, Field, inputClass } from "@/components/FormField";
@@ -20,6 +20,8 @@ import { useStudio, type Enquiry } from "@/hooks/useStudio";
 import { calculateRailingEstimate, formatArea, type RailingTypeSlug } from "@/utils/calculations";
 import { formatNPR } from "@/utils/currency";
 import { openWhatsApp } from "@/utils/whatsapp";
+import { STORAGE_KEYS } from "@/config/settings";
+import { readJSON, writeJSON } from "@/utils/localStorage";
 
 const title = "Price Calculator | Metal Work Nepal";
 const description =
@@ -97,8 +99,15 @@ function CalculatorPage() {
   const lengthInputRef = useRef<HTMLInputElement>(null);
   const enquirySectionRef = useRef<HTMLDivElement>(null);
 
-  // Length input initialized with default 20 ft
-  const [length, setLength] = useState<string>("20");
+  // Length input initialized with persistence
+  const [length, setLengthState] = useState<string>(() => {
+    return readJSON<string>(STORAGE_KEYS.length, "20");
+  });
+
+  const setLength = useCallback((val: string) => {
+    setLengthState(val);
+    writeJSON(STORAGE_KEYS.length, val);
+  }, []);
 
   const [showFormula, setShowFormula] = useState(false);
 

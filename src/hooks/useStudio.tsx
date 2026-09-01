@@ -463,7 +463,20 @@ export function StudioProvider({ children }: { children: ReactNode }) {
 
   const selectedProduct = useMemo(() => {
     if (!selectedId) return null;
-    return products.find((p) => p.id === selectedId) ?? null;
+    const normalized = selectedId.trim().toLowerCase();
+    return (
+      products.find(
+        (p) =>
+          p.id.toLowerCase() === normalized ||
+          (p.slug && p.slug.toLowerCase() === normalized),
+      ) ||
+      DEFAULT_PRODUCTS.find(
+        (p) =>
+          p.id.toLowerCase() === normalized ||
+          (p.slug && p.slug.toLowerCase() === normalized),
+      ) ||
+      null
+    );
   }, [products, selectedId]);
 
   const value: StudioValue = useMemo(

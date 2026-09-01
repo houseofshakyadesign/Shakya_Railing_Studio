@@ -18,7 +18,7 @@ import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 import { EASE } from "@/components/Reveal";
 import { isRailingProduct, isMetalStructureProduct, isFurnitureProduct } from "@/components/ProductCard";
-import type { Product } from "@/data/products";
+import { type Product, DEFAULT_PRODUCTS } from "@/data/products";
 import { useStudio } from "@/hooks/useStudio";
 import { formatNPR } from "@/utils/currency";
 import { calculateRailingEstimate, formatArea } from "@/utils/calculations";
@@ -32,12 +32,19 @@ export function CatalogueDetail({
   const { activeProducts, ready, settings, selectProduct, setRailingType } = useStudio();
   const navigate = useNavigate();
 
-  // Find product by slug or id (case-insensitive)
+  // Find product by slug or id (case-insensitive) with immediate static fallback
   const product = useMemo(() => {
     if (!productSlugOrId) return null;
     const normalized = productSlugOrId.trim().toLowerCase();
+    const fromActive = activeProducts.find(
+      (p) =>
+        (p.slug && p.slug.toLowerCase() === normalized) ||
+        p.id.toLowerCase() === normalized,
+    );
+    if (fromActive) return fromActive;
+
     return (
-      activeProducts.find(
+      DEFAULT_PRODUCTS.find(
         (p) =>
           (p.slug && p.slug.toLowerCase() === normalized) ||
           p.id.toLowerCase() === normalized,
@@ -114,7 +121,7 @@ export function CatalogueDetail({
   }, [lightboxOpen]);
 
   // Loading skeleton while studio context hydrates
-  if (!ready) {
+  if (!ready && !product) {
     return <DetailSkeleton />;
   }
 
