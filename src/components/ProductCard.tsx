@@ -107,39 +107,39 @@ export const ProductCard = memo(function ProductCard({
 
   return (
     <motion.article
-      initial={{ opacity: 0, y: 24 }}
+      initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: "-40px" }}
-      transition={{ duration: 0.5, delay: (index % 3) * 0.06, ease: EASE }}
-      whileHover={{ y: -5 }}
+      transition={{ duration: 0.45, delay: (index % 3) * 0.05, ease: EASE }}
+      whileHover={{ y: -4 }}
       onClick={() => onView(product)}
-      className={`group relative flex flex-col border bg-card transition-all duration-300 cursor-pointer ${
+      className={`group relative flex flex-col border bg-card transition-all duration-300 cursor-pointer overflow-hidden ${
         selected
           ? "border-bronze shadow-lift ring-1 ring-bronze"
-          : "border-hairline shadow-soft hover:border-foreground/30 hover:shadow-lift"
+          : "border-hairline shadow-soft hover:border-foreground/35 hover:shadow-lift"
       }`}
     >
-      {/* ── IMAGE WRAPPER ── */}
-      <div className="relative aspect-[4/5] overflow-hidden bg-sand">
+      {/* ── IMAGE WRAPPER (FIXED 4:3 ASPECT RATIO, OBJECT-CONTAIN, NEVER CROPPED) ── */}
+      <div className="relative aspect-[4/3] w-full overflow-hidden bg-sand/35 border-b border-hairline/60 flex items-center justify-center p-3 sm:p-4">
         <img
           src={product.image}
           alt={`${product.displayName || product.name} by Metal Work Nepal`}
           loading="lazy"
-          width={1024}
-          height={1280}
-          className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+          className="h-full w-full object-contain transition-transform duration-500 ease-out group-hover:scale-[1.03]"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-charcoal/45 via-transparent to-transparent opacity-60 transition-opacity duration-300 group-hover:opacity-80" />
+
+        {/* Subtle Bottom Ambient Gradient for Depth */}
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-charcoal/15 to-transparent pointer-events-none opacity-40 transition-opacity duration-300 group-hover:opacity-60" />
 
         {/* Top Badges */}
-        <div className="absolute top-3.5 inset-x-3.5 flex items-center justify-between pointer-events-none">
-          <span className="bg-background/90 backdrop-blur-md px-2.5 py-1 text-[0.62rem] font-bold tracking-[0.2em] uppercase text-foreground shadow-sm">
+        <div className="absolute top-2.5 inset-x-2.5 flex items-center justify-between pointer-events-none z-10">
+          <span className="bg-background/95 backdrop-blur-xs px-2 py-0.5 text-[0.58rem] font-bold tracking-[0.18em] uppercase text-foreground border border-hairline/60 shadow-xs">
             {isRailing ? applicationLabel : categoryLabel}
           </span>
 
           {isRailing && !selected ? (
-            <span className="inline-flex items-center gap-1 bg-sand/90 backdrop-blur-md px-2.5 py-1 text-[0.58rem] font-bold tracking-[0.16em] uppercase text-bronze border border-hairline/80 shadow-sm">
-              <Sparkles className="h-2.5 w-2.5" />
+            <span className="inline-flex items-center gap-1 bg-background/95 backdrop-blur-xs px-2 py-0.5 text-[0.56rem] font-bold tracking-[0.14em] uppercase text-bronze border border-hairline/60 shadow-xs">
+              <Sparkles className="h-2.5 w-2.5 text-bronze" />
               INSTANT ESTIMATE
             </span>
           ) : null}
@@ -153,7 +153,7 @@ export const ProductCard = memo(function ProductCard({
               e.stopPropagation();
               onDeselect(product);
             }}
-            className="absolute top-3.5 right-3.5 z-20 hidden group-hover:inline-flex items-center gap-1.5 bg-destructive px-2.5 py-1 text-[0.62rem] font-bold tracking-wider text-ivory shadow-lift transition-transform hover:scale-105"
+            className="absolute top-2.5 right-2.5 z-20 hidden group-hover:inline-flex items-center gap-1 bg-destructive px-2 py-0.5 text-[0.58rem] font-bold tracking-wider text-ivory shadow-lift transition-transform hover:scale-105"
             title="Click to deselect"
             aria-label="Deselect railing"
           >
@@ -171,57 +171,57 @@ export const ProductCard = memo(function ProductCard({
               if (onDeselect) onDeselect(product);
               else onSelect(product);
             }}
-            className="group/badge absolute bottom-3.5 right-3.5 z-10 flex items-center gap-1.5 rounded-full bg-bronze px-2.5 py-1 text-ivory shadow-md transition-all duration-300 hover:bg-destructive hover:scale-105"
+            className="group/badge absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1 rounded-full bg-bronze px-2 py-0.5 text-ivory shadow-xs transition-all duration-300 hover:bg-destructive hover:scale-105"
             title="Selected — Click to deselect"
             aria-label="Selected — Click to deselect"
           >
-            <Check className="h-3.5 w-3.5 stroke-[2.5] group-hover/badge:hidden" />
-            <X className="h-3.5 w-3.5 stroke-[2.5] hidden group-hover/badge:block" />
-            <span className="text-[0.6rem] font-bold uppercase tracking-wider hidden group-hover/badge:inline">
+            <Check className="h-3 w-3 stroke-[2.5] group-hover/badge:hidden" />
+            <X className="h-3 w-3 stroke-[2.5] hidden group-hover/badge:block" />
+            <span className="text-[0.56rem] font-bold uppercase tracking-wider hidden group-hover/badge:inline">
               DESELECT
             </span>
           </button>
         ) : null}
       </div>
 
-      {/* ── CARD CONTENT ── */}
-      <div className="flex flex-1 flex-col p-5 sm:p-6">
+      {/* ── CARD CONTENT (COMPACT ARCHITECTURAL HIERARCHY) ── */}
+      <div className="flex flex-1 flex-col p-4 sm:p-4.5">
         <div>
           {/* Dual naming: Nepali & English */}
           {product.nepaliName ? (
-            <p className="text-sm font-semibold tracking-wide text-bronze">
+            <p className="text-xs font-semibold tracking-wide text-bronze">
               {product.nepaliName}
               {product.englishName && product.englishName !== product.name ? (
-                <span className="ml-2 text-xs font-normal text-muted-foreground font-sans uppercase tracking-wider">
-                  {product.englishName}
+                <span className="ml-1.5 text-[0.68rem] font-normal text-muted-foreground font-sans uppercase tracking-wider">
+                  • {product.englishName}
                 </span>
               ) : null}
             </p>
           ) : null}
 
-          <h3 className="mt-1 text-lg font-bold leading-snug tracking-tight text-foreground group-hover:text-bronze transition-colors">
+          <h3 className="mt-0.5 text-base font-bold leading-snug tracking-tight text-foreground group-hover:text-bronze transition-colors line-clamp-1">
             {product.displayName || product.name}
           </h3>
 
-          {!isRailing ? (
-            <p className="mt-2 text-xs leading-relaxed text-muted-foreground line-clamp-2">
+          {!isRailing && product.description ? (
+            <p className="mt-1 text-xs leading-relaxed text-muted-foreground line-clamp-2">
               {product.description}
             </p>
           ) : null}
         </div>
 
         {/* Specification & Pricing Strip */}
-        <div className="mt-auto pt-5 mt-5 border-t border-hairline">
+        <div className="mt-auto pt-3 mt-3 border-t border-hairline">
           {isRailing ? (
             <div className="flex items-baseline justify-between gap-2">
-              <span className="text-[0.66rem] font-bold tracking-[0.18em] uppercase text-muted-foreground">
+              <span className="text-[0.62rem] font-bold tracking-[0.18em] uppercase text-muted-foreground">
                 RATE
               </span>
               <div className="text-right">
                 {product.pricePerSqft ? (
-                  <p className="text-base font-extrabold tracking-tight text-foreground">
+                  <p className="text-sm sm:text-base font-extrabold tracking-tight text-foreground">
                     {formatNPR(product.pricePerSqft, currency)}
-                    <span className="text-xs font-normal text-muted-foreground"> / SQ.FT</span>
+                    <span className="text-[0.65rem] font-normal text-muted-foreground"> / SQ.FT</span>
                   </p>
                 ) : (
                   <p className="text-xs font-bold text-muted-foreground uppercase">Price on Request</p>
@@ -230,8 +230,8 @@ export const ProductCard = memo(function ProductCard({
             </div>
           ) : (
             <div className="flex items-center justify-between text-xs text-muted-foreground">
-              <span className="text-[0.66rem] font-bold tracking-[0.18em] uppercase">MATERIAL</span>
-              <span className="text-[0.72rem] text-foreground font-medium truncate max-w-[170px]">
+              <span className="text-[0.62rem] font-bold tracking-[0.18em] uppercase">MATERIAL</span>
+              <span className="text-[0.7rem] text-foreground font-medium truncate max-w-[170px]">
                 {product.material.split(",")[0]}
               </span>
             </div>
@@ -239,7 +239,7 @@ export const ProductCard = memo(function ProductCard({
         </div>
 
         {/* Action Buttons */}
-        <div className="mt-5 pt-3 border-t border-hairline/60 flex items-center gap-2">
+        <div className="mt-3 pt-2.5 border-t border-hairline/60 flex items-center gap-2">
           {isRailing ? (
             selected ? (
               <>
@@ -249,7 +249,7 @@ export const ProductCard = memo(function ProductCard({
                     e.stopPropagation();
                     onSelect(product);
                   }}
-                  className="group/sel flex flex-1 items-center justify-center gap-1.5 bg-bronze py-3 px-3 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-charcoal"
+                  className="group/sel flex flex-1 items-center justify-center gap-1.5 bg-bronze py-2.5 px-3 text-[0.66rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-charcoal"
                 >
                   <Check className="h-3.5 w-3.5" />
                   <span>CALCULATE</span>
@@ -260,11 +260,11 @@ export const ProductCard = memo(function ProductCard({
                     e.stopPropagation();
                     onDeselect?.(product);
                   }}
-                  className="group/desel flex items-center justify-center gap-1 border border-destructive/40 bg-destructive/10 px-3 py-3 text-[0.68rem] font-bold tracking-[0.14em] uppercase text-destructive transition-all duration-300 hover:bg-destructive hover:text-ivory"
+                  className="group/desel flex items-center justify-center gap-1 border border-destructive/40 bg-destructive/10 px-2.5 py-2.5 text-[0.64rem] font-bold tracking-[0.14em] uppercase text-destructive transition-all duration-300 hover:bg-destructive hover:text-ivory"
                   title="Deselect this railing"
                   aria-label="Deselect railing"
                 >
-                  <X className="h-3.5 w-3.5 stroke-[2.5]" />
+                  <X className="h-3 w-3 stroke-[2.5]" />
                   <span>DESELECT</span>
                 </button>
               </>
@@ -276,10 +276,10 @@ export const ProductCard = memo(function ProductCard({
                     e.stopPropagation();
                     onView(product);
                   }}
-                  className="group/btn flex flex-1 items-center justify-between border border-hairline bg-sand/40 px-3.5 py-3 text-[0.68rem] font-bold tracking-[0.18em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
+                  className="group/btn flex flex-1 items-center justify-between border border-hairline bg-sand/40 px-3 py-2.5 text-[0.66rem] font-bold tracking-[0.16em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
                 >
                   <span>VIEW DESIGN</span>
-                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                  <ArrowRight className="h-3 w-3 transition-transform duration-300 group-hover/btn:translate-x-1" />
                 </button>
                 <button
                   type="button"
@@ -289,7 +289,7 @@ export const ProductCard = memo(function ProductCard({
                   }}
                   title="Select and Calculate"
                   aria-label="Calculate this railing"
-                  className="group/sel flex items-center justify-center gap-1 bg-charcoal px-3.5 py-3 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-bronze shrink-0"
+                  className="group/sel flex items-center justify-center gap-1 bg-charcoal px-3 py-2.5 text-[0.66rem] font-bold tracking-[0.16em] uppercase text-ivory transition-all duration-300 hover:bg-bronze shrink-0"
                 >
                   <span>CALCULATE</span>
                 </button>
@@ -302,7 +302,7 @@ export const ProductCard = memo(function ProductCard({
                 e.stopPropagation();
                 onView(product);
               }}
-              className="group/btn flex w-full items-center justify-between border border-hairline bg-sand/40 px-4 py-3 text-[0.68rem] font-bold tracking-[0.18em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
+              className="group/btn flex w-full items-center justify-between border border-hairline bg-sand/40 px-3.5 py-2.5 text-[0.66rem] font-bold tracking-[0.16em] uppercase transition-all duration-300 hover:border-bronze hover:bg-sand hover:text-bronze"
             >
               <span>EXPLORE DESIGN</span>
               <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
