@@ -1,7 +1,9 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
   Download,
+  Globe,
   Image as ImageIcon,
   Lock,
   LogOut,
@@ -140,10 +142,16 @@ function AdminPage() {
 
   if (!unlocked) {
     return (
-      <section className="mx-auto flex max-w-md flex-col px-5 pt-40 pb-32">
-        <div className="border border-hairline bg-card p-8 shadow-sm">
-          <div className="flex items-center justify-between">
-            <Lock className="h-5 w-5 text-bronze" />
+      <div className="min-h-screen bg-background flex flex-col justify-center items-center px-5 py-12">
+        <div className="w-full max-w-md border border-hairline bg-card p-8 shadow-sm">
+          <div className="mb-6 flex items-center justify-between">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-medium"
+            >
+              <ArrowLeft className="h-3.5 w-3.5" />
+              <span>Back to Website</span>
+            </Link>
             <span
               className={`inline-flex items-center gap-1.5 border px-2.5 py-1 text-[0.62rem] font-medium tracking-[0.14em] uppercase ${
                 studio.isCloudConnected
@@ -160,8 +168,18 @@ function AdminPage() {
             </span>
           </div>
 
-          <h1 className="mt-5 text-xl font-bold tracking-tight">Studio Admin Sign In</h1>
-          <p className="mt-2 text-xs text-muted-foreground">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="Metal Work Nepal"
+              className="h-10 w-10 rounded-sm object-contain"
+            />
+            <div>
+              <p className="label-xs text-bronze uppercase tracking-widest font-semibold">Metal Work Nepal</p>
+              <h1 className="text-xl font-bold tracking-tight">Studio Admin Sign In</h1>
+            </div>
+          </div>
+          <p className="mt-3 text-xs text-muted-foreground">
             Enter administrative credentials to manage catalogue items, review enquiries, and update cloud settings.
           </p>
 
@@ -199,7 +217,7 @@ function AdminPage() {
             </button>
           </form>
         </div>
-      </section>
+      </div>
     );
   }
 
@@ -212,101 +230,135 @@ function AdminPage() {
   ];
 
   return (
-    <section className="mx-auto max-w-[1440px] px-5 pt-32 pb-28 md:px-10 md:pt-40">
-      <div className="flex flex-wrap items-end justify-between gap-6">
-        <div className="flex items-center gap-4">
-          <img
-            src="/logo/house-of-shakya-logo-dark.png"
-            alt="Metal Work Nepal"
-            className="h-12 w-12 shrink-0 rounded-sm object-contain"
-          />
-          <div>
+    <div className="min-h-screen bg-background">
+      {/* ── ADMIN TOP BAR ── */}
+      <header className="sticky top-0 z-40 border-b border-hairline bg-background/95 backdrop-blur-md">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between px-5 py-3.5 md:px-10">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="Metal Work Nepal"
+              className="h-8 w-8 rounded-sm object-contain"
+            />
             <div className="flex items-center gap-2">
-              <p className="label-xs text-bronze">Studio admin</p>
-              {currentUserEmail ? (
-                <span className="flex items-center gap-1 text-[0.68rem] text-muted-foreground">
-                  • <ShieldCheck className="h-3 w-3 text-bronze" /> {currentUserEmail}
-                </span>
-              ) : null}
+              <span className="text-[0.82rem] font-extrabold tracking-[0.2em] uppercase text-foreground">
+                Metal Work Nepal
+              </span>
+              <span className="rounded bg-bronze/10 px-2 py-0.5 text-[0.62rem] font-bold text-bronze uppercase tracking-wider">
+                Admin Panel
+              </span>
             </div>
-            <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
-              Metal Work Nepal Dashboard
-            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              to="/"
+              className="inline-flex items-center gap-1.5 border border-hairline bg-card px-3.5 py-1.5 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-foreground transition-colors hover:border-bronze hover:text-bronze"
+            >
+              <Globe className="h-3.5 w-3.5 text-bronze" />
+              <span>View Live Website</span>
+            </Link>
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="inline-flex items-center gap-1.5 border border-hairline bg-card px-3.5 py-1.5 text-[0.68rem] font-bold tracking-[0.16em] uppercase text-destructive transition-colors hover:border-destructive hover:bg-destructive/10"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Sign Out</span>
+            </button>
           </div>
         </div>
-        <div className="flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={handleSync}
-            disabled={syncing}
-            className="flex items-center gap-2 border border-hairline bg-card px-3.5 py-2 text-[0.68rem] tracking-[0.16em] uppercase transition-colors hover:border-bronze hover:text-bronze disabled:opacity-50"
-            title="Sync with database"
-          >
-            <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin text-bronze" : ""}`} />
-            {syncing ? "Syncing..." : "Sync Database"}
-          </button>
-          <span
-            className={`inline-flex items-center gap-1.5 border px-3 py-2 text-[0.62rem] font-medium tracking-[0.16em] uppercase ${
-              studio.isCloudConnected
-                ? "border-success/40 bg-success/10 text-success"
-                : "border-hairline bg-sand/60 text-muted-foreground"
-            }`}
-          >
-            <span
-              className={`h-1.5 w-1.5 rounded-full ${
-                studio.isCloudConnected ? "bg-success animate-pulse" : "bg-muted-foreground"
-              }`}
+      </header>
+
+      {/* ── DASHBOARD MAIN SECTION ── */}
+      <section className="mx-auto max-w-[1440px] px-5 py-8 md:px-10 md:py-10">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <img
+              src="/logo/house-of-shakya-logo-dark.png"
+              alt="Metal Work Nepal"
+              className="h-12 w-12 shrink-0 rounded-sm object-contain"
             />
-            {studio.isCloudConnected ? "Database Connected" : "Local Mode"}
-          </span>
-          <button
-            type="button"
-            onClick={handleLogout}
-            className="flex items-center gap-2 border border-hairline bg-card px-4 py-2 text-[0.68rem] tracking-[0.18em] uppercase transition-colors hover:border-destructive/60 hover:text-destructive"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            Lock & Log Out
-          </button>
-        </div>
-      </div>
-
-      <nav
-        role="tablist"
-        aria-label="Admin sections"
-        className="mt-10 flex flex-wrap gap-px border-b border-hairline"
-      >
-        {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            role="tab"
-            aria-selected={tab === t.id}
-            aria-controls={`panel-${t.id}`}
-            id={`tab-${t.id}`}
-            onClick={() => setTab(t.id)}
-            className={`relative px-5 py-3 text-[0.7rem] tracking-[0.18em] uppercase transition-colors ${
-              tab === t.id ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            {t.label}
-            {tab === t.id ? (
-              <motion.span
-                layoutId="admin-tab"
-                className="absolute inset-x-0 -bottom-px h-px bg-bronze"
+            <div>
+              <div className="flex items-center gap-2">
+                <p className="label-xs text-bronze">Studio admin</p>
+                {currentUserEmail ? (
+                  <span className="flex items-center gap-1 text-[0.68rem] text-muted-foreground">
+                    • <ShieldCheck className="h-3 w-3 text-bronze" /> {currentUserEmail}
+                  </span>
+                ) : null}
+              </div>
+              <h1 className="mt-1 text-2xl font-bold tracking-tight md:text-3xl">
+                Metal Work Nepal Dashboard
+              </h1>
+            </div>
+          </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={handleSync}
+              disabled={syncing}
+              className="flex items-center gap-2 border border-hairline bg-card px-3.5 py-2 text-[0.68rem] tracking-[0.16em] uppercase transition-colors hover:border-bronze hover:text-bronze disabled:opacity-50"
+              title="Sync with database"
+            >
+              <RefreshCw className={`h-3 w-3 ${syncing ? "animate-spin text-bronze" : ""}`} />
+              {syncing ? "Syncing..." : "Sync Database"}
+            </button>
+            <span
+              className={`inline-flex items-center gap-1.5 border px-3 py-2 text-[0.62rem] font-medium tracking-[0.16em] uppercase ${
+                studio.isCloudConnected
+                  ? "border-success/40 bg-success/10 text-success"
+                  : "border-hairline bg-sand/60 text-muted-foreground"
+              }`}
+            >
+              <span
+                className={`h-1.5 w-1.5 rounded-full ${
+                  studio.isCloudConnected ? "bg-success animate-pulse" : "bg-muted-foreground"
+                }`}
               />
-            ) : null}
-          </button>
-        ))}
-      </nav>
+              {studio.isCloudConnected ? "Database Connected" : "Local Mode"}
+            </span>
+          </div>
+        </div>
 
-      <div className="mt-10" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
-        {tab === "overview" ? <Overview /> : null}
-        {tab === "catalogue" ? <CatalogueManager /> : null}
-        {tab === "projects" ? <ProjectsManager /> : null}
-        {tab === "enquiries" ? <Enquiries /> : null}
-        {tab === "settings" ? <SettingsPanel /> : null}
-      </div>
-    </section>
+        <nav
+          role="tablist"
+          aria-label="Admin sections"
+          className="mt-10 flex flex-wrap gap-px border-b border-hairline"
+        >
+          {tabs.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={tab === t.id}
+              aria-controls={`panel-${t.id}`}
+              id={`tab-${t.id}`}
+              onClick={() => setTab(t.id)}
+              className={`relative px-5 py-3 text-[0.7rem] tracking-[0.18em] uppercase transition-colors ${
+                tab === t.id ? "text-foreground font-bold" : "text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {t.label}
+              {tab === t.id ? (
+                <motion.span
+                  layoutId="admin-tab"
+                  className="absolute inset-x-0 -bottom-px h-px bg-bronze"
+                />
+              ) : null}
+            </button>
+          ))}
+        </nav>
+
+        <div className="mt-10" role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+          {tab === "overview" ? <Overview /> : null}
+          {tab === "catalogue" ? <CatalogueManager /> : null}
+          {tab === "projects" ? <ProjectsManager /> : null}
+          {tab === "enquiries" ? <Enquiries /> : null}
+          {tab === "settings" ? <SettingsPanel /> : null}
+        </div>
+      </section>
+    </div>
   );
 }
 

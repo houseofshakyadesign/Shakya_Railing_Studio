@@ -4,6 +4,7 @@ import {
   Link,
   createRootRouteWithContext,
   useRouter,
+  useRouterState,
   HeadContent,
   Scripts,
 } from "@tanstack/react-router";
@@ -143,6 +144,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isAdmin = pathname.startsWith("/admin");
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -184,12 +187,12 @@ function RootComponent() {
             }),
           }}
         />
-        <Navbar />
-        <main id="main-content" className="min-h-screen pb-20 lg:pb-0">
+        {!isAdmin && <Navbar />}
+        <main id="main-content" className={isAdmin ? "min-h-screen bg-background" : "min-h-screen pb-20 lg:pb-0"}>
           <Outlet />
         </main>
-        <Footer />
-        <MobileSelectionBar />
+        {!isAdmin && <Footer />}
+        {!isAdmin && <MobileSelectionBar />}
         <Toaster position="top-center" />
       </StudioProvider>
     </QueryClientProvider>
