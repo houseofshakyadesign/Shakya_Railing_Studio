@@ -102,15 +102,17 @@ function mergeWithDefaults(current: Product[]): Product[] {
   const merged: Product[] = current.map((p) => {
     const def = defaultMap.get((p.id || "").toLowerCase());
     if (def) {
-      const isCalculable = def.isCalculable ?? p.isCalculable ?? (def.contentType === "PRODUCT" || (def.pricePerSqft !== null && def.pricePerSqft > 0));
+      const isCalculable =
+        p.isCalculable ?? def.isCalculable ?? (def.contentType === "PRODUCT" || (def.pricePerSqft !== null && def.pricePerSqft > 0));
+
       const item: Product = {
-        ...p,
-        ...def, // Authoritative code defaults (like application type, slug, images, category) take priority on refresh
-        pricePerSqft:
-          p.pricePerSqft !== undefined && p.pricePerSqft !== null ? p.pricePerSqft : def.pricePerSqft,
-        category: def.category || p.category || "Railings",
+        ...def,
+        ...p, // Database/localStorage values (including uploaded images, gallery, custom pricing) take full precedence!
+        image: p.image || def.image,
+        gallery: Array.isArray(p.gallery) && p.gallery.length > 0 ? p.gallery : (def.gallery || []),
+        category: p.category || def.category || "Railings",
         isCalculable,
-        contentType: def.contentType || (def.pricePerSqft ? "PRODUCT" : p.contentType || "PRODUCT"),
+        contentType: p.contentType || def.contentType || "PRODUCT",
       };
       return item;
     }
