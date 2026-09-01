@@ -208,7 +208,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
   },
   {
     id: "r06",
-    application: "balcony_loft",
+    application: "staircase",
     code: "R-06",
     slug: "newa-baranda",
     name: "The Newa Railing",
@@ -235,7 +235,7 @@ export const DEFAULT_PRODUCTS: Product[] = [
       '1" MS flat bar (patti)',
       "Red oxide primer & Black matt deco paint finish",
     ],
-    applications: ["Balcony / Loft Railing"],
+    applications: ["Staircase Railing"],
     isCustom: false,
     isActive: true,
     displayOrder: 6,

@@ -213,7 +213,7 @@
       "Red oxide primer & Black matt deco paint finish"
     ],
     "applications": [
-      "Balcony / Loft Railing"
+      "Staircase Railing"
     ],
     "is_active": true,
     "display_order": 6,
@@ -221,7 +221,7 @@
     "updated_at": "2026-08-27T15:53:39.000+00:00",
     "standard_module_width": 4,
     "standard_height": 3.5,
-    "application": "balcony_loft"
+    "application": "staircase"
   },
   {
     "id": "r07",
