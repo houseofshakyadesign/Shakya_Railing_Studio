@@ -57,6 +57,18 @@ export function CatalogueDetail({
   useEffect(() => {
     if (product) {
       if (
+        product.application === "balcony" ||
+        product.application === "balcony_loft" ||
+        product.applications?.some(
+          (a) =>
+            a.toLowerCase().includes("balcony") ||
+            a.toLowerCase().includes("loft") ||
+            a.toLowerCase().includes("grille") ||
+            a.toLowerCase().includes("window"),
+        )
+      ) {
+        setCalcType("balcony");
+      } else if (
         product.application === "staircase" ||
         product.applications?.some((a) => a.toLowerCase().includes("staircase"))
       ) {

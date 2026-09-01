@@ -111,18 +111,22 @@ function CalculatorPage() {
   useEffect(() => {
     if (selectedProduct) {
       if (
+        selectedProduct.application === "balcony" ||
+        selectedProduct.application === "balcony_loft" ||
+        selectedProduct.applications?.some(
+          (a) =>
+            a.toLowerCase().includes("balcony") ||
+            a.toLowerCase().includes("loft") ||
+            a.toLowerCase().includes("grille") ||
+            a.toLowerCase().includes("window"),
+        )
+      ) {
+        setRailingType("balcony");
+      } else if (
         selectedProduct.application === "staircase" ||
         selectedProduct.applications?.some((a) => a.toLowerCase().includes("staircase"))
       ) {
         setRailingType("staircase");
-      } else if (
-        selectedProduct.application === "balcony" ||
-        selectedProduct.application === "balcony_loft" ||
-        selectedProduct.applications?.some(
-          (a) => a.toLowerCase().includes("balcony") || a.toLowerCase().includes("loft"),
-        )
-      ) {
-        setRailingType("balcony");
       }
 
       setTimeout(() => {

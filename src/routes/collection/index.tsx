@@ -152,6 +152,30 @@ function CollectionPage() {
     return calculateRailingEstimate(validLength, currentStandardHeight, rate, isCustom, typeLabel);
   }, [numLength, currentStandardHeight, productToUse, isCustom, railingType]);
 
+  // Auto-sync railing application type when selected railing changes
+  useEffect(() => {
+    if (productToUse) {
+      if (
+        productToUse.application === "balcony" ||
+        productToUse.application === "balcony_loft" ||
+        productToUse.applications?.some(
+          (a) =>
+            a.toLowerCase().includes("balcony") ||
+            a.toLowerCase().includes("loft") ||
+            a.toLowerCase().includes("grille") ||
+            a.toLowerCase().includes("window"),
+        )
+      ) {
+        setRailingType("balcony");
+      } else if (
+        productToUse.application === "staircase" ||
+        productToUse.applications?.some((a) => a.toLowerCase().includes("staircase"))
+      ) {
+        setRailingType("staircase");
+      }
+    }
+  }, [productToUse, setRailingType]);
+
   // Handle #calculator hash navigation on mount or URL change
   useEffect(() => {
     if (typeof window !== "undefined" && window.location.hash === "#calculator") {
