@@ -1,13 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { AnimatePresence, motion } from "framer-motion";
 import {
+  ArrowLeft,
+  ArrowRight,
   Check,
   ChevronDown,
   ChevronUp,
   HelpCircle,
   MessageCircle,
   Send,
-  ArrowRight,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -273,7 +274,7 @@ function CollectionPage() {
   return (
     <>
       {/* ── 01 HERO / INTRODUCTION ── */}
-      <section className="mx-auto max-w-[1440px] px-5 pt-36 pb-12 md:px-10 md:pt-48 md:pb-16">
+      <section id="collection-catalogue" className="mx-auto max-w-[1440px] px-5 pt-36 pb-12 md:px-10 md:pt-48 md:pb-16 scroll-mt-24">
         <div className="max-w-3xl">
           <p className="label-xs text-bronze font-semibold uppercase tracking-[0.24em]">
             THE COLLECTION
@@ -314,11 +315,18 @@ function CollectionPage() {
               </p>
               <button
                 type="button"
-                onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+                onClick={() => {
+                  const el = document.getElementById("collection-catalogue");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth", block: "start" });
+                  } else {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  }
+                }}
                 className="mt-9 inline-flex items-center gap-2 bg-charcoal px-9 py-4 text-[0.72rem] tracking-[0.22em] text-ivory uppercase transition-colors hover:bg-bronze"
               >
-                Browse Collection
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowLeft className="h-3.5 w-3.5" />
+                <span>Browse Collection</span>
               </button>
             </div>
           ) : (
@@ -353,15 +361,32 @@ function CollectionPage() {
                 ) : null}
               </AnimatePresence>
 
-              <div className="max-w-3xl">
-                <p className="label-xs text-bronze">02 MEASURE & ESTIMATE</p>
-                <h2 className="mt-3 text-3xl leading-[1.1] tracking-tight md:text-5xl">
-                  TELL US YOUR RAILING DIMENSIONS
-                </h2>
-                <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-                  Choose your application type and enter the approximate length. We automatically
-                  determine standard heights and calculate your estimate.
-                </p>
+              <div className="flex flex-wrap items-start justify-between gap-4">
+                <div className="max-w-3xl">
+                  <p className="label-xs text-bronze">02 MEASURE & ESTIMATE</p>
+                  <h2 className="mt-3 text-3xl leading-[1.1] tracking-tight md:text-5xl">
+                    TELL US YOUR RAILING DIMENSIONS
+                  </h2>
+                  <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+                    Choose your application type and enter the approximate length. We automatically
+                    determine standard heights and calculate your estimate.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const el = document.getElementById("collection-catalogue");
+                    if (el) {
+                      el.scrollIntoView({ behavior: "smooth", block: "start" });
+                    } else {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
+                  className="inline-flex items-center gap-2 border border-hairline bg-background px-4 py-2.5 text-[0.7rem] font-bold tracking-[0.16em] text-foreground uppercase shadow-soft transition-all hover:border-bronze hover:text-bronze"
+                >
+                  <ArrowLeft className="h-3.5 w-3.5" />
+                  <span>BROWSE ALL DESIGNS</span>
+                </button>
               </div>
 
               {/* Application Type Selector */}

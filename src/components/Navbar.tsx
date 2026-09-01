@@ -49,6 +49,11 @@ export function Navbar() {
       >
         <Link
           to="/"
+          onClick={() => {
+            if (pathname === "/") {
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }
+          }}
           className="group flex items-center gap-3.5 sm:gap-4 leading-none"
           aria-label="Metal Work Nepal"
         >
@@ -90,6 +95,11 @@ export function Navbar() {
             <Link
               key={item.to}
               to={item.to}
+              onClick={() => {
+                if (pathname === item.to || (item.to === "/collection" && pathname.startsWith("/collection"))) {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                }
+              }}
               className={`group relative py-1 text-[0.8rem] font-bold tracking-[0.16em] uppercase transition-colors duration-300 ${
                 isDarkHero
                   ? "text-ivory/90 hover:text-ivory"
@@ -151,6 +161,12 @@ export function Navbar() {
                 <Link
                   key={item.to}
                   to={item.to}
+                  onClick={() => {
+                    setOpen(false);
+                    if (pathname === item.to || (item.to === "/collection" && pathname.startsWith("/collection"))) {
+                      window.scrollTo({ top: 0, behavior: "smooth" });
+                    }
+                  }}
                   className="border-b border-hairline py-4 text-sm font-bold tracking-[0.16em] text-foreground uppercase last:border-0 hover:text-bronze"
                 >
                   {item.label}
