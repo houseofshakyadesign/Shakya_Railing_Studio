@@ -97,19 +97,19 @@ const StudioContext = createContext<StudioValue | null>(null);
 
 function mergeWithDefaults(current: Product[]): Product[] {
   if (!Array.isArray(current) || current.length === 0) return DEFAULT_PRODUCTS;
-  const defaultMap = new Map<string, Product>(DEFAULT_PRODUCTS.map((p) => [p.id, p]));
+  const defaultMap = new Map<string, Product>(DEFAULT_PRODUCTS.map((p) => [p.id.toLowerCase(), p]));
 
   const merged: Product[] = current.map((p) => {
-    const def = defaultMap.get(p.id);
+    const def = defaultMap.get((p.id || "").toLowerCase());
     if (def) {
       const isCalculable = def.isCalculable ?? p.isCalculable ?? (def.contentType === "PRODUCT" || (def.pricePerSqft !== null && def.pricePerSqft > 0));
       const item: Product = {
-        ...def,
         ...p,
-        category: def.category || p.category || "Railings",
-        isCalculable,
+        ...def, // Authoritative code defaults (like application type, slug, images, category) take priority on refresh
         pricePerSqft:
           p.pricePerSqft !== undefined && p.pricePerSqft !== null ? p.pricePerSqft : def.pricePerSqft,
+        category: def.category || p.category || "Railings",
+        isCalculable,
         contentType: def.contentType || (def.pricePerSqft ? "PRODUCT" : p.contentType || "PRODUCT"),
       };
       return item;
@@ -117,8 +117,8 @@ function mergeWithDefaults(current: Product[]): Product[] {
     return p;
   });
 
-  const currentIds = new Set(merged.map((p) => p.id));
-  const missing = DEFAULT_PRODUCTS.filter((p) => !currentIds.has(p.id));
+  const currentIds = new Set(merged.map((p) => (p.id || "").toLowerCase()));
+  const missing = DEFAULT_PRODUCTS.filter((p) => !currentIds.has((p.id || "").toLowerCase()));
   return missing.length > 0 ? [...merged, ...missing] : merged;
 }
 
