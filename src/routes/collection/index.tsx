@@ -586,24 +586,11 @@ function CollectionPage() {
                             <strong>{formatArea(estimate.area)}</strong>
                           </p>
                           {!isCustom && (
-                            <>
-                              <p>
-                                <strong>Subtotal:</strong> {formatArea(estimate.area)} ×{" "}
-                                {formatNPR(productToUse.pricePerSqft, settings.currency)} ={" "}
-                                <strong>{formatNPR(estimate.subtotal, settings.currency)}</strong>
-                              </p>
-                              <p>
-                                <strong>13% VAT:</strong>{" "}
-                                {formatNPR(estimate.subtotal, settings.currency)} × 13% ={" "}
-                                <strong>{formatNPR(estimate.vatAmount, settings.currency)}</strong>
-                              </p>
-                              <p className="font-semibold text-foreground">
-                                <strong>Total (Incl. 13% VAT):</strong>{" "}
-                                {formatNPR(estimate.subtotal, settings.currency)} +{" "}
-                                {formatNPR(estimate.vatAmount, settings.currency)} ={" "}
-                                <strong>{formatNPR(estimate.total, settings.currency)}</strong>
-                              </p>
-                            </>
+                            <p>
+                              <strong>Price:</strong> {formatArea(estimate.area)} ×{" "}
+                              {formatNPR(productToUse.pricePerSqft, settings.currency)} ={" "}
+                              <strong>{formatNPR(estimate.total, settings.currency)}</strong>
+                            </p>
                           )}
                           <p className="text-[0.68rem] text-muted-foreground/80 italic">
                             * Final exact measurements and site conditions will be reviewed during
@@ -627,17 +614,18 @@ function CollectionPage() {
                       <Field id="col-name" label="Full name" required error={errors.customerName}>
                         <input
                           id="col-name"
+                          type="text"
                           value={form.customerName}
                           onChange={(e) => setField("customerName", e.target.value)}
-                          maxLength={100}
+                          maxLength={80}
                           className={errors.customerName ? errorInputClass : inputClass}
-                          placeholder="Your name"
+                          placeholder="Your full name"
                         />
                       </Field>
-                      <Field id="col-phone" label="Phone number" required error={errors.phone}>
+                      <Field id="col-phone" label="Phone" required error={errors.phone}>
                         <input
                           id="col-phone"
-                          inputMode="tel"
+                          type="tel"
                           value={form.phone}
                           onChange={(e) => setField("phone", e.target.value)}
                           maxLength={20}
@@ -656,9 +644,10 @@ function CollectionPage() {
                           placeholder="you@example.com"
                         />
                       </Field>
-                      <Field id="col-loc" label="Project location" required error={errors.location}>
+                      <Field id="col-location" label="Project location" required error={errors.location}>
                         <input
-                          id="col-loc"
+                          id="col-location"
+                          type="text"
                           value={form.location}
                           onChange={(e) => setField("location", e.target.value)}
                           maxLength={120}
@@ -738,8 +727,7 @@ function CollectionPage() {
                               <AnimatedTotal value={estimate.total} currency={settings.currency} />
                             </div>
                             <p className="mt-1 text-xs text-muted-foreground">
-                              Base: {formatNPR(estimate.subtotal, settings.currency)} + 13% VAT (
-                              {formatNPR(estimate.vatAmount, settings.currency)})
+                              Calculated at {formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.
                             </p>
                           </div>
                         )}
@@ -768,15 +756,7 @@ function CollectionPage() {
                             value={`${formatNPR(productToUse.pricePerSqft, settings.currency)} / sq.ft.`}
                           />
                           <Row
-                            label="Subtotal"
-                            value={formatNPR(estimate.subtotal, settings.currency)}
-                          />
-                          <Row
-                            label="Govt. VAT (13%)"
-                            value={formatNPR(estimate.vatAmount, settings.currency)}
-                          />
-                          <Row
-                            label="Total (Incl. VAT)"
+                            label="Estimated Total"
                             value={formatNPR(estimate.total, settings.currency)}
                           />
                         </>
