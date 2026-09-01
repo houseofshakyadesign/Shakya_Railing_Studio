@@ -465,9 +465,9 @@ function CollectionPage() {
                             }}
                             className="w-full appearance-none border border-hairline bg-sand/30 px-3 py-2.5 pr-8 text-xs font-medium text-foreground focus:border-bronze focus:outline-none"
                           >
-                            {activeProducts.map((p) => (
+                            {activeProducts.filter(isRailingProduct).map((p) => (
                               <option key={p.id} value={p.id}>
-                                {p.code} — {p.displayName || p.name} (
+                                {p.code} — {p.nepaliName ? `${p.nepaliName} / ` : ""}{p.displayName || p.name} (
                                 {p.isCustom
                                   ? "Custom Quote"
                                   : `${formatNPR(p.pricePerSqft, settings.currency)} / sq.ft.`}
