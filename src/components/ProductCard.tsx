@@ -189,7 +189,7 @@ export const ProductCard = memo(function ProductCard({
         <div>
           {/* Dual naming: Nepali & English */}
           {product.nepaliName ? (
-            <p className="text-sm font-semibold tracking-wide text-bronze font-serif">
+            <p className="text-sm font-semibold tracking-wide text-bronze">
               {product.nepaliName}
               {product.englishName && product.englishName !== product.name ? (
                 <span className="ml-2 text-xs font-normal text-muted-foreground font-sans uppercase tracking-wider">

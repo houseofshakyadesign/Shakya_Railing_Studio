@@ -267,7 +267,7 @@ function ContactPage() {
             <h1 className="mt-4 text-4xl font-extrabold tracking-tight leading-[1.08] sm:text-5xl md:text-6xl uppercase">
               LET'S TALK ABOUT
               <br />
-              <span className="font-serif italic font-normal text-bronze lowercase">your</span> NEXT
+              <span className="text-bronze font-bold">your</span> NEXT
               RAILING.
             </h1>
             <p className="mt-6 max-w-2xl text-sm leading-relaxed text-muted-foreground sm:text-base md:text-lg">

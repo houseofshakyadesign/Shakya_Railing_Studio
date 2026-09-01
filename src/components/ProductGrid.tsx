@@ -270,7 +270,7 @@ export function ProductGrid({
                 <h3 className="mt-4 text-3xl font-extrabold tracking-tight sm:text-4xl text-foreground uppercase leading-tight">
                   Have something different in mind?
                 </h3>
-                <p className="mt-2 font-serif italic text-lg sm:text-xl text-bronze font-normal">
+                <p className="mt-2 text-lg sm:text-xl text-bronze font-semibold">
                   Your idea doesn't have to fit a catalogue.
                 </p>
                 <p className="mt-5 text-sm sm:text-base leading-relaxed text-muted-foreground">

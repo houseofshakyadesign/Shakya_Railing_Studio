@@ -445,7 +445,7 @@ function CalculatorPage() {
                     {selectedProduct.nepaliName}
                   </p>
                 ) : null}
-                <h2 className="mt-0.5 font-serif text-lg tracking-tight truncate">
+                <h2 className="mt-0.5 font-bold text-lg tracking-tight truncate">
                   {selectedProduct.displayName || selectedProduct.name}
                 </h2>
                 <p className="mt-1 text-xs text-muted-foreground truncate">
@@ -691,7 +691,7 @@ function CalculatorPage() {
                   </div>
                 ) : (
                   <div>
-                    <div className="text-3xl font-serif tracking-tight text-foreground md:text-4xl">
+                    <div className="text-3xl font-bold tracking-tight text-foreground md:text-4xl">
                       <AnimatedTotal value={estimate.total} currency={settings.currency} />
                     </div>
                     <p className="mt-1.5 text-xs text-muted-foreground">

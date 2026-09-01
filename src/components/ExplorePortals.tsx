@@ -62,9 +62,9 @@ export function ExplorePortals() {
           <h2 className="mt-3 text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight uppercase leading-[1.12] text-foreground">
             Explore our work,
             <br />
-            <span className="font-serif italic font-normal text-bronze lowercase">from</span>{" "}
+            <span className="text-bronze font-bold">from</span>{" "}
             crafted products{" "}
-            <span className="font-serif italic font-normal text-bronze lowercase">to</span>{" "}
+            <span className="text-bronze font-bold">to</span>{" "}
             completed spaces.
           </h2>
         </Reveal>

@@ -157,8 +157,8 @@ export function Hero() {
             >
               ARCHITECTURAL
               <br />
-              <span className="font-serif italic font-normal text-bronze-soft lowercase">
-                metalwork
+              <span className="text-bronze-soft font-extrabold">
+                METALWORK
               </span>
             </motion.h1>
 

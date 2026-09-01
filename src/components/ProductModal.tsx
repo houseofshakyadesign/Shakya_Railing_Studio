@@ -115,7 +115,7 @@ export function ProductModal({
 
                 <div className="mt-3">
                   {product.nepaliName ? (
-                    <p className="text-xl font-bold tracking-wide text-bronze font-serif">
+                    <p className="text-xl font-bold tracking-wide text-bronze">
                       {product.nepaliName}
                     </p>
                   ) : null}

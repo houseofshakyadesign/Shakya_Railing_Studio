@@ -383,7 +383,7 @@ export function CatalogueDetail({
             {/* Dual Name Hierarchy */}
             <div className="mt-3">
               {product.nepaliName ? (
-                <p className="text-2xl font-normal tracking-wide text-bronze font-serif md:text-3xl">
+                <p className="text-2xl font-semibold tracking-wide text-bronze md:text-3xl">
                   {product.nepaliName}
                 </p>
               ) : null}
@@ -508,7 +508,7 @@ export function CatalogueDetail({
                         <span className="text-[0.7rem] font-bold tracking-wider uppercase text-bronze">
                           ESTIMATED AMOUNT:
                         </span>
-                        <span className="text-xl font-bold font-serif text-foreground">
+                        <span className="text-xl font-bold text-foreground">
                           <AnimatedTotal value={liveEstimate.total} currency={settings.currency} />
                         </span>
                       </div>
@@ -764,7 +764,7 @@ export function CatalogueDetail({
 
                     <div className="flex flex-1 flex-col p-5">
                       {rel.nepaliName ? (
-                        <p className="text-xs font-semibold text-bronze font-serif">
+                        <p className="text-xs font-semibold text-bronze">
                           {rel.nepaliName}
                         </p>
                       ) : null}
